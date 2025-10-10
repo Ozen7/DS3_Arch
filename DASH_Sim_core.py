@@ -357,7 +357,7 @@ class SimulationManager:
                 
                 for i, executable_task in enumerate(common.TaskQueues.executable.list):
                     is_time_to_execute = (executable_task.time_stamp <= self.env.now)
-                    PE_has_capacity = (len(self.PEs[executable_task.PE_ID].queue) < self.PEs[executable_task.PE_ID].capacity)
+                    PE_has_capacity = (len(self.PEs[executable_task.PE_ID].queue) < self.PEs[executable_task.PE_ID].capacity) #capacity is the number of jobs a PE can have waiting?
                     task_has_assignment = (executable_task.PE_ID != -1)
 
                     dynamic_dependencies_met = True

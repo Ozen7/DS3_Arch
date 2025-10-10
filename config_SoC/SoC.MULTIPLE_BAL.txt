@@ -260,7 +260,7 @@ matrix_multiplication 5
 CMM_3 44
 matrix_subtraction 16
 
-add_new_resource resource_type ACC_1 resource_name MM resource_ID 2 capacity 2 num_supported_functionalities 3 DVFS_mode performance
+add_new_resource resource_type ACC_1 resource_name MM resource_ID 2 capacity 1 num_supported_functionalities 3 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.05 0.1
@@ -269,7 +269,7 @@ CMM_1 22 22
 CMM_2 22 22
 CMM_3 22 22
 
-add_new_resource resource_type ACC_2 resource_name FFT resource_ID 3 capacity 4 num_supported_functionalities 13 DVFS_mode performance
+add_new_resource resource_type ACC_2 resource_name FFT resource_ID 3 capacity 1 num_supported_functionalities 13 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.0913 0.1826 0.2739 0.3652
@@ -288,7 +288,7 @@ fft_3 12
 fft_4 12
 fft_5 12
 
-add_new_resource resource_type ACC_3 resource_name VIT resource_ID 4 capacity 2 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC_3 resource_name VIT resource_ID 4 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.05885 0.1177
@@ -299,33 +299,33 @@ add_new_resource resource_type MEM resource_name MEMORY resource_ID 5 capacity 1
 None 0
 
 # comm_band when the source and destination are the same PE
-comm_band_self 10000
+comm_band_self 1
 
 # comm_band for all clusters
-comm_band 0 0 1000
-comm_band 0 1 1000
-comm_band 0 2 1000
-comm_band 0 3 10
-comm_band 0 4 1000
-comm_band 0 5 1000
+comm_band 0 0 100
+comm_band 0 1 100
+comm_band 0 2 100
+comm_band 0 3 100
+comm_band 0 4 100
+comm_band 0 5 100
 
-comm_band 1 1 1000
-comm_band 1 2 1000
-comm_band 1 3 10
-comm_band 1 4 1000
-comm_band 1 5 1000
+comm_band 1 1 100
+comm_band 1 2 100
+comm_band 1 3 100
+comm_band 1 4 100
+comm_band 1 5 100
 
-comm_band 2 2 1000
-comm_band 2 3 10
-comm_band 2 4 1000
-comm_band 2 5 1000
+comm_band 2 2 100
+comm_band 2 3 100
+comm_band 2 4 100
+comm_band 2 5 100
 
-comm_band 3 3 1000
-comm_band 3 4 1000
-comm_band 3 5 1000
+comm_band 3 3 100
+comm_band 3 4 100
+comm_band 3 5 100
 
-comm_band 4 4 1000
-comm_band 4 5 1000
+comm_band 4 4 100
+comm_band 4 5 100
 
 comm_band 5 5 0
 
