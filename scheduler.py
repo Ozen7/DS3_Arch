@@ -755,23 +755,16 @@ class Scheduler:
             if (common.DEBUG_SCH):
                 print ('[D] Time %s: The scheduler function is called with task %s'
                         %(self.env.now, task.ID))
-                
+            
+            PE_FWD_LIST = []
+            can_fwd_all = True
             for i in range(len(self.resource_matrix.list)):
                 # if the task is supported by the resource, retrieve the index of the task
                 if (task.name in self.resource_matrix.list[i].supported_functionalities):
                     ind = self.resource_matrix.list[i].supported_functionalities.index(task.name)
                     
                         
-                    # $PE_comm_wait_times is a list to store the estimated communication time 
-                    # (or the remaining communication time) of all predecessors of a task for a PE
-                    # As simulation forwards, relevant data is being sent after a task is completed
-                    # based on the time instance, one should consider either whole communication
-                    # time or the remaining communication time for scheduling
-                    PE_comm_wait_times = []
-                    
-                    # $PE_wait_time is a list to store the estimated wait times for a PE
-                    # till that PE is available if the PE is currently running a task
-                    PE_wait_time = []
+
                         
                     job_ID = -1                                                     # Initialize the job ID
                     
@@ -797,6 +790,7 @@ class Scheduler:
                             if (completed.ID == real_predecessor_ID):
                                 predecessor_PE_ID = completed.PE_ID
                                 predecessor_finish_time = completed.finish_time
+                                break
                                 #print(predecessor, predecessor_finish_time, predecessor_PE_ID)
                         
                         if (common.FWD_ENABLED): 
@@ -804,49 +798,58 @@ class Scheduler:
                             # RELIEF takes into account forwarding opportunities as part of their calculation
                             # While other scheduling algorithms schedule according to memory communication times
                             # and only forward if the destination gives the opportunity.
-                            can_forward = can_fwd(task,predecessor_PE_ID,i)
+                            PE_FWD_LIST.append((predecessor,predecessor_PE_ID,predecessor_finish_time,c_vol))
+                            can_fwd_all = can_fwd_all and can_fwd(task,predecessor_PE_ID,i)
+                    # End of for predecessor in self.jobs.list[job_ID].task_list[task.base_ID].predecessors:
 
-                            if can_forward == False:
-                                memory_to_PE_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, i]
-                                shared_memory_comm_time = int(c_vol/memory_to_PE_band)
-                            
-                                PE_comm_wait_times.append(shared_memory_comm_time)
-                                if (common.DEBUG_SCH):
-                                    print('[D] Time %s: Estimated communication time between memory to PE-%s from task %s to task %s is %d' 
-                                    %(self.env.now, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
-                            else:      
-                                # Compute the PE to PE communication time
-                                # PE_to_PE_band = self.resource_matrix.comm_band[predecessor_PE_ID, i]
-                                PE_to_PE_band = common.ResourceManager.comm_band[predecessor_PE_ID, i]
-                                PE_to_PE_comm_time = int(c_vol/PE_to_PE_band)
-                                
-                                PE_comm_wait_times.append(max((predecessor_finish_time + PE_to_PE_comm_time - self.env.now), 0))
-                                
-                                if (common.DEBUG_SCH):
-                                    print('[D] Time %s: Estimated communication time between PE-%s to PE-%s from task %s to task %s is %d' 
-                                            %(self.env.now, predecessor_PE_ID, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
-                            
-                        if (common.shared_memory):
-                            # Compute the communication time considering the shared memory
-                            # only consider memory to PE communication time
-                            # since the task passed the 1st phase (PE to memory communication)
-                            # and its status changed to ready 
-                            
-                            #PE_to_memory_band = self.resource_matrix.comm_band[predecessor_PE_ID, -1]
+                    # $PE_comm_wait_times is a list to store the estimated communication time 
+                    # (or the remaining communication time) of all predecessors of a task for a PE
+                    # As simulation forwards, relevant data is being sent after a task is completed
+                    # based on the time instance, one should consider either whole communication
+                    # time or the remaining communication time for scheduling
+                    PE_comm_wait_times = []
+                    
+                    # $PE_wait_time is a list to store the estimated wait times for a PE
+                    # till that PE is available if the PE is currently running a task
+                    PE_wait_time = []        
+
+
+                    if can_fwd_all == False: # use memory
+                        for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
                             memory_to_PE_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, i]
                             shared_memory_comm_time = int(c_vol/memory_to_PE_band)
-                            
+                        
                             PE_comm_wait_times.append(shared_memory_comm_time)
                             if (common.DEBUG_SCH):
                                 print('[D] Time %s: Estimated communication time between memory to PE-%s from task %s to task %s is %d' 
-                                        %(self.env.now, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
-                        
-                        # $comm_ready contains the estimated communication time 
-                        # for the resource in consideration for scheduling
-                        # maximum value is chosen since it represents the time required for all
-                        # data becomes available for the resource. 
-                        comm_ready[i] = (max(PE_comm_wait_times))
+                                %(self.env.now, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
+                    else:  #directly to PE scratchpad -> scratchpad
+                        for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
+                        # Compute the PE to PE communication time
+                        # PE_to_PE_band = self.resource_matrix.comm_band[predecessor_PE_ID, i]
+                            PE_to_PE_band = common.ResourceManager.comm_band[predecessor_PE_ID, i]
+                            PE_to_PE_comm_time = int(c_vol/PE_to_PE_band)
+                            
+                            PE_comm_wait_times.append(max((predecessor_finish_time + PE_to_PE_comm_time - self.env.now), 0))
+                            
+                            if (common.DEBUG_SCH):
+                                print('[D] Time %s: Estimated communication time between PE-%s to PE-%s from task %s to task %s is %d' 
+                                        %(self.env.now, predecessor_PE_ID, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
+                                
+                    # $comm_ready contains the estimated communication time of this task on a given PE
+                    # for the resource in consideration for scheduling
+                    # maximum value is chosen since it represents the time required for all
+                    # data becoming available for the resource. 
+                    comm_ready[i] = (max(PE_comm_wait_times))
 
+                # end if (task.name in self.resource_matrix.list[i].supported_functionalities): - checks if accelerator supports computing this task
+            # end for i in range(len(self.resource_matrix.list)) - computes execution time on each potential accelerator
+
+
+            # TODO - Now, we use comm_ready to choose which accelerator our task is going to be scheduled on. Maybe we need different math for least-laxity, I didn't check.
+
+
+        # end for task in list_of_ready:
         #will be used to pull memory when PE begins working on it. Adjust based on whether the final selected PE is being forwarded to
         task.forwarded = False
     
