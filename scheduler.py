@@ -746,12 +746,19 @@ class Scheduler:
             
         list_of_ready.sort(key=lambda x: x.order, reverse=False) 
     # def CP_(self, list_of_ready): 
+    """
+    This scheduler is twofold:
+
+    1) Choose which accelerator type to use
+    - find minimum runtime of each task on each PE, while taking into account forwarding (maybe, look into this more. Did sudanshu take into account forwarding/not when calculating laxity?)
+    - find least laxity on each PE type using critical path deadline and runtime
+    - 
     
+    """
     def RELIEF(self, list_of_ready):
         for task in list_of_ready:
-            comparison = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector 
-            comm_ready = [0]*len(self.PEs)                                          # A list to store the max communication times for each PE
-            
+            laxity = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector 
+
             if (common.DEBUG_SCH):
                 print ('[D] Time %s: The scheduler function is called with task %s'
                         %(self.env.now, task.ID))
@@ -808,13 +815,10 @@ class Scheduler:
                     # based on the time instance, one should consider either whole communication
                     # time or the remaining communication time for scheduling
                     PE_comm_wait_times = []
+                
                     
-                    # $PE_wait_time is a list to store the estimated wait times for a PE
-                    # till that PE is available if the PE is currently running a task
-                    PE_wait_time = []        
 
-
-                    if can_fwd_all == False: # use memory
+                    if not can_fwd_all: # use memory
                         for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
                             memory_to_PE_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, i]
                             shared_memory_comm_time = int(c_vol/memory_to_PE_band)
@@ -836,17 +840,28 @@ class Scheduler:
                                 print('[D] Time %s: Estimated communication time between PE-%s to PE-%s from task %s to task %s is %d' 
                                         %(self.env.now, predecessor_PE_ID, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
                                 
-                    # $comm_ready contains the estimated communication time of this task on a given PE
-                    # for the resource in consideration for scheduling
-                    # maximum value is chosen since it represents the time required for all
-                    # data becoming available for the resource. 
-                    comm_ready[i] = (max(PE_comm_wait_times))
+                    
+                    # comparison[i] is how long a task will take to fully run on PE i.
+                    # latency + max(input wait time, PE's remaining runtime for all tasks)
+                    task_finish_time_on_PE = self.resource_matrix.list[i].performance[ind] + max(max(PE_comm_wait_times), max((self.PEs[i].available_time - self.env.now), 0))
+
+
+                    # now we need to find the critical path
+
+                    task_critical_path_deadline = 0
+
+                    # find least laxity!
+
+                    laxity[i] = task_critical_path_deadline - task_finish_time_on_PE
+
+
+
 
                 # end if (task.name in self.resource_matrix.list[i].supported_functionalities): - checks if accelerator supports computing this task
             # end for i in range(len(self.resource_matrix.list)) - computes execution time on each potential accelerator
 
 
-            # TODO - Now, we use comm_ready to choose which accelerator our task is going to be scheduled on. Maybe we need different math for least-laxity, I didn't check.
+            # TODO - Now, we use comparison to find which PE to schedule on.
 
 
         # end for task in list_of_ready:
