@@ -10,6 +10,7 @@ import math
 
 import common                                                                    # The common parameters used in DASH-Sim are defined in common_parameters.py
 
+# TODO - Need to implement a Job-level deadline (instead of just task-level). This value will be put into each task, along with their critical path deadline.
 def job_parse(jobs, file_name):
     '''!
     Parse the specified job file.

@@ -9,6 +9,8 @@ import numpy as np
 import copy
 
 import common                                                                   # The common parameters used in DASH-Sim are defined in common_parameters.py
+from common import Tasks, ApplicationManager, ResourceManager
+from processing_element import PE
 import DTPM_power_models
 
 import pickle
@@ -17,7 +19,7 @@ class Scheduler:
     '''!
     The Scheduler class constains all schedulers implemented in DASH-Sim
     '''
-    def __init__(self, env, resource_matrix, name, PE_list, jobs):
+    def __init__(self, env, resource_matrix:ResourceManager, name:str, PE_list: list[PE], jobs: ApplicationManager):
         '''!
         @param env: Pointer to the current simulation environment
         @param resource_matrix: The data structure that defines power/performance characteristics of the PEs for each supported task
@@ -755,44 +757,49 @@ class Scheduler:
     - 
     
     """
-    def RELIEF(self, list_of_ready):
+    def RELIEF(self, list_of_ready: list[Tasks]):
+        # Note: list_of_ready is a surface copy
+
+        fwd_nodes:list[list[Tasks]] = [[]*len(self.PEs)]                                          # Keeps track of sorted forwarding candidates for each PE
+
         for task in list_of_ready:
-            laxity = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector 
+            laxity = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector
+            job_ID = -1                                                         # Initialize the job ID
+
+            # Retrieve the job ID which the current task belongs to
+            # Jobs are stored in self.jobs.list, meaning we need to do a 
+            # name lookup in that list to get the DAG structure. Why??
+            for ii, job in enumerate(self.jobs.list):
+                if job.name == task.jobname:
+                    job_ID = ii
+
+            # TODO - calculate critical path deadline of the task
 
             if (common.DEBUG_SCH):
                 print ('[D] Time %s: The scheduler function is called with task %s'
                         %(self.env.now, task.ID))
             
-            PE_FWD_LIST = []
-            can_fwd_all = True
+            # Now, we compute the laxity of the task on each PE.
             for i in range(len(self.resource_matrix.list)):
+                can_fwd_all = True                                             # indicates whether or not all resources can be forwarded
                 # if the task is supported by the resource, retrieve the index of the task
                 if (task.name in self.resource_matrix.list[i].supported_functionalities):
                     ind = self.resource_matrix.list[i].supported_functionalities.index(task.name)
-                    
-                        
+                    PE_FWD_LIST = []                                            # A list of predecessor values to be forwarded, used in runtime calculations
 
-                        
-                    job_ID = -1                                                     # Initialize the job ID
-                    
-                    # Retrieve the job ID which the current task belongs to
-                    for ii, job in enumerate(self.jobs.list):
-                        if job.name == task.jobname:
-                            job_ID = ii
-
+                    # Gather data from each predecessor to determine communication times
                     for predecessor in self.jobs.list[job_ID].task_list[task.base_ID].predecessors:
                         # data required from the predecessor for $ready_task
                         c_vol = self.jobs.list[job_ID].comm_vol[predecessor, task.base_ID]
                         
-                        # retrieve the real ID  of the predecessor based on the job ID
+                        # retrieve the real ID  of the predecessor based on the job ID - TODO What is the difference between real id and predecessor ID?
+                        # Why does each task have 15 different types of ID
                         real_predecessor_ID = predecessor + task.ID - task.base_ID
-                        
-                        # Initialize following two variables which will be used if 
-                        # PE to PE communication is utilized
+                    
                         predecessor_PE_ID = -1
                         predecessor_finish_time = -1
-                        
-                        
+
+                        # TODO - There has to be a better way to do this. Maybe we turn the completed list into a set? 
                         for completed in common.TaskQueues.completed.list:
                             if (completed.ID == real_predecessor_ID):
                                 predecessor_PE_ID = completed.PE_ID
@@ -801,12 +808,10 @@ class Scheduler:
                                 #print(predecessor, predecessor_finish_time, predecessor_PE_ID)
                         
                         if (common.FWD_ENABLED): 
-                            # This will be different for RELIEF compared to all other scheduling algorithms.
-                            # RELIEF takes into account forwarding opportunities as part of their calculation
-                            # While other scheduling algorithms schedule according to memory communication times
-                            # and only forward if the destination gives the opportunity.
                             PE_FWD_LIST.append((predecessor,predecessor_PE_ID,predecessor_finish_time,c_vol))
-                            can_fwd_all = can_fwd_all and can_fwd(task,predecessor_PE_ID,i)
+                            # TODO - find a way to indicate which inputs can be forwarded. Forwarding can ONLY happen to idle PEs, but some inputs can be forwarded and others not.
+                            if can_fwd_all: # no point in computing can_fwd if it can't forward
+                                can_fwd_all = can_fwd_all and can_fwd(task,predecessor_PE_ID,i)
                     # End of for predecessor in self.jobs.list[job_ID].task_list[task.base_ID].predecessors:
 
                     # $PE_comm_wait_times is a list to store the estimated communication time 
@@ -815,8 +820,6 @@ class Scheduler:
                     # based on the time instance, one should consider either whole communication
                     # time or the remaining communication time for scheduling
                     PE_comm_wait_times = []
-                
-                    
 
                     if not can_fwd_all: # use memory
                         for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
@@ -845,35 +848,57 @@ class Scheduler:
                     # latency + max(input wait time, PE's remaining runtime for all tasks)
                     task_finish_time_on_PE = self.resource_matrix.list[i].performance[ind] + max(max(PE_comm_wait_times), max((self.PEs[i].available_time - self.env.now), 0))
 
+                    # TODO- now we need to find the critical path. requires an overhaul of job_generator.py, job_parser.py to include job-level deadlines, I believe
 
-                    # now we need to find the critical path
-
-                    task_critical_path_deadline = 0
+                    task_critical_path_deadline = task.deadline
 
                     # find least laxity!
 
                     laxity[i] = task_critical_path_deadline - task_finish_time_on_PE
-
-
-
-
                 # end if (task.name in self.resource_matrix.list[i].supported_functionalities): - checks if accelerator supports computing this task
             # end for i in range(len(self.resource_matrix.list)) - computes execution time on each potential accelerator
+            
+            # we schedule on the PE with the highest laxity:
+            max_laxity_pe_index = max(range(len(laxity)), key=laxity.__getitem__)
+            task.laxity = laxity[max_laxity_pe_index]
 
+            # find the index of fwd_nodes to insert into.
+            index = 0
+            while index < len(fwd_nodes[max_laxity_pe_index]) and fwd_nodes[max_laxity_pe_index][index].laxity < task.laxity:
+                index+=1
 
-            # TODO - Now, we use comparison to find which PE to schedule on.
+            fwd_nodes.insert(index, task)
 
-
+            # TODO - In our can_fwd logic,  we already perform the idle accelerator check, as well as indicate which inputs can be forwarded or not.
+            # we also 
+            task.forwarded = False
         # end for task in list_of_ready:
+
+
+
+        # So, in our first loop, we perform checks on which inputs can potentially be forwarded or colocated when running, and our second loop will check whether a given PE is idle and whether it's list of nodes 
+        # has room for forwarding. If it does, we forward. If not, we don't and all values are saved to memory.
+
+        # Be very careful - each task can have many children, and each task can also have many parents
+
+
+
+
         #will be used to pull memory when PE begins working on it. Adjust based on whether the final selected PE is being forwarded to
-        task.forwarded = False
     
     def LL(self,list_of_ready):
         ""
 
+def PE_fwdable(PE_ID):
+    # first, we check whether the PE is idle. If it is, we can forward.
+
+    # Then, we check the PE's input queues to see if forwarding on this accelerator at all is feasible.
+    return True
+
 
 def can_fwd(task,predPE,newPE):
-    # Performs a check to see if the task is still alive in the producer's output scratchpad
+
+    # Then, performs a check to see if the task is still alive in the producer's output scratchpad
     # if so, it checks if there is a forwarding opportunity between producer and consumer.
     # finally, if there is a forwarding opportunity (laxity allows for it), it returns the memory speed 
     # of the forward (Based on PE-to-PE communication times) or -1 if it cant be forwarded

@@ -236,7 +236,7 @@ class ResourceManager:
     Define the ResourceManager class to maintain the list of the resource in our DASH-SoC model.
     '''
     def __init__(self):
-        self.list = []                          # List of available resources
+        self.list:list[Resource] = []                          # List of available resources
         self.comm_band = []                     # This variable represents the communication bandwidth matrix
 # end class ResourceManager
 
@@ -259,9 +259,11 @@ class Tasks:
         self.predecessors = []                  # List of all task IDs to identify task dependency
         self.est = -1                           # This variable represents the earliest time that a task can start
         self.deadline = -1                      # This variable represents the deadline for a task
+        self.laxity = -1                        # Inidicates the Laxity of the Task, once a PE has been selected
         self.head = False                       # If head is true, this task is the leading (the first) element in a task graph
         self.tail = False                       # If tail is true, this task is the end (the last) element in a task graph
         self.jobID = -1                         # This task belongs to job with this ID
+        self.jobDeadline = -1                   # The deadline of the overarching Job - TODO implement in job_generator
         self.jobname = ''                       # This task belongs to job with this name
         self.base_ID = -1                       # This ID will be used to calculate the data volume from one task to another
         self.PE_ID = -1                         # Holds the PE ID on which the task will be executed

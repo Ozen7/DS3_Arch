@@ -13,7 +13,7 @@ from docplex.cp.config import context
 import docplex.cp.parameters as params
 import common
 
-def CP(env_time, P_elems, resource_matrix, domain_applications, generated_jobs):
+def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applications, generated_jobs):
     '''!
     Creates a schedule using the Constraint Programming model
     @param env_time: Current time of the simulation environment

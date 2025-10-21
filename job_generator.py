@@ -17,7 +17,7 @@ class JobGenerator:
     '''!
     Define the JobGenerator class to handle dynamic job generation
     '''
-    def __init__(self, env, resource_matrix, jobs, scheduler, PE_list):
+    def __init__(self, env, resource_matrix: common.ResourceManager, jobs, scheduler, PE_list):
         '''!
         @param env: Pointer to the current simulation environment
         @param resource_matrix: The data structure that defines power/performance characteristics of the PEs for each supported task
