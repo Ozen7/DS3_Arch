@@ -95,8 +95,8 @@ def job_parse(jobs, file_name):
             
             if current_line[1] == 'earliest_start':                                                                      # if 'earliest_start' in current line
                 ind = new_job.task_list.index(new_job.task_list[-1])                                                     # then take the id of the last added task and
-                new_job.task_list[ind].est = current_line[2]                                                             # add earliest start time (est), and
-                new_job.task_list[ind].deadline = current_line[4]                                                        # deadline for the task
+                new_job.task_list[ind].est = int(current_line[2])                                                             # add earliest start time (est), and
+                new_job.task_list[ind].deadline = int(current_line[4])                                                        # deadline for the task
                 new_job.task_list[ind].input_packet_size = math.ceil(int(current_line[6])/float(common.packet_size))     # input data packet size, and
                 new_job.task_list[ind].output_packet_size = math.ceil(int(current_line[8])/float(common.packet_size))    # output data packet size
                 

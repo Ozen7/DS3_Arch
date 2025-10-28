@@ -7,6 +7,8 @@ import numpy as np
 import common                                                                   # The common parameters used in DASH-Sim are defined in common_parameters.py
 import DTPM
 import DTPM_policies
+from scheduler import Scheduler
+import RELIEF_Sim_helpers
 
 # Define the core of the simulation engine
 # This function calls the scheduler, starts/interrupts the tasks,
@@ -16,7 +18,7 @@ class SimulationManager:
     '''!
     Define the SimulationManager class to handle the simulation events.
     '''
-    def __init__(self, env, sim_done, job_gen, scheduler, PE_list, jobs, resource_matrix):
+    def __init__(self, env, sim_done, job_gen, scheduler:Scheduler, PE_list, jobs, resource_matrix):
         '''!
         @param env: Pointer to the current simulation environment
         @param sim_done: Simpy event object to indicate whether the simulation must be finished
@@ -241,8 +243,9 @@ class SimulationManager:
         # Remove the tasks from ready queue that have been moved to executable queue
         for task in remove_from_ready_queue:
             common.TaskQueues.ready.list.remove(task)
+        
+        common.TaskQueues.executable.list.sort(key=lambda task: task.jobID, reverse=False) # why would we sort based on which Job comes first - Nebil
 
-        common.TaskQueues.executable.list.sort(key=lambda task: task.jobID, reverse=False)
         
     def update_completed_queue(self):
         '''!
@@ -324,15 +327,18 @@ class SimulationManager:
                     self.scheduler.ETF_LB(common.TaskQueues.ready.list)
                 elif self.scheduler.name == 'CP':
                     self.scheduler.CP(common.TaskQueues.ready.list)
+                elif self.scheduler.name == 'RELIEF_BASE':
+                    self.scheduler.RELIEF_BASIC(common.TaskQueues.ready.list)
                 else:
                     print('[E] Could not find the requested scheduler')
                     print('[E] Please check "config_file.ini" and enter a proper name')
                     print('[E] or check "scheduler.py" if the scheduler exist')
                     sys.exit()
                 # end of if self.scheduler.name
-
-
-                self.update_execution_queue(common.TaskQueues.ready.list)       # Update the execution queue based on task's info
+                if self.scheduler.name == 'RELIEF_BASE':
+                    RELIEF_Sim_helpers.update_execution_queue_relief(self,common.TaskQueues.ready.list)
+                else:
+                    self.update_execution_queue(common.TaskQueues.ready.list)       # Update the execution queue based on task's info
             # end of if not len(common.TaskQueues.ready.list) == 0:
 
             # Initialize $remove_from_executable which will populate tasks

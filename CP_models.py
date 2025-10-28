@@ -267,7 +267,8 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
     common.table = []
     for element in actual_schedule:
         common.table.append((element[1],element[2]))
-    #print(common.table)    
+    print("COMMON")
+    print(common.table)    
     #print(len(common.table))
     
     

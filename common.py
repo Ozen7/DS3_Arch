@@ -259,7 +259,8 @@ class Tasks:
         self.predecessors = []                  # List of all task IDs to identify task dependency
         self.est = -1                           # This variable represents the earliest time that a task can start
         self.deadline = -1                      # This variable represents the deadline for a task
-        self.laxity = -1                        # Inidicates the Laxity of the Task, once a PE has been selected
+        self.runtime = -1                       # Represents the runtime of the task - once a PE has been selected
+        self.laxity = -1                        # Indicates the Laxity of the Task, once a PE has been selected 
         self.head = False                       # If head is true, this task is the leading (the first) element in a task graph
         self.tail = False                       # If tail is true, this task is the end (the last) element in a task graph
         self.jobID = -1                         # This task belongs to job with this ID
@@ -280,6 +281,7 @@ class Tasks:
         self.time_stamp = -1                    # This values used to check whether all data for the task is transferred or not
         self.input_packet_size = -1
         self.output_packet_size = -1
+        self.isForwarded = False                # Indicates whether this Task has inputs that are being forwarded.
 # end class Tasks
 
 class TaskManager:

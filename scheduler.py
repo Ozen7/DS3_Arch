@@ -7,6 +7,7 @@ Developers can add thier own algorithms here and implement in DASH-Sim by add a 
 import networkx as nx
 import numpy as np
 import copy
+import bisect
 
 import common                                                                   # The common parameters used in DASH-Sim are defined in common_parameters.py
 from common import Tasks, ApplicationManager, ResourceManager
@@ -14,12 +15,12 @@ from processing_element import PE
 import DTPM_power_models
 
 import pickle
-
+from typing import List
 class Scheduler:
     '''!
     The Scheduler class constains all schedulers implemented in DASH-Sim
     '''
-    def __init__(self, env, resource_matrix:ResourceManager, name:str, PE_list: list[PE], jobs: ApplicationManager):
+    def __init__(self, env, resource_matrix:ResourceManager, name:str, PE_list: List['PE'], jobs: ApplicationManager):
         '''!
         @param env: Pointer to the current simulation environment
         @param resource_matrix: The data structure that defines power/performance characteristics of the PEs for each supported task
@@ -757,10 +758,97 @@ class Scheduler:
     - 
     
     """
-    def RELIEF(self, list_of_ready: list[Tasks]):
+
+    def RELIEF_BASIC(self, list_of_ready: List[Tasks]):
+        # List_of_ready does the checking for child.num_parents and completion for us.
+
+        fwd_nodes = [[] for _ in range(len(self.PEs))]
+        for task in list_of_ready:
+            
+            acc_id = -1                                                         # save mapped accelerator id
+            acc_location = -1
+            task_runtime = -1                                                  # save child's runtme on that accelerator
+            # find the accelerator in which the task runs fastest - directly map the task to that accelerator.
+            for i, resource in enumerate(self.resource_matrix.list):
+                if (task.name in resource.supported_functionalities):
+                    
+                    # index of child task within the PE's list of tasks
+                    ind = resource.supported_functionalities.index(task.name)
+                    # if it is the shortest runtime
+                    if (task_runtime == -1 or resource.performance[ind] < task_runtime):
+                        task_runtime = int(resource.performance[ind])
+                        acc_id = resource.ID
+                        acc_location = i
+            assert(acc_id != -1)
+
+            #now, we calculte the laxity of each task depending on it's own deadline and the runtime calculated above. 
+            # In the future, the runtime will be calculated based on Memory overhead as well, and the runtimes will be strictly based on critical-path deadline.
+            task.laxity = task.deadline - task_runtime
+            task.PE_ID = acc_id
+            task.runtime = task_runtime
+
+            # insert into fwd_nodes based on task laxity
+            index = 0 
+            # list is sorted from smallest laxity to greatest laxity (keep iterating until we find a laxity smaller)
+            # this is to make popping easier in the next step.
+            while index < len(fwd_nodes[acc_id]) and task.laxity > fwd_nodes[acc_id][index].laxity:
+                index += 1
+            print(len(self.PEs))
+            print(fwd_nodes)
+            fwd_nodes[i].insert(index,task)
+        
+        # we have now completed the first half of the RELIEF algorithm.
+
+        for i, PE in enumerate(self.PEs):
+
+            # we need access to the runtime of the PEs during scheduling.
+
+
+            can_forward = PE.idle
+            while len(fwd_nodes[i]) > 0:
+                # task to schedule.
+                task:Tasks = fwd_nodes[i].pop()
+                # index where the task fits into idle accelerator's queue.
+                index = 0
+                while index < len(common.TaskQueues.executable.list) and (common.TaskQueues.executable.list[index].PE_ID != PE.ID or common.TaskQueues.executable.list[index].laxity <= task.laxity):
+                    index += 1
+
+                if can_forward and self.is_feasible(acc_id,task,index):
+                    common.TaskQueues.executable.list.insert(0,task)
+                    task.isForwarded = True
+                    can_forward = False
+                    self.update_forward_metadata(task)
+                else:
+                    common.TaskQueues.executable.list.insert(index,task)
+
+    def is_feasible(self, accelerator_id:int, task:Tasks, index:int):
+        can_fwd = True
+        for i, executable_task in enumerate(common.TaskQueues.executable.list):
+            if executable_task.PE_ID == accelerator_id:
+                if i == index:
+                    break
+                curr_laxity = executable_task.laxity - self.env.now
+                if not executable_task.isForwarded and curr_laxity > 0:
+                    can_fwd = curr_laxity > task.runtime
+                    break
+        # update remaining laxities to reflect the forwarded task pushed in front of them
+        if can_fwd:
+            for i, executable_task in enumerate(common.TaskQueues.executable.list):
+                if executable_task.PE_ID == accelerator_id:
+                    if i == index:
+                        break
+                    executable_task.laxity -= task.runtime
+        
+        return can_fwd
+
+    # need to add support for PEs holding onto scratchpad values, checking whether a PE's output is saved to memory or not, etc. in order to actually implement this
+    def update_forward_metadata(self,task:Tasks):
+        pass
+
+    def RELIEF_ALT(self, list_of_ready: List[Tasks]):
         # Note: list_of_ready is a surface copy
 
-        fwd_nodes:list[list[Tasks]] = [[]*len(self.PEs)]                                          # Keeps track of sorted forwarding candidates for each PE
+        fwd_nodes = [[]*len(self.PEs)]                                          # Keeps track of sorted forwarding candidates for each PE
 
         for task in list_of_ready:
             laxity = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector
@@ -885,24 +973,24 @@ class Scheduler:
 
 
         #will be used to pull memory when PE begins working on it. Adjust based on whether the final selected PE is being forwarded to
-    
+
     def LL(self,list_of_ready):
         ""
 
-def PE_fwdable(PE_ID):
-    # first, we check whether the PE is idle. If it is, we can forward.
+    def PE_fwdable(PE_ID):
+        # first, we check whether the PE is idle. If it is, we can forward.
 
-    # Then, we check the PE's input queues to see if forwarding on this accelerator at all is feasible.
-    return True
+        # Then, we check the PE's input queues to see if forwarding on this accelerator at all is feasible.
+        return True
 
 
-def can_fwd(task,predPE,newPE):
+    def can_fwd(task,predPE,newPE):
 
-    # Then, performs a check to see if the task is still alive in the producer's output scratchpad
-    # if so, it checks if there is a forwarding opportunity between producer and consumer.
-    # finally, if there is a forwarding opportunity (laxity allows for it), it returns the memory speed 
-    # of the forward (Based on PE-to-PE communication times) or -1 if it cant be forwarded
+        # Then, performs a check to see if the task is still alive in the producer's output scratchpad
+        # if so, it checks if there is a forwarding opportunity between producer and consumer.
+        # finally, if there is a forwarding opportunity (laxity allows for it), it returns the memory speed 
+        # of the forward (Based on PE-to-PE communication times) or -1 if it cant be forwarded
 
-    #also check for colocation!
-    return True
+        #also check for colocation!
+        return True
 
