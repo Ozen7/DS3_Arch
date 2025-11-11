@@ -39,7 +39,7 @@ class SimulationManager:
         self.action = env.process(self.run())  # starts the run() method as a SimPy process
 
 
-
+    # I want to delete update_ready_queue and update_execution_queue
     def update_ready_queue(self,completed_task):
         '''!
         This function updates the common.TaskQueues.ready after one task is completed.
@@ -52,7 +52,7 @@ class SimulationManager:
 
         # completed_task is the task whose processing is just completed
         # Add completed task to the completed tasks queue
-        common.TaskQueues.completed.list.append(completed_task)
+        common.completed.append(completed_task)
 
         # Remove the completed task from the queue of the PE
         for task in self.PEs[completed_task.PE_ID].queue:
@@ -60,7 +60,7 @@ class SimulationManager:
                 self.PEs[task.PE_ID].queue.remove(task)
 
         # Remove the completed task from the currently running queue
-        common.TaskQueues.running.list.remove(completed_task)
+        common.running.remove(completed_task)
 
         # Remove the completed task from the current DAG representation
         if completed_task.ID in common.current_dag:
@@ -82,7 +82,7 @@ class SimulationManager:
 
         # Check if the dependency of any outstanding task is cleared
         # We need to move them to the ready queue
-        for i, outstanding_task in enumerate(common.TaskQueues.outstanding.list):                       # Go over each outstanding task
+        for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
 
@@ -107,13 +107,13 @@ class SimulationManager:
 
             no_predecessors = (len(outstanding_task.predecessors) == 0)                            # Check if this was the last dependency
             currently_running = (outstanding_task in                                               # if the task is in the running queue,
-                                 common.TaskQueues.running.list)                                   # We should not put it back to the ready queue
+                                 common.running)                                   # We should not put it back to the ready queue
             not_in_ready_queue = not(outstanding_task in                                           # If this task is already in the ready queue,
-                                  common.TaskQueues.ready.list)                                    # We should not append another copy
+                                  common.ready)                                    # We should not append another copy
 
             if (no_predecessors and not(currently_running) and not_in_ready_queue):
                 if (common.PE_to_PE):                                                              # if PE to PE communication is utilized
-                    common.TaskQueues.ready.list.append(common.TaskQueues.outstanding.list[i])     # Add the task to the ready queue immediately
+                    common.ready.append(common.outstanding[i])     # Add the task to the ready queue immediately
 
                 elif (common.shared_memory):
                     # if shared memory is utilized for communication, then
@@ -131,7 +131,7 @@ class SimulationManager:
 
         # Remove the tasks from outstanding queue that have been moved to ready queue
         for task in remove_from_outstanding_queue:
-            common.TaskQueues.outstanding.list.remove(task)
+            common.outstanding.remove(task)
 
         # At the end of this function:
             # Newly processed $completed_task is added to the completed tasks
@@ -193,7 +193,7 @@ class SimulationManager:
 
                         if (common.PE_to_PE):
                             # Compute the PE to PE communication time
-                            for completed in common.TaskQueues.completed.list:
+                            for completed in common.completed:
                                 if completed.ID == real_predecessor_ID:
                                     predecessor_PE_ID = completed.PE_ID
                                     predecessor_finish_time = completed.finish_time
@@ -230,21 +230,21 @@ class SimulationManager:
 
                     # Populate all ready tasks in executable with a time stamp
                     # which will show when a task is ready for execution
-                    common.TaskQueues.executable.list.append(ready_task)
+                    common.executable.append(ready_task)
                     remove_from_ready_queue.append(ready_task)
                     if (common.PE_to_PE):
-                        common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)
+                        common.executable[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)
                     else:
-                        common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.execution_wait_times)
+                        common.executable[-1].time_stamp = max(ready_task.execution_wait_times)
                 # end of ready_task.base_ID == task.ID:
             # end of i, task in enumerate(self.jobs.list[job_ID].task_list):    
         # end of for ready_task in ready_list:
         
         # Remove the tasks from ready queue that have been moved to executable queue
         for task in remove_from_ready_queue:
-            common.TaskQueues.ready.list.remove(task)
+            common.ready.remove(task)
         
-        common.TaskQueues.executable.list.sort(key=lambda task: task.jobID, reverse=False) # why would we sort based on which Job comes first - Nebil
+        common.executable.sort(key=lambda task: task.jobID, reverse=False) # why would we sort based on which Job comes first - Nebil
 
         
     def update_completed_queue(self):
@@ -253,15 +253,15 @@ class SimulationManager:
         '''  
         ## Be careful about this function when there are diff jobs in the system
         # reorder tasks based on their job IDs
-        common.TaskQueues.completed.list.sort(key=lambda x: x.jobID, reverse=False)
+        common.completed.sort(key=lambda x: x.jobID, reverse=False)
         
-        first_task_jobID =  common.TaskQueues.completed.list[0].jobID
-        last_task_jobID = common.TaskQueues.completed.list[-1].jobID
+        first_task_jobID =  common.completed[0].jobID
+        last_task_jobID = common.completed[-1].jobID
         
         if ((last_task_jobID - first_task_jobID) > 15):
-            for i,task in enumerate(common.TaskQueues.completed.list):
+            for i,task in enumerate(common.completed):
                 if (task.jobID == first_task_jobID):
-                    del common.TaskQueues.completed.list[i]
+                    del common.completed[i]
             
         
     #
@@ -294,7 +294,7 @@ class SimulationManager:
 
                 for i, waiting_task in enumerate(common.TaskQueues.wait_ready.list):
                     if waiting_task.time_stamp <= self.env.now:
-                        common.TaskQueues.ready.list.append(waiting_task)
+                        common.ready.append(waiting_task)
                         remove_from_wait_ready.append(waiting_task)
                 # at the end of this loop, all the waiting tasks with a time stamp
                 # equal or smaller than the simulation time will be added to
@@ -306,54 +306,53 @@ class SimulationManager:
                     common.TaskQueues.wait_ready.list.remove(task)
             # end of if (common.shared_memory):
 
-            if (common.INFO_SIM) and len(common.TaskQueues.ready.list) > 0:
+            if (common.INFO_SIM) and len(common.ready) > 0:
                 print('[I] Time %s: DASH-Sim ticks with %d task ready for being assigned to a PE'
-                      % (self.env.now, len(common.TaskQueues.ready.list)))
+                      % (self.env.now, len(common.ready)))
 
-            if (not len(common.TaskQueues.ready.list) == 0):
+            if (not len(common.ready) == 0):
                 # give all tasks in ready_list to the chosen scheduler
                 # and scheduler will assign the tasks to a PE
                 if self.scheduler.name == 'CPU_only':
-                    self.scheduler.CPU_only(common.TaskQueues.ready.list)
+                    self.scheduler.CPU_only(common.ready)
                 elif self.scheduler.name == 'MET':
-                    self.scheduler.MET(common.TaskQueues.ready.list)
+                    self.scheduler.MET(common.ready)
                 elif self.scheduler.name == 'EFT':
-                    self.scheduler.EFT(common.TaskQueues.ready.list)
+                    self.scheduler.EFT(common.ready)
                 elif self.scheduler.name == 'STF':
-                    self.scheduler.STF(common.TaskQueues.ready.list)
+                    self.scheduler.STF(common.ready)
                 elif self.scheduler.name == 'ETF':
-                    self.scheduler.ETF(common.TaskQueues.ready.list)
+                    self.scheduler.ETF(common.ready)
                 elif self.scheduler.name == 'ETF_LB':
-                    self.scheduler.ETF_LB(common.TaskQueues.ready.list)
+                    self.scheduler.ETF_LB(common.ready)
                 elif self.scheduler.name == 'CP':
-                    self.scheduler.CP(common.TaskQueues.ready.list)
+                    self.scheduler.CP(common.ready)
                 elif self.scheduler.name == 'RELIEF_BASE':
-                    self.scheduler.RELIEF_BASIC(common.TaskQueues.ready.list)
+                    self.scheduler.RELIEF_BASIC(common.ready)
                 else:
                     print('[E] Could not find the requested scheduler')
                     print('[E] Please check "config_file.ini" and enter a proper name')
                     print('[E] or check "scheduler.py" if the scheduler exist')
                     sys.exit()
                 # end of if self.scheduler.name
-                if self.scheduler.name == 'RELIEF_BASE':
-                    RELIEF_Sim_helpers.update_execution_queue_relief(self,common.TaskQueues.ready.list)
-                else:
-                    self.update_execution_queue(common.TaskQueues.ready.list)       # Update the execution queue based on task's info
-            # end of if not len(common.TaskQueues.ready.list) == 0:
+                if self.scheduler.name != 'RELIEF_BASE': # RELIEF handles the execution queue itself
+                    self.update_execution_queue(common.ready)       # Update the execution queue based on task's info
+
+            # end of if not len(common.ready) == 0:
 
             # Initialize $remove_from_executable which will populate tasks
             # to be removed from the executable queue
             remove_from_executable = []
 
             # Go over each task in the executable queue
-            if len(common.TaskQueues.executable.list) != 0:
+            if len(common.executable) != 0:
                 
                 # for PE blocking data collection
                 if self.env.now >= common.warmup_period:
                     for PE in self.PEs:
                         a_list = []
                         if not PE.idle:
-                            for k, executable_task in enumerate(common.TaskQueues.executable.list):
+                            for k, executable_task in enumerate(common.executable):
                                 if executable_task.PE_ID == PE.ID:
                                     if executable_task.time_stamp <= self.env.now:
                                         a_list.append(executable_task)
@@ -361,7 +360,7 @@ class SimulationManager:
                         if len(a_list) > 0:            
                             PE.blocking += 1
                 
-                for i, executable_task in enumerate(common.TaskQueues.executable.list):
+                for i, executable_task in enumerate(common.executable):
                     is_time_to_execute = (executable_task.time_stamp <= self.env.now)
                     PE_has_capacity = (len(self.PEs[executable_task.PE_ID].queue) < self.PEs[executable_task.PE_ID].capacity) #capacity is the number of jobs a PE can have waiting?
                     task_has_assignment = (executable_task.PE_ID != -1)
@@ -370,7 +369,7 @@ class SimulationManager:
 
                     dependencies_completed = []
                     for dynamic_dependency in executable_task.dynamic_dependencies:
-                        dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.TaskQueues.completed.list))
+                        dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
                     if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
                         dynamic_dependencies_met = False
 
@@ -388,19 +387,19 @@ class SimulationManager:
                         remove_from_executable.append(executable_task)
                     # end of if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met
                 # end of for i, executable_task in...
-            # end of if not len(common.TaskQueues.executable.list) == 0:
+            # end of if not len(common.executable) == 0:
 
             # Remove the tasks from executable queue that have been executed by a resource
             for task in remove_from_executable:
-                common.TaskQueues.executable.list.remove(task)
+                common.executable.remove(task)
 
             # If DRL scheduler is active, tha tasks waiting in the exectuable queue will be redirected to the ready queue
-            if (len(common.TaskQueues.executable.list)):
+            if (len(common.executable)):
                 if (self.scheduler.name == 'DRL'):
                     #print('ILP' in self.scheduler.name)
-                    while len(common.TaskQueues.executable.list) > 0:
-                        task = common.TaskQueues.executable.list.pop(-1)
-                        common.TaskQueues.ready.list.append(task)
+                    while len(common.executable) > 0:
+                        task = common.executable.pop(-1)
+                        common.ready.append(task)
                         
             # The simulation tick is completed. Wait till the next interval
             yield self.env.timeout(common.simulation_clk)

@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="comment"># completed_task is the task whose processing is just completed</span></div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="comment"># Add completed task to the completed tasks queue</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        common.TaskQueues.completed.list.append(completed_task)</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        common.completed.append(completed_task)</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="comment"># Remove the completed task from the queue of the PE</span></div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <span class="keywordflow">for</span> task <span class="keywordflow">in</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ae88d19465e395777cf50424f8bafcafe">PEs</a>[completed_task.PE_ID].queue:</div>
@@ -164,7 +164,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ae88d19465e395777cf50424f8bafcafe">PEs</a>[task.PE_ID].queue.remove(task)</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="comment"># Remove the completed task from the currently running queue</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        common.TaskQueues.running.list.remove(completed_task)</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        common.running.remove(completed_task)</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="comment"># Remove the completed task from the current DAG representation</span></div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">if</span> completed_task.ID <span class="keywordflow">in</span> common.current_dag:</div>
@@ -186,7 +186,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        <span class="comment"># Check if the dependency of any outstanding task is cleared</span></div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        <span class="comment"># We need to move them to the ready queue</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordflow">for</span> i, outstanding_task <span class="keywordflow">in</span> enumerate(common.TaskQueues.outstanding.list):                       <span class="comment"># Go over each outstanding task</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordflow">for</span> i, outstanding_task <span class="keywordflow">in</span> enumerate(common.outstanding):                       <span class="comment"># Go over each outstanding task</span></div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            <span class="keywordflow">if</span> (completed_task.ID <span class="keywordflow">in</span> outstanding_task.predecessors):                                    <span class="comment"># if the completed task is one of the predecessors</span></div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                outstanding_task.predecessors.remove(completed_task.ID)                                 <span class="comment"># Clear this predecessor</span></div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
@@ -211,13 +211,13 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;            no_predecessors = (len(outstanding_task.predecessors) == 0)                            <span class="comment"># Check if this was the last dependency</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;            currently_running = (outstanding_task <span class="keywordflow">in</span>                                               <span class="comment"># if the task is in the running queue,</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                                 common.TaskQueues.running.list)                                   <span class="comment"># We should not put it back to the ready queue</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                                 common.running)                                   <span class="comment"># We should not put it back to the ready queue</span></div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            not_in_ready_queue = not(outstanding_task <span class="keywordflow">in</span>                                           <span class="comment"># If this task is already in the ready queue,</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                                  common.TaskQueues.ready.list)                                    <span class="comment"># We should not append another copy</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                                  common.ready)                                    <span class="comment"># We should not append another copy</span></div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            <span class="keywordflow">if</span> (no_predecessors <span class="keywordflow">and</span> not(currently_running) <span class="keywordflow">and</span> not_in_ready_queue):</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;                <span class="keywordflow">if</span> (common.PE_to_PE):                                                              <span class="comment"># if PE to PE communication is utilized</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                    common.TaskQueues.ready.list.append(common.TaskQueues.outstanding.list[i])     <span class="comment"># Add the task to the ready queue immediately</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                    common.ready.append(common.outstanding[i])     <span class="comment"># Add the task to the ready queue immediately</span></div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;                <span class="keywordflow">elif</span> (common.shared_memory):</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                    <span class="comment"># if shared memory is utilized for communication, then</span></div>
@@ -235,7 +235,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <span class="comment"># Remove the tasks from outstanding queue that have been moved to ready queue</span></div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        <span class="keywordflow">for</span> task <span class="keywordflow">in</span> remove_from_outstanding_queue:</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            common.TaskQueues.outstanding.list.remove(task)</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            common.outstanding.remove(task)</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;        <span class="comment"># At the end of this function:</span></div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;            <span class="comment"># Newly processed $completed_task is added to the completed tasks</span></div>
@@ -297,7 +297,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160; </div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;                        <span class="keywordflow">if</span> (common.PE_to_PE):</div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                            <span class="comment"># Compute the PE to PE communication time</span></div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.TaskQueues.completed.list:</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.completed:</div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;                                <span class="keywordflow">if</span> completed.ID == real_predecessor_ID:</div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;                                    predecessor_PE_ID = completed.PE_ID</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;                                    predecessor_finish_time = completed.finish_time</div>
@@ -334,36 +334,36 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160; </div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;                    <span class="comment"># Populate all ready tasks in executable with a time stamp</span></div>
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;                    <span class="comment"># which will show when a task is ready for execution</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;                    common.TaskQueues.executable.list.append(ready_task)</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;                    common.executable.append(ready_task)</div>
 <div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;                    remove_from_ready_queue.append(ready_task)</div>
 <div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;                    <span class="keywordflow">if</span> (common.PE_to_PE):</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;                        common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;                        common.executable[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)</div>
 <div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;                    <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;                        common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.execution_wait_times)</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;                        common.executable[-1].time_stamp = max(ready_task.execution_wait_times)</div>
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;                <span class="comment"># end of ready_task.base_ID == task.ID:</span></div>
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;            <span class="comment"># end of i, task in enumerate(self.jobs.list[job_ID].task_list):    </span></div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        <span class="comment"># end of for ready_task in ready_list:</span></div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        </div>
 <div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        <span class="comment"># Remove the tasks from ready queue that have been moved to executable queue</span></div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;        <span class="keywordflow">for</span> task <span class="keywordflow">in</span> remove_from_ready_queue:</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;            common.TaskQueues.ready.list.remove(task)</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;            common.ready.remove(task)</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;        common.TaskQueues.executable.list.sort(key=<span class="keyword">lambda</span> task: task.jobID, reverse=<span class="keyword">False</span>)</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;        common.executable.sort(key=<span class="keyword">lambda</span> task: task.jobID, reverse=<span class="keyword">False</span>)</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;        </div>
 <div class="line"><a name="l00247"></a><span class="lineno"><a class="line" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a2e1bd376cf5f0ba86d4c3c18baef4e4d">  247</a></span>&#160;    <span class="keyword">def </span><a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a2e1bd376cf5f0ba86d4c3c18baef4e4d">update_completed_queue</a>(self):</div>
 <div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;        <span class="stringliteral">&#39;&#39;&#39;!</span></div>
 <div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="stringliteral">        This function updates the common.TaskQueues.completed </span></div>
 <div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="stringliteral">        &#39;&#39;&#39;</span>  </div>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;        </div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        common.TaskQueues.completed.list.sort(key=<span class="keyword">lambda</span> x: x.jobID, reverse=<span class="keyword">False</span>)</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        common.completed.sort(key=<span class="keyword">lambda</span> x: x.jobID, reverse=<span class="keyword">False</span>)</div>
 <div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;        </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        first_task_jobID =  common.TaskQueues.completed.list[0].jobID</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;        last_task_jobID = common.TaskQueues.completed.list[-1].jobID</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        first_task_jobID =  common.completed[0].jobID</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;        last_task_jobID = common.completed[-1].jobID</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;        </div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        <span class="keywordflow">if</span> ((last_task_jobID - first_task_jobID) &gt; 15):</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            <span class="keywordflow">for</span> i,task <span class="keywordflow">in</span> enumerate(common.TaskQueues.completed.list):</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            <span class="keywordflow">for</span> i,task <span class="keywordflow">in</span> enumerate(common.completed):</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;                <span class="keywordflow">if</span> (task.jobID == first_task_jobID):</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;                    del common.TaskQueues.completed.list[i]</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;                    del common.completed[i]</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;            </div>
 <div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;        </div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment">#</span></div>
@@ -396,7 +396,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;                <span class="keywordflow">for</span> i, waiting_task <span class="keywordflow">in</span> enumerate(common.TaskQueues.wait_ready.list):</div>
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;                    <span class="keywordflow">if</span> waiting_task.time_stamp &lt;= self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now:</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                        common.TaskQueues.ready.list.append(waiting_task)</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                        common.ready.append(waiting_task)</div>
 <div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;                        remove_from_wait_ready.append(waiting_task)</div>
 <div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;                <span class="comment"># at the end of this loop, all the waiting tasks with a time stamp</span></div>
 <div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;                <span class="comment"># equal or smaller than the simulation time will be added to</span></div>
@@ -408,27 +408,27 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;                    common.TaskQueues.wait_ready.list.remove(task)</div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;            <span class="comment"># end of if (common.shared_memory):</span></div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160; </div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;            <span class="keywordflow">if</span> (common.INFO_SIM) <span class="keywordflow">and</span> len(common.TaskQueues.ready.list) &gt; 0:</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;            <span class="keywordflow">if</span> (common.INFO_SIM) <span class="keywordflow">and</span> len(common.ready) &gt; 0:</div>
 <div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;                print(<span class="stringliteral">&#39;[I] Time %s: DASH-Sim ticks with %d task ready for being assigned to a PE&#39;</span></div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                      % (self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now, len(common.TaskQueues.ready.list)))</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                      % (self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now, len(common.ready)))</div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160; </div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            <span class="keywordflow">if</span> (<span class="keywordflow">not</span> len(common.TaskQueues.ready.list) == 0):</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            <span class="keywordflow">if</span> (<span class="keywordflow">not</span> len(common.ready) == 0):</div>
 <div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;                <span class="comment"># give all tasks in ready_list to the chosen scheduler</span></div>
 <div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;                <span class="comment"># and scheduler will assign the tasks to a PE</span></div>
 <div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;                <span class="keywordflow">if</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;CPU_only&#39;</span>:</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.CPU_only(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.CPU_only(common.ready)</div>
 <div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;MET&#39;</span>:</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.MET(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.MET(common.ready)</div>
 <div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;EFT&#39;</span>:</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.EFT(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.EFT(common.ready)</div>
 <div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;STF&#39;</span>:</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.STF(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.STF(common.ready)</div>
 <div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;ETF&#39;</span>:</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.ETF(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.ETF(common.ready)</div>
 <div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;ETF_LB&#39;</span>:</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.ETF_LB(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.ETF_LB(common.ready)</div>
 <div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                <span class="keywordflow">elif</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;CP&#39;</span>:</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.<a class="code" href="namespace_c_p__models.html#aa7faf11f15e658e4ea39b3e5c32f4fea">CP</a>(common.TaskQueues.ready.list)</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;                    self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.<a class="code" href="namespace_c_p__models.html#aa7faf11f15e658e4ea39b3e5c32f4fea">CP</a>(common.ready)</div>
 <div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;                <span class="keywordflow">else</span>:</div>
 <div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;                    print(<span class="stringliteral">&#39;[E] Could not find the requested scheduler&#39;</span>)</div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;                    print(<span class="stringliteral">&#39;[E] Please check &quot;config_file.ini&quot; and enter a proper name&#39;</span>)</div>
@@ -437,22 +437,22 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                <span class="comment"># end of if self.scheduler.name</span></div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160; </div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;                self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a542c94dca896893fddaa0bcee5db89ec">update_execution_queue</a>(common.TaskQueues.ready.list)       <span class="comment"># Update the execution queue based on task&#39;s info</span></div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;            <span class="comment"># end of if not len(common.TaskQueues.ready.list) == 0:</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;                self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a542c94dca896893fddaa0bcee5db89ec">update_execution_queue</a>(common.ready)       <span class="comment"># Update the execution queue based on task&#39;s info</span></div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;            <span class="comment"># end of if not len(common.ready) == 0:</span></div>
 <div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160; </div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;            <span class="comment"># Initialize $remove_from_executable which will populate tasks</span></div>
 <div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;            <span class="comment"># to be removed from the executable queue</span></div>
 <div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;            remove_from_executable = []</div>
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160; </div>
 <div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;            <span class="comment"># Go over each task in the executable queue</span></div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;            <span class="keywordflow">if</span> len(common.TaskQueues.executable.list) != 0:</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;            <span class="keywordflow">if</span> len(common.executable) != 0:</div>
 <div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;                </div>
 <div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;                <span class="comment"># for PE blocking data collection</span></div>
 <div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;                <span class="keywordflow">if</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now &gt;= common.warmup_period:</div>
 <div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;                    <span class="keywordflow">for</span> PE <span class="keywordflow">in</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ae88d19465e395777cf50424f8bafcafe">PEs</a>:</div>
 <div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;                        a_list = []</div>
 <div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;                        <span class="keywordflow">if</span> <span class="keywordflow">not</span> PE.idle:</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;                            <span class="keywordflow">for</span> k, executable_task <span class="keywordflow">in</span> enumerate(common.TaskQueues.executable.list):</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;                            <span class="keywordflow">for</span> k, executable_task <span class="keywordflow">in</span> enumerate(common.executable):</div>
 <div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;                                <span class="keywordflow">if</span> executable_task.PE_ID == PE.ID:</div>
 <div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;                                    <span class="keywordflow">if</span> executable_task.time_stamp &lt;= self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now:</div>
 <div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;                                        a_list.append(executable_task)</div>
@@ -460,7 +460,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;                        <span class="keywordflow">if</span> len(a_list) &gt; 0:            </div>
 <div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;                            PE.blocking += 1</div>
 <div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;                </div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                <span class="keywordflow">for</span> i, executable_task <span class="keywordflow">in</span> enumerate(common.TaskQueues.executable.list):</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                <span class="keywordflow">for</span> i, executable_task <span class="keywordflow">in</span> enumerate(common.executable):</div>
 <div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;                    is_time_to_execute = (executable_task.time_stamp &lt;= self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.now)</div>
 <div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;                    PE_has_capacity = (len(self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ae88d19465e395777cf50424f8bafcafe">PEs</a>[executable_task.PE_ID].queue) &lt; self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ae88d19465e395777cf50424f8bafcafe">PEs</a>[executable_task.PE_ID].capacity)</div>
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;                    task_has_assignment = (executable_task.PE_ID != -1)</div>
@@ -469,7 +469,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160; </div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;                    dependencies_completed = []</div>
 <div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;                    <span class="keywordflow">for</span> dynamic_dependency <span class="keywordflow">in</span> executable_task.dynamic_dependencies:</div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;                        dependencies_completed = dependencies_completed + list(filter(<span class="keyword">lambda</span> completed_task: completed_task.ID == dynamic_dependency, common.TaskQueues.completed.list))</div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;                        dependencies_completed = dependencies_completed + list(filter(<span class="keyword">lambda</span> completed_task: completed_task.ID == dynamic_dependency, common.completed))</div>
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;                    <span class="keywordflow">if</span> len(dependencies_completed) != len(executable_task.dynamic_dependencies):</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;                        dynamic_dependencies_met = <span class="keyword">False</span></div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160; </div>
@@ -487,19 +487,19 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__core_8py_source.html',
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;                        remove_from_executable.append(executable_task)</div>
 <div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;                    <span class="comment"># end of if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met</span></div>
 <div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;                <span class="comment"># end of for i, executable_task in...</span></div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;            <span class="comment"># end of if not len(common.TaskQueues.executable.list) == 0:</span></div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;            <span class="comment"># end of if not len(common.executable) == 0:</span></div>
 <div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160; </div>
 <div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;            <span class="comment"># Remove the tasks from executable queue that have been executed by a resource</span></div>
 <div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;            <span class="keywordflow">for</span> task <span class="keywordflow">in</span> remove_from_executable:</div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;                common.TaskQueues.executable.list.remove(task)</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;                common.executable.remove(task)</div>
 <div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160; </div>
 <div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;            <span class="comment"># If DRL scheduler is active, tha tasks waiting in the exectuable queue will be redirected to the ready queue</span></div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;            <span class="keywordflow">if</span> (len(common.TaskQueues.executable.list)):</div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;            <span class="keywordflow">if</span> (len(common.executable)):</div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;                <span class="keywordflow">if</span> (self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#a7d9d206aed6722f752cdde5ba0dd8c20">scheduler</a>.name == <span class="stringliteral">&#39;DRL&#39;</span>):</div>
 <div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;                    <span class="comment">#print(&#39;ILP&#39; in self.scheduler.name)</span></div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;                    <span class="keywordflow">while</span> len(common.TaskQueues.executable.list) &gt; 0:</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;                        task = common.TaskQueues.executable.list.pop(-1)</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;                        common.TaskQueues.ready.list.append(task)</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;                    <span class="keywordflow">while</span> len(common.executable) &gt; 0:</div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;                        task = common.executable.pop(-1)</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;                        common.ready.append(task)</div>
 <div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;                        </div>
 <div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;            <span class="comment"># The simulation tick is completed. Wait till the next interval</span></div>
 <div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;            <span class="keywordflow">yield</span> self.<a class="code" href="class_d_a_s_h___sim__core_1_1_simulation_manager.html#ab527d3249ba07f0c85f1c357a575dfde">env</a>.timeout(common.simulation_clk)</div>

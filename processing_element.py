@@ -75,7 +75,7 @@ class PE:
                         DASH_Sim_utils.trace_frequency(self.env.now)
 
                 self.idle = False                                               # Since the PE starts execution of a task, it is not idle anymore
-                common.TaskQueues.running.list.append(task)                     # Since the execution started for the task we should add it to the running queue 
+                common.running.append(task)                     # Since the execution started for the task we should add it to the running queue 
                 task.start_time = self.env.now                                  # When a resource starts executing the task, record it as the start time
 
                 # if this is the leading task of this job, increment the injection counter
@@ -198,7 +198,7 @@ class PE:
                         if sim_manager.job_gen.generate_job and common.inject_jobs_ASAP:
                             sim_manager.job_gen.action.interrupt()
 
-                        for completed in common.TaskQueues.completed.list:
+                        for completed in common.completed:
                             if ((completed.head == True) and 
                                 (completed.jobID == task.jobID)):
                                 common.results.cumulative_exe_time += (self.env.now - completed.job_start)
@@ -217,7 +217,7 @@ class PE:
                     print('[I] Time %d: Task %s is finished by PE-%d %s with %.2f us and energy consumption %.2f J'
                       % (self.env.now, task.ID, self.ID, self.name, round(task_time,2), round(total_energy_task,2)) )
                 DASH_Sim_utils.trace_tasks(task, self, task_time, total_energy_task)
-                #for i, executable_task in enumerate(common.TaskQueues.executable.list):
+                #for i, executable_task in enumerate(common.executable):
                 #    print('Task %d can be executed on PE-%d after time %d'%(executable_task.ID, executable_task.PE_ID, executable_task.time_stamp))
 
                 # Retrieve the energy consumption for the task

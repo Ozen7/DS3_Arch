@@ -12,6 +12,7 @@ import simpy
 import common
 import DASH_Sim_utils
 import CP_models
+import scheduler
            
 class JobGenerator:
     '''!
@@ -33,22 +34,25 @@ class JobGenerator:
         
         
         # Initially none of the tasks are outstanding
-        common.TaskQueues.outstanding = common.TaskManager()                    # List of *all* tasks waiting to be processed
+        common.outstanding = []                    # List of *all* tasks waiting to be processed
 
         # Initially none of the tasks are completed
-        common.TaskQueues.completed = common.TaskManager()                      # List of completed tasks
+        common.completed = []                      # List of completed tasks
 
         # Initially none of the tasks are running on the PEs
-        common.TaskQueues.running = common.TaskManager()                        # List of currently running tasks
+        common.running = []                        # List of currently running tasks
         
         # Initially none of the tasks are completed
-        common.TaskQueues.ready = common.TaskManager()                          # List of tasks that are ready for processing
+        common.ready = []                          # List of tasks that are ready for processing
         
         # Initially none of the tasks are in wait ready queue
-        common.TaskQueues.wait_ready = common.TaskManager()                     # List of tasks that are waiting for being ready for processing
+        common.wait_ready = []                     # List of tasks that are waiting for being ready for processing
         
         # Initially none of the tasks are executable
-        common.TaskQueues.executable = common.TaskManager()                     # List of tasks that are ready for execution
+        if common.scheduler == "RELIEF_BASE":
+            common.executable = [[] for _ in self.PEs]                     # List of tasks that are ready for execution
+        else:
+            common.executable = []
         
         self.generate_job = True                                                # Initially $generate_job is True so that as soon as run function is called
                                                                                 #   it will start generating jobs
@@ -124,7 +128,7 @@ class JobGenerator:
                         next_task.predecessors[k] += self.offset                # also change the predecessors of the newly added task, accordingly
 
                     if len(next_task.predecessors) > 0:
-                        common.TaskQueues.outstanding.list.append(next_task)    # Add the task to the outstanding queue since it has predecessors
+                        common.outstanding.append(next_task)    # Add the task to the outstanding queue since it has predecessors
                         # Next, print debug messages
                         if (common.DEBUG_SIM):
                             print('[D] Time %d: Adding task %d to the outstanding queue,'
@@ -132,19 +136,19 @@ class JobGenerator:
                             print(' task %d has predecessors:'
                                   % (next_task.ID), next_task.predecessors)
                     else:
-                        common.TaskQueues.ready.list.append(next_task)          # Add the task to the ready queue since it has no predecessors
+                        common.ready.append(next_task)          # Add the task to the ready queue since it has no predecessors
                         if (common.DEBUG_SIM):
                             print('[D] Time %s: Task %s is pushed to the ready queue list'
                                   % (self.env.now, next_task.ID), end='')
                             print(', the ready queue list has %s tasks'
-                                  % (len(common.TaskQueues.ready.list)))
+                                  % (len(common.ready)))
                 self.offset += len(self.generated_job_list[i].task_list)
                 # end of for ii in range(len(self.generated_job_list[i].list))
 
                 if 'CP' in self.scheduler.name:
-                    while len(common.TaskQueues.executable.list) > 0:
-                        task = common.TaskQueues.executable.list.pop(-1)
-                        common.TaskQueues.ready.list.append(task)
+                    while len(common.executable) > 0:
+                        task = common.executable.pop(-1)
+                        common.ready.append(task)
                     
                     CP_models.CP(self.env.now, self.PEs, self.resource_matrix, self.jobs, self.generated_job_list)
 

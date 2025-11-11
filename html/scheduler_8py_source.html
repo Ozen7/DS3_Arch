@@ -308,7 +308,7 @@ $(document).ready(function(){initNavTree('scheduler_8py_source.html',''); initRe
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;                            predecessor_finish_time = -1</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
 <div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.TaskQueues.completed.list:</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.completed:</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;                                <span class="keywordflow">if</span> completed.ID == real_predecessor_ID:</div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;                                    predecessor_PE_ID = completed.PE_ID</div>
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                                    predecessor_finish_time = completed.finish_time</div>
@@ -526,7 +526,7 @@ $(document).ready(function(){initNavTree('scheduler_8py_source.html',''); initRe
 <div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;                                predecessor_PE_ID = -1</div>
 <div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;                                predecessor_finish_time = -1</div>
 <div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160; </div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;                                <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.TaskQueues.completed.list:</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;                                <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.completed:</div>
 <div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;                                    <span class="keywordflow">if</span> completed.ID == real_predecessor_ID:</div>
 <div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;                                        predecessor_PE_ID = completed.PE_ID</div>
 <div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;                                        predecessor_finish_time = completed.finish_time</div>
@@ -710,7 +710,7 @@ $(document).ready(function(){initNavTree('scheduler_8py_source.html',''); initRe
 <div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;                            predecessor_finish_time = -1</div>
 <div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;                            </div>
 <div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;                            </div>
-<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.TaskQueues.completed.list:</div>
+<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;                            <span class="keywordflow">for</span> completed <span class="keywordflow">in</span> common.completed:</div>
 <div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;                                <span class="keywordflow">if</span> (completed.ID == real_predecessor_ID):</div>
 <div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;                                    predecessor_PE_ID = completed.PE_ID</div>
 <div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;                                    predecessor_finish_time = completed.finish_time</div>

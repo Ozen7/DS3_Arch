@@ -311,17 +311,16 @@ class ApplicationManager:
         self.list = []                          # List of all applications
 # end class ApplicationManager
 
-class TaskQueues:
-    '''!
-    Define the TaskQueues class to maintain all task queue lists
-    '''
-    def __init__(self):
-        self.outstanding = []                   # List of *all* tasks waiting to be processed
-        self.ready = []                         # List of tasks that are ready for processing
-        self.running = []                       # List of currently running tasks
-        self.completed = []                     # List of completed tasks
-        self.wait_ready = []                    # List of task waiting for being pushed into ready queue because of memory communication time
-        self.executable = []                    # List of task waiting for being executed because of memory communication time 
+#class TaskQueues:
+
+outstanding = []                   # List of *all* tasks waiting to be processed
+ready = []                         # List of tasks that are ready for processing
+running = []                       # List of currently running tasks
+completed = []                     # List of completed tasks
+wait_ready = []                    # List of task waiting for being pushed into ready queue because of memory communication time
+executable = []                    # List of task waiting for being executed because of memory communication time 
+
+
 # end class TaskQueues
 
 # =============================================================================

@@ -59,7 +59,7 @@ def update_execution_queue_relief(self, ready_list):
 
                     if (common.PE_to_PE):
                         # Compute the PE to PE communication time
-                        for completed in common.TaskQueues.completed.list:
+                        for completed in common.completed:
                             if completed.ID == real_predecessor_ID:
                                 predecessor_PE_ID = completed.PE_ID
                                 predecessor_finish_time = completed.finish_time
@@ -96,18 +96,18 @@ def update_execution_queue_relief(self, ready_list):
 
                 # Populate all ready tasks in executable with a time stamp
                 # which will show when a task is ready for execution
-                # common.TaskQueues.executable.list.append(ready_task) this is done in the scheduling algorithm.
+                # common.executable.append(ready_task) this is done in the scheduling algorithm.
                 remove_from_ready_queue.append(ready_task)
                 if (common.PE_to_PE):
-                    common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)
+                    common.executable[-1].time_stamp = max(ready_task.PE_to_PE_wait_time)
                 else:
-                    common.TaskQueues.executable.list[-1].time_stamp = max(ready_task.execution_wait_times)
+                    common.executable[-1].time_stamp = max(ready_task.execution_wait_times)
             # end of ready_task.base_ID == task.ID:
         # end of i, task in enumerate(self.jobs.list[job_ID].task_list):    
     # end of for ready_task in ready_list:
     
     # Remove the tasks from ready queue that have been moved to executable queue
     for task in remove_from_ready_queue:
-        common.TaskQueues.ready.list.remove(task)
+        common.ready.remove(task)
     
-    common.TaskQueues.executable.list.sort(key=lambda task: task.jobID, reverse=False) # why would we sort based on which Job comes first - Nebil
+    common.executable.sort(key=lambda task: task.jobID, reverse=False) # why would we sort based on which Job comes first - Nebil

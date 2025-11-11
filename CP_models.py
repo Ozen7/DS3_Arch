@@ -34,7 +34,7 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
     Dags_2 = {}
     # Get the task in Outstanding and Ready Queues
     # Since tasks in Completed Queue are already done, they will not be considered
-    for task in common.TaskQueues.outstanding.list:
+    for task in common.outstanding:
         if task.jobID not in Dags:
             Dags.append(task.jobID)
             for i in range(len(domain_applications.list)):
@@ -42,7 +42,7 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
                 if name == task.jobname:
                     Dags_2[task.jobID] = {}
                     Dags_2[task.jobID]['selection'] = i
-    for task in common.TaskQueues.ready.list:
+    for task in common.ready:
         if task.jobID not in Dags:
             Dags.append(task.jobID)
             for i in range(len(domain_applications.list)):
@@ -140,11 +140,11 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
         for f in Dags_2[d]['Functionality']:
             #print(f)
             name = str(d)+"_"+str(f[1])+'-'+str(f[0])
-            if len(common.TaskQueues.running.list) == 0 and len(common.TaskQueues.completed.list) == 0:
+            if len(common.running) == 0 and len(common.completed) == 0:
                 pe_tasks_2[(d,f)] = mdl.interval_var(optional=True, size =int(f[2]), name = name )
                 task_names_ids_2[name] = last_ID+f[1]
             else:
-                for ii, running_task in enumerate(common.TaskQueues.running.list):
+                for ii, running_task in enumerate(common.running):
                     if (d == running_task.jobID) and (f[1] == running_task.base_ID) and (f[0] == P_elems[running_task.PE_ID].name):
 
                         ind = resource_matrix.list[running_task.PE_ID].supported_functionalities.index(running_task.name)
@@ -162,7 +162,7 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
                     pe_tasks_2[(d,f)] = mdl.interval_var(optional=True, size =int(f[2]), name = name )
                     task_names_ids_2[name] = last_ID+f[1]
                 
-                for iii, completed_task in enumerate(common.TaskQueues.completed.list):
+                for iii, completed_task in enumerate(common.completed):
                     if (d == completed_task.jobID) and (f[1] == completed_task.base_ID) and (f[0] == P_elems[completed_task.PE_ID].name):
                         #print(completed_task.name)
                         #pe_tasks[(d,f)] = mdl.interval_var(optional=True, size =0, name = name )
@@ -191,7 +191,7 @@ def CP(env_time, P_elems, resource_matrix: common.ResourceManager, domain_applic
                             #print(p2_id)
                             bandwidth = common.ResourceManager.comm_band[p1_id,p2_id]
                             comm_time = int( (c[3])/bandwidth )
-                            for ii, completed_task in enumerate(common.TaskQueues.completed.list):
+                            for ii, completed_task in enumerate(common.completed):
                                 if ((d == completed_task.jobID) and (task1 == completed_task.base_ID) and (p1 == P_elems[completed_task.PE_ID].name)):
                                     mdl.add( mdl.end_before_start(pe_tasks_2[d,(p1,task1,d1)], pe_tasks_2[d,(p2,task2,d2)], max(0,comm_time+completed_task.finish_time-env_time)  ))
                                     #print (d, p1,p2, task1,task2, max(0,int(c[3])+completed_task.finish_time-self.env.now) )

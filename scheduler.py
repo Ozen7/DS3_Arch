@@ -205,7 +205,7 @@ class Scheduler:
                             predecessor_finish_time = -1
 
 
-                            for completed in common.TaskQueues.completed.list:
+                            for completed in common.completed:
                                 if completed.ID == real_predecessor_ID:
                                     predecessor_PE_ID = completed.PE_ID
                                     predecessor_finish_time = completed.finish_time
@@ -423,7 +423,7 @@ class Scheduler:
                                 predecessor_PE_ID = -1
                                 predecessor_finish_time = -1
 
-                                for completed in common.TaskQueues.completed.list:
+                                for completed in common.completed:
                                     if completed.ID == real_predecessor_ID:
                                         predecessor_PE_ID = completed.PE_ID
                                         predecessor_finish_time = completed.finish_time
@@ -607,7 +607,7 @@ class Scheduler:
                             predecessor_finish_time = -1
                             
                             
-                            for completed in common.TaskQueues.completed.list:
+                            for completed in common.completed:
                                 if (completed.ID == real_predecessor_ID):
                                     predecessor_PE_ID = completed.PE_ID
                                     predecessor_finish_time = completed.finish_time
@@ -766,7 +766,7 @@ class Scheduler:
         for task in list_of_ready:
             
             acc_id = -1                                                         # save mapped accelerator id
-            acc_location = -1
+            acc_type = ""                                                   # save accelerator TYPE. Tasks are distributed according to this typing.
             task_runtime = -1                                                  # save child's runtme on that accelerator
             # find the accelerator in which the task runs fastest - directly map the task to that accelerator.
             for i, resource in enumerate(self.resource_matrix.list):
@@ -778,7 +778,7 @@ class Scheduler:
                     if (task_runtime == -1 or resource.performance[ind] < task_runtime):
                         task_runtime = int(resource.performance[ind])
                         acc_id = resource.ID
-                        acc_location = i
+                        acc_type = resource.type
             assert(acc_id != -1)
 
             #now, we calculte the laxity of each task depending on it's own deadline and the runtime calculated above. 
@@ -810,20 +810,20 @@ class Scheduler:
                 task:Tasks = fwd_nodes[i].pop()
                 # index where the task fits into idle accelerator's queue.
                 index = 0
-                while index < len(common.TaskQueues.executable.list) and (common.TaskQueues.executable.list[index].PE_ID != PE.ID or common.TaskQueues.executable.list[index].laxity <= task.laxity):
+                while index < len(common.executable) and (common.executable[index].PE_ID != PE.ID or common.executable[index].laxity <= task.laxity):
                     index += 1
 
                 if can_forward and self.is_feasible(acc_id,task,index):
-                    common.TaskQueues.executable.list.insert(0,task)
+                    common.executable.insert(0,task)
                     task.isForwarded = True
                     can_forward = False
                     self.update_forward_metadata(task)
                 else:
-                    common.TaskQueues.executable.list.insert(index,task)
+                    common.executable.insert(index,task)
 
     def is_feasible(self, accelerator_id:int, task:Tasks, index:int):
         can_fwd = True
-        for i, executable_task in enumerate(common.TaskQueues.executable.list):
+        for i, executable_task in enumerate(common.executable):
             if executable_task.PE_ID == accelerator_id:
                 if i == index:
                     break
@@ -833,7 +833,7 @@ class Scheduler:
                     break
         # update remaining laxities to reflect the forwarded task pushed in front of them
         if can_fwd:
-            for i, executable_task in enumerate(common.TaskQueues.executable.list):
+            for i, executable_task in enumerate(common.executable):
                 if executable_task.PE_ID == accelerator_id:
                     if i == index:
                         break
@@ -888,7 +888,7 @@ class Scheduler:
                         predecessor_finish_time = -1
 
                         # TODO - There has to be a better way to do this. Maybe we turn the completed list into a set? 
-                        for completed in common.TaskQueues.completed.list:
+                        for completed in common.completed:
                             if (completed.ID == real_predecessor_ID):
                                 predecessor_PE_ID = completed.PE_ID
                                 predecessor_finish_time = completed.finish_time

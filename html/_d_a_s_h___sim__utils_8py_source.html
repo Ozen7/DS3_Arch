@@ -127,7 +127,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__utils_8py_source.html'
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    completed_info = []</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    running_info = []</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordflow">for</span> task <span class="keywordflow">in</span> common.TaskQueues.completed.list:</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordflow">for</span> task <span class="keywordflow">in</span> common.completed:</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="comment">#print(&#39;Time %s:&#39;%current_timestamp, task.start_time, task.finish_time, task.PE_ID)</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keywordflow">if</span> task.PE_ID == PE.ID:</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            <span class="keywordflow">if</span> ((task.start_time &lt; lower_bound) <span class="keywordflow">and</span> (task.finish_time &lt; lower_bound)):</div>
@@ -140,7 +140,7 @@ $(document).ready(function(){initNavTree('_d_a_s_h___sim__utils_8py_source.html'
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                completed_info.append(task.finish_time)</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            <span class="comment">#print(&#39;Time %s:&#39;%current_timestamp,&#39;completed&#39;,completed_info, &#39;Task&#39;, task.ID, &#39;PE&#39;, PE.ID)</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">for</span> task <span class="keywordflow">in</span> common.TaskQueues.running.list:</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">for</span> task <span class="keywordflow">in</span> common.running:</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="comment">#print(&#39;Time %s:&#39;%current_timestamp, task.start_time, task.PE_ID)</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <span class="keywordflow">if</span> task.PE_ID == PE.ID:</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;            <span class="keywordflow">if</span> (task.start_time &lt; lower_bound):</div>

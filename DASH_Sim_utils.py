@@ -21,7 +21,7 @@ def update_PE_utilization_and_info(PE, current_timestamp):
 
     completed_info = []
     running_info = []
-    for task in common.TaskQueues.completed.list:
+    for task in common.completed:
         #print('Time %s:'%current_timestamp, task.start_time, task.finish_time, task.PE_ID)
         if task.PE_ID == PE.ID:
             if ((task.start_time < lower_bound) and (task.finish_time < lower_bound)):
@@ -34,7 +34,7 @@ def update_PE_utilization_and_info(PE, current_timestamp):
                 completed_info.append(task.finish_time)
             #print('Time %s:'%current_timestamp,'completed',completed_info, 'Task', task.ID, 'PE', PE.ID)
 
-    for task in common.TaskQueues.running.list:
+    for task in common.running:
         #print('Time %s:'%current_timestamp, task.start_time, task.PE_ID)
         if task.PE_ID == PE.ID:
             if (task.start_time < lower_bound):
