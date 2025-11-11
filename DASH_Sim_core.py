@@ -363,8 +363,9 @@ class SimulationManager:
                 # to be removed from the wait ready queue
                 remove_from_wait_ready = []
 
-                for i, waiting_task in enumerate(common.wait_ready):
+                for waiting_task in common.wait_ready:
                     if waiting_task.time_stamp <= self.env.now:
+                        print("HELLO", waiting_task.time_stamp, self.env.now)
                         common.ready.append(waiting_task)
                         remove_from_wait_ready.append(waiting_task)
                 # at the end of this loop, all the waiting tasks with a time stamp
@@ -431,6 +432,7 @@ class SimulationManager:
                 tasks_to_remove = []
                 for executable_task in pe_queue:
                     is_time_to_execute = (executable_task.time_stamp <= self.env.now)
+                    print(executable_task.ID, is_time_to_execute, executable_task.time_stamp, self.env.now)
                     PE_has_capacity = (len(PE.queue) < PE.capacity)  # capacity is the number of jobs a PE can have waiting?
                     task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
 
