@@ -154,6 +154,31 @@ def run_simulator(scale_values=common.scale_values_list):
             DASH_resources.append(new_PE)
         # end for
 
+        # Initialize PE Type Manager and register all PEs
+        common.PETypeManager = common.PETypeManager()
+        for pe in DASH_resources:
+            common.PETypeManager.register_PE(pe.ID, pe.type)
+
+        # Configure forwarding mode if enabled
+        if common.comm_mode == 'forwarding':
+            if common.DEBUG_CONFIG:
+                print('[D] Configuring forwarding mode with scratchpad management')
+
+            for pe in DASH_resources:
+                pe.forwarding_enabled = True
+                # Set scratchpad capacity from config
+                if pe.type in common.scratchpad_capacity_per_type:
+                    pe.scratchpad_capacity = common.scratchpad_capacity_per_type[pe.type]
+                    pe.scratchpad_used = 0
+                    if common.DEBUG_CONFIG:
+                        print('[D] PE-%d (%s) scratchpad capacity: %d bytes'
+                              % (pe.ID, pe.type, pe.scratchpad_capacity))
+                else:
+                    # Default to 0 if not specified
+                    pe.scratchpad_capacity = 0
+                    if common.DEBUG_CONFIG:
+                        print('[D] PE-%d (%s) has no scratchpad (capacity = 0)' % (pe.ID, pe.type))
+
         # Construct the scheduler
         DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,
                                              DASH_resources, jobs)
@@ -216,7 +241,7 @@ def run_simulator(scale_values=common.scale_values_list):
             ax = fig.add_subplot(111)
             color_choices = ['red', 'blue', 'green', 'cyan', 'magenta']
             for i in range(len(resource_matrix.list)):
-                for ii, task in enumerate(common.TaskQueues.completed.list):
+                for ii, task in enumerate(common.completed):
                     if (i == task.PE_ID):
                         end_time = task.finish_time
                         start_time = task.start_time
@@ -306,6 +331,23 @@ def run_simulator(scale_values=common.scale_values_list):
                                                    resource.ID, resource.cluster_ID, resource.capacity) # Generate a new PE with this generic process
                     DASH_resources.append(new_PE)
                 # end for
+
+                # Initialize PE Type Manager and register all PEs
+                common.PETypeManager = common.PETypeManager()
+                for pe in DASH_resources:
+                    common.PETypeManager.register_PE(pe.ID, pe.type)
+
+                # Configure forwarding mode if enabled
+                if common.comm_mode == 'forwarding':
+                    for pe in DASH_resources:
+                        pe.forwarding_enabled = True
+                        # Set scratchpad capacity from config
+                        if pe.type in common.scratchpad_capacity_per_type:
+                            pe.scratchpad_capacity = common.scratchpad_capacity_per_type[pe.type]
+                            pe.scratchpad_used = 0
+                        else:
+                            # Default to 0 if not specified
+                            pe.scratchpad_capacity = 0
 
                 # Construct the scheduler
                 DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,

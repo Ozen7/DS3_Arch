@@ -50,6 +50,12 @@ class PE:
         self.info = []                                                          # List to record all the events happened on a PE
         self.process = simpy.Resource(env, capacity=self.capacity)
 
+        # Scratchpad/buffer management (only used in forwarding mode)
+        self.scratchpad = {}                                                    # Dictionary mapping data_id to {'task_id': X, 'size': Y, 'timestamp': Z}
+        self.scratchpad_capacity = 0                                            # Total scratchpad buffer size in bytes (configured per PE type)
+        self.scratchpad_used = 0                                                # Current bytes used in scratchpad
+        self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
+
         if (common.DEBUG_CONFIG):
             print('[D] Constructed PE-%d with name %s' %(ID,name))
 
@@ -260,6 +266,84 @@ class PE:
         except simpy.Interrupt:
             print('Expect an interrupt at %s' % (self.env.now))
     # end of def run(self, sim_manager, task, resource):
+
+    # Scratchpad management methods (only used in forwarding mode)
+    def has_data_in_scratchpad(self, data_id):
+        '''!
+        Check if data is available in this PE's scratchpad.
+        @param data_id: Identifier for the data (e.g., "task_123_output")
+        @return: True if data is in scratchpad, False otherwise
+        '''
+        return data_id in self.scratchpad
+
+    def allocate_scratchpad(self, data_id, size, task_id):
+        '''!
+        Allocate scratchpad space for data. Evict oldest data if needed (LRU).
+        @param data_id: Identifier for the data
+        @param size: Size of data in bytes
+        @param task_id: ID of the task that produced this data
+        @return: True if allocation successful, False if not enough space even after eviction
+        '''
+        # If data already exists, don't allocate again
+        if data_id in self.scratchpad:
+            return True
+
+        # Check if we have enough capacity
+        if size > self.scratchpad_capacity:
+            # Data is larger than total capacity - cannot allocate
+            return False
+
+        # Evict data using LRU until we have enough space
+        while (self.scratchpad_used + size) > self.scratchpad_capacity:
+            if not self.scratchpad:
+                # No more data to evict but still not enough space
+                return False
+
+            # Find oldest entry (minimum timestamp)
+            oldest_data_id = min(self.scratchpad.keys(), key=lambda k: self.scratchpad[k]['timestamp'])
+            self.free_scratchpad(oldest_data_id)
+
+        # Allocate space
+        self.scratchpad[data_id] = {
+            'task_id': task_id,
+            'size': size,
+            'timestamp': self.env.now
+        }
+        self.scratchpad_used += size
+
+        if common.DEBUG_SIM:
+            print('[D] Time %d: PE-%d allocated %d bytes in scratchpad for data %s (used: %d/%d)'
+                  % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
+
+        return True
+
+    def free_scratchpad(self, data_id):
+        '''!
+        Free scratchpad space by removing data.
+        @param data_id: Identifier for the data to remove
+        '''
+        if data_id in self.scratchpad:
+            size = self.scratchpad[data_id]['size']
+            del self.scratchpad[data_id]
+            self.scratchpad_used -= size
+
+            if common.DEBUG_SIM:
+                print('[D] Time %d: PE-%d freed %d bytes in scratchpad for data %s (used: %d/%d)'
+                      % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
+
+    def get_scratchpad_available(self):
+        '''!
+        Get available scratchpad space.
+        @return: Available space in bytes
+        '''
+        return self.scratchpad_capacity - self.scratchpad_used
+
+    def can_forward(self):
+        '''!
+        Check if this PE can accept forwarded data (is idle and has scratchpad space).
+        @return: True if PE is idle and has some scratchpad capacity, False otherwise
+        '''
+        return self.idle and self.forwarding_enabled and self.scratchpad_capacity > 0
 
 
 # end class PE(object):

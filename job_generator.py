@@ -12,7 +12,6 @@ import simpy
 import common
 import DASH_Sim_utils
 import CP_models
-import scheduler
            
 class JobGenerator:
     '''!
@@ -47,12 +46,10 @@ class JobGenerator:
         
         # Initially none of the tasks are in wait ready queue
         common.wait_ready = []                     # List of tasks that are waiting for being ready for processing
-        
+
         # Initially none of the tasks are executable
-        if common.scheduler == "RELIEF_BASE":
-            common.executable = [[] for _ in self.PEs]                     # List of tasks that are ready for execution
-        else:
-            common.executable = []
+        # Initialize as dictionary with PE_ID keys for all schedulers
+        common.executable = {pe.ID: [] for pe in self.PEs}
         
         self.generate_job = True                                                # Initially $generate_job is True so that as soon as run function is called
                                                                                 #   it will start generating jobs
@@ -146,9 +143,11 @@ class JobGenerator:
                 # end of for ii in range(len(self.generated_job_list[i].list))
 
                 if 'CP' in self.scheduler.name:
-                    while len(common.executable) > 0:
-                        task = common.executable.pop(-1)
-                        common.ready.append(task)
+                    # Pop tasks from all PE queues and move to ready
+                    for pe_id in list(common.executable.keys()):
+                        while len(common.executable[pe_id]) > 0:
+                            task = common.executable[pe_id].pop(-1)
+                            common.ready.append(task)
                     
                     CP_models.CP(self.env.now, self.PEs, self.resource_matrix, self.jobs, self.generated_job_list)
 

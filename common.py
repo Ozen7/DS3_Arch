@@ -126,18 +126,60 @@ if (simulation_mode == 'validation'):
 
 ## COMMUNICATION MODE
 packet_size      = int(config['COMMUNICATION MODE']['packet_size'])               # The packet size (in bits)
-PE_to_PE         = config.getboolean('COMMUNICATION MODE', 'PE_to_PE')            # The communication mode in which data is sent, directly, from a PE to a PE
-shared_memory    = config.getboolean('COMMUNICATION MODE', 'shared_memory')       # The communication mode in which data is sent from a PE to a PE through a shared memory
+
+# Check if using new communication_mode parameter or legacy PE_to_PE/shared_memory flags
+if 'communication_mode' in config['COMMUNICATION MODE']:
+    # New mode: 'PE_to_PE', 'shared_memory', or 'forwarding'
+    comm_mode = config['COMMUNICATION MODE']['communication_mode'].strip()
+
+    # Validate mode
+    if comm_mode not in ('PE_to_PE', 'shared_memory', 'forwarding'):
+        print('[E] Invalid communication_mode. Must be one of: PE_to_PE, shared_memory, forwarding')
+        sys.exit()
+
+    # Set legacy flags for backwards compatibility
+    if comm_mode == 'PE_to_PE':
+        PE_to_PE = True
+        shared_memory = False
+        forwarding_enabled = False
+    elif comm_mode == 'shared_memory':
+        PE_to_PE = False
+        shared_memory = True
+        forwarding_enabled = False
+    elif comm_mode == 'forwarding':
+        # In forwarding mode, we don't use legacy paths
+        PE_to_PE = False
+        shared_memory = False
+        forwarding_enabled = True
+else:
+    # Legacy mode: use PE_to_PE and shared_memory boolean flags
+    PE_to_PE         = config.getboolean('COMMUNICATION MODE', 'PE_to_PE')            # The communication mode in which data is sent, directly, from a PE to a PE
+    shared_memory    = config.getboolean('COMMUNICATION MODE', 'shared_memory')       # The communication mode in which data is sent from a PE to a PE through a shared memory
+    forwarding_enabled = False
+
+    # Set comm_mode based on legacy flags
+    if PE_to_PE and shared_memory:
+        print('[E] Please chose only one of the communication modes')
+        sys.exit()
+    elif not PE_to_PE and not shared_memory:
+        print('[E] Please chose one of the communication modes')
+        sys.exit()
+    elif PE_to_PE:
+        comm_mode = 'PE_to_PE'
+    else:
+        comm_mode = 'shared_memory'
+
+# Parse scratchpad capacities (only used in forwarding mode)
+scratchpad_capacity_per_type = {}
+if comm_mode == 'forwarding':
+    for key, value in config['COMMUNICATION MODE'].items():
+        if key.startswith('scratchpad_capacity_'):
+            pe_type = key.replace('scratchpad_capacity_', '')
+            scratchpad_capacity_per_type[pe_type] = int(value)
+
 write_time       = -1
 read_time        = -1
 PE_to_Cache      = {}
-
-if (PE_to_PE) and (shared_memory):
-    print('[E] Please chose only one of the communication modes')
-    sys.exit()
-elif (not PE_to_PE) and (not shared_memory):
-    print('[E] Please chose one of the communication modes')
-    sys.exit()
 
 iteration = 0
 
@@ -248,6 +290,53 @@ class ClusterManager:
         self.cluster_list = []                  # list of available clusters
 # end class ClusterManager
 
+class PETypeManager:
+    '''!
+    Define the PETypeManager class to organize PEs by type for efficient lookup.
+    This enables O(1) access to all PEs of a specific type (e.g., all ACC_JPEG accelerators).
+    '''
+    def __init__(self):
+        self.by_type = {}                       # Dictionary mapping PE type to list of PE IDs: {'CPU': [0,1,2], 'ACC_JPEG': [3,4], ...}
+        self.by_id = {}                         # Dictionary mapping PE ID to PE type: {0: 'CPU', 1: 'CPU', 3: 'ACC_JPEG', ...}
+
+    def register_PE(self, pe_id, pe_type):
+        '''!
+        Register a PE with its type for efficient lookup.
+        @param pe_id: The ID of the PE to register
+        @param pe_type: The type of the PE (e.g., 'CPU', 'ACC_JPEG', etc.)
+        '''
+        # Add to by_id mapping
+        self.by_id[pe_id] = pe_type
+
+        # Add to by_type mapping
+        if pe_type not in self.by_type:
+            self.by_type[pe_type] = []
+        self.by_type[pe_type].append(pe_id)
+
+    def get_PEs_of_type(self, pe_type):
+        '''!
+        Get list of all PE IDs of a specific type.
+        @param pe_type: The type of PEs to retrieve
+        @return: List of PE IDs, or empty list if type not found
+        '''
+        return self.by_type.get(pe_type, [])
+
+    def get_type_of_PE(self, pe_id):
+        '''!
+        Get the type of a specific PE.
+        @param pe_id: The ID of the PE
+        @return: PE type string, or None if not found
+        '''
+        return self.by_id.get(pe_id, None)
+
+    def get_all_types(self):
+        '''!
+        Get list of all PE types registered.
+        @return: List of PE type strings
+        '''
+        return list(self.by_type.keys())
+# end class PETypeManager
+
 class Tasks:
     '''!
     Define the Tasks class to maintain the list of tasks.
@@ -282,6 +371,12 @@ class Tasks:
         self.input_packet_size = -1
         self.output_packet_size = -1
         self.isForwarded = False                # Indicates whether this Task has inputs that are being forwarded.
+
+        # Forwarding metadata (only populated in forwarding mode)
+        self.comm_timing_mode = None            # 'PE_to_PE' or 'memory' - decided at scheduling time for this task
+        self.data_locations = {}                # Maps predecessor_task_ID to PE_ID where that predecessor's output lives
+        self.forwarded_from_PE = None           # PE_ID if this task was forwarded to a specific PE, else None
+        self.data_sizes = {}                    # Maps predecessor_task_ID to size of data in bytes
 # end class Tasks
 
 class TaskManager:
@@ -318,7 +413,7 @@ ready = []                         # List of tasks that are ready for processing
 running = []                       # List of currently running tasks
 completed = []                     # List of completed tasks
 wait_ready = []                    # List of task waiting for being pushed into ready queue because of memory communication time
-executable = []                    # List of task waiting for being executed because of memory communication time 
+executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 
 
 # end class TaskQueues
