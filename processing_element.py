@@ -55,6 +55,7 @@ class PE:
         self.scratchpad_capacity = 0                                            # Total scratchpad buffer size in bytes (configured per PE type)
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
+        self.lock = False                                                       # Determines whether a PE has decided to take on a task.
 
         if (common.DEBUG_CONFIG):
             print('[D] Constructed PE-%d with name %s' %(ID,name))
@@ -232,7 +233,7 @@ class PE:
 
                 # Since the current task is processed, it should be removed
                 # from the outstanding task queue 
-                sim_manager.update_ready_queue(task)
+                sim_manager.update_ready_queue(self,task)
 
                 # Case 2: Evaluate the PE after the queues are updated
                 if self.env.now % common.sampling_rate == 0:

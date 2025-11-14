@@ -299,7 +299,7 @@ add_new_resource resource_type MEM resource_name MEMORY resource_ID 5 capacity 1
 None 0
 
 # comm_band when the source and destination are the same PE
-comm_band_self 1
+comm_band_self 100
 
 # comm_band for all clusters
 comm_band 0 0 100

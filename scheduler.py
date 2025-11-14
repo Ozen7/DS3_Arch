@@ -766,7 +766,7 @@ class Scheduler:
 
     def RELIEF_BASIC(self, list_of_ready: List[Tasks]):
         '''!
-        RELIEF (Resource-Limited Execution with Intelligent Forwarding) Scheduler.
+        RELIEF Scheduler.
 
         This scheduler implements a two-phase algorithm:
         Phase 1: Map each task to its fastest PE and calculate laxity
@@ -814,8 +814,8 @@ class Scheduler:
 
         # Phase 2: Schedule tasks, forwarding to idle PEs when feasible
         for pe_id, PE in enumerate(self.PEs):
-            # Check if this PE is idle and can accept forwarded tasks
-            can_forward = PE.idle and (common.forwarding_enabled if hasattr(common, 'forwarding_enabled') else False)
+            # Check if this PE is idle, not locked (isn't scheduled for anything) and can accept forwarded tasks
+            can_forward = PE.idle and not PE.lock and (common.forwarding_enabled if hasattr(common, 'forwarding_enabled') else False)
 
             # Process all tasks assigned to this PE (highest laxity first - pop from end)
             while len(fwd_nodes[pe_id]) > 0:
@@ -838,23 +838,29 @@ class Scheduler:
                 # Decide: forward to idle PE or schedule normally
                 if can_forward and self.is_feasible(pe_id, task, insert_index):
                     # Forward task - insert at front of queue for immediate execution
-                    if task.PE_ID in common.executable:
-                        common.executable[task.PE_ID].insert(0, task)
+                    common.executable[task.PE_ID].insert(insert_index, task)
 
                     # Mark task as forwarded and update metadata
                     task.isForwarded = True
-                    task.forwarded_from_PE = pe_id
+                    task.forwarded_to_PE = pe_id
                     can_forward = False  # Can only forward one task per idle PE per scheduling round
-                    self.update_forward_metadata(task)
+
                 else:
                     # Normal scheduling - insert at calculated position
-                    if task.PE_ID in common.executable:
-                        common.executable[task.PE_ID].insert(insert_index, task)
-
-        # Clear processed tasks from ready queue
+                    common.executable[task.PE_ID].insert(insert_index, task)
+                    task.isForwarded = False
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
         for task in list_of_ready:
-            if task in common.ready:
-                common.ready.remove(task)
+            common.ready.remove(task)
+        
+        return
+
+                        
+
+
+
+
 
     def is_feasible(self, accelerator_id:int, task:Tasks, index:int):
         '''!
@@ -897,7 +903,11 @@ class Scheduler:
 
         return can_forward
 
-    def update_forward_metadata(self, task:Tasks):
+    def update_forward_metadata(self, ready_task:Tasks):
+
+
+
+
         '''!
         Update metadata for a task that has been forwarded to an idle PE.
 

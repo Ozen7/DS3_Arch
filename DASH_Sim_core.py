@@ -8,7 +8,9 @@ import common                                                                   
 import DTPM
 import DTPM_policies
 from scheduler import Scheduler
+from processing_element import PE
 import RELIEF_Sim_helpers
+from typing import List
 
 # Define the core of the simulation engine
 # This function calls the scheduler, starts/interrupts the tasks,
@@ -18,7 +20,7 @@ class SimulationManager:
     '''!
     Define the SimulationManager class to handle the simulation events.
     '''
-    def __init__(self, env, sim_done, job_gen, scheduler:Scheduler, PE_list, jobs, resource_matrix):
+    def __init__(self, env, sim_done, job_gen, scheduler:Scheduler, PE_list: List[PE], jobs, resource_matrix):
         '''!
         @param env: Pointer to the current simulation environment
         @param sim_done: Simpy event object to indicate whether the simulation must be finished
@@ -40,7 +42,7 @@ class SimulationManager:
 
 
     # I want to delete update_ready_queue and update_execution_queue
-    def update_ready_queue(self,completed_task):
+    def update_ready_queue(self,ProcessingElement:PE,completed_task):
         '''!
         This function updates the common.TaskQueues.ready after one task is completed.
 
@@ -58,6 +60,9 @@ class SimulationManager:
         for task in self.PEs[completed_task.PE_ID].queue:
             if task.ID == completed_task.ID:
                 self.PEs[task.PE_ID].queue.remove(task)
+
+        # unlock the PE:
+        self.PEs[completed_task.PE_ID].lock = False
 
         # Remove the completed task from the currently running queue
         common.running.remove(completed_task)
@@ -212,15 +217,17 @@ class SimulationManager:
             for i, task in enumerate(self.jobs.list[job_ID].task_list):
                 if ready_task.base_ID == task.ID:
                     if ready_task.head == True:
+                        print('task %d is a head task' %(ready_task.ID))
                         # if a task is the leading task of a job
                         # then it can start immediately since it has no predecessor
                         ready_task.PE_to_PE_wait_time.append(self.env.now)
                         ready_task.execution_wait_times.append(self.env.now)
+                        continue
                     # end of if ready_task.head == True:
 
+                    print('task %d num predecessors %d' %(ready_task.ID, len(task.predecessors)))
+
                     for predecessor in task.predecessors:
-                        if(task.ID==ready_task.ID):
-                           ready_task.predecessors = task.predecessors
 
                         # data required from the predecessor for $ready_task
                         comm_vol = self.jobs.list[job_ID].comm_vol[predecessor, ready_task.base_ID]
@@ -295,10 +302,10 @@ class SimulationManager:
                     # which will show when a task is ready for execution
 
                     # Set the time stamp for when the task is ready for execution
-                    if (common.PE_to_PE or common.comm_mode == 'forwarding'):
-                        ready_task.time_stamp = max(ready_task.PE_to_PE_wait_time) if ready_task.PE_to_PE_wait_time else self.env.now
+                    if (common.PE_to_PE or (common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE')):
+                        ready_task.time_stamp = max(ready_task.PE_to_PE_wait_time)
                     else:
-                        ready_task.time_stamp = max(ready_task.execution_wait_times) if ready_task.execution_wait_times else self.env.now
+                        ready_task.time_stamp = max(ready_task.execution_wait_times)
 
                     # Add to per-PE queue in common.executable dictionary
                     if ready_task.PE_ID != -1 and ready_task.PE_ID in common.executable:
@@ -407,61 +414,221 @@ class SimulationManager:
                     print('[E] or check "scheduler.py" if the scheduler exist')
                     sys.exit()
                 # end of if self.scheduler.name
-                self.update_execution_queue(common.ready)
+                if (self.scheduler.name != 'RELIEF_BASE'):
+                    self.update_execution_queue(common.ready)
             # end of if not len(common.ready) == 0:
 
             # Initialize $remove_from_executable which will populate tasks
             # to be removed from the executable queue
             remove_from_executable = {}  # {PE_ID: [tasks_to_remove]}
 
-            # Go over each PE's queue from common.executable dictionary
-            for pe_id, pe_queue in common.executable.items():
-                if len(pe_queue) == 0:
-                    continue
+            if (self.scheduler.name == 'RELIEF_BASE'):
+                for pe_id, pe_queue in common.executable.items():
 
-                PE = self.PEs[pe_id]
+                    P = self.PEs[pe_id]
+                    if len(pe_queue) == 0:
+                        continue
 
-                # for PE blocking data collection
-                if self.env.now >= common.warmup_period:
-                    if not PE.idle:
-                        ready_tasks_count = sum(1 for task in pe_queue if task.time_stamp <= self.env.now)
-                        if ready_tasks_count > 0:
-                            PE.blocking += 1
+                    if self.env.now >= common.warmup_period:
+                        if not P.idle:
+                            ready_tasks_count = sum(1 for task in pe_queue if task.time_stamp <= self.env.now)
+                            if ready_tasks_count > 0:
+                                P.blocking += 1
+                    
+                    # In RELIEF mode, PEs have three states
+                    # 1) P.idle = True, P.lock = False: There is nothing going on for this PE, it is fully idle. 
+                    #    This is the only state in which scheduling is allowed on the PE
+                    # 2) P.idle = True, P.lock = True: The PE is locked because data is being transferred in. 
+                    #    Need to check if the first task in its queue has had its data transferred so we can begin execution
+                    # 3) P.idle = False, P.lock = True: The PE is running.
+                    # For simplicity, each PE can ONLY operate on a single input at a time right now
+                    tasks_to_remove = []
+                    executable_task = pe_queue[0]
+                    if P.idle and P.lock:
+                        dynamic_dependencies_met = True
 
-                # Process tasks in this PE's queue
-                tasks_to_remove = []
-                for executable_task in pe_queue:
-                    is_time_to_execute = (executable_task.time_stamp <= self.env.now)
-                    print(executable_task.ID, is_time_to_execute, executable_task.time_stamp, self.env.now)
-                    PE_has_capacity = (len(PE.queue) < PE.capacity)  # capacity is the number of jobs a PE can have waiting?
-                    task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
+                        dependencies_completed = []
+                        for dynamic_dependency in executable_task.dynamic_dependencies:
+                            dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
+                        if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
+                            dynamic_dependencies_met = False
+                        task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
 
-                    dynamic_dependencies_met = True
+                        if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment): # if it's time to execute
+                            P.queue.append(executable_task)
 
-                    dependencies_completed = []
-                    for dynamic_dependency in executable_task.dynamic_dependencies:
-                        dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
-                    if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
-                        dynamic_dependencies_met = False
+                            if (common.INFO_SIM):
+                                print('[I] Time %s: Task %s is ready for execution by PE-%s'
+                                    % (self.env.now, executable_task.ID, pe_id))
 
-                    if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met and task_has_assignment:
-                        PE.queue.append(executable_task)
+                            current_resource = self.resource_matrix.list[pe_id]
+                            self.env.process(P.run(  # Send the current task and a handle for this simulation manager (self)
+                                self, executable_task, current_resource, DTPM_module))  # This handle is used by the PE to call the update_ready_queue function
 
-                        if (common.INFO_SIM):
-                            print('[I] Time %s: Task %s is ready for execution by PE-%s'
-                                  % (self.env.now, executable_task.ID, pe_id))
+                            remove_from_executable[pe_id] = [executable_task]
+                        # end if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment):
+                        
+                    # end if P.idle and P.lock:
+                    elif P.idle and not P.lock:
+                        # lock PE, begin pulling value from input
+                        P.lock = True
 
-                        current_resource = self.resource_matrix.list[pe_id]
-                        self.env.process(PE.run(  # Send the current task and a handle for this simulation manager (self)
-                            self, executable_task, current_resource, DTPM_module))  # This handle is used by the PE to call the update_ready_queue function
+                        # The rest of this is similar to what goes on in update_execution_queue, since we begin pulling data.
+                        # Get the Job Name
+                        for ind, job in enumerate(self.jobs.list):
+                            if job.name == executable_task.jobname:
+                                job_ID = ind
 
-                        tasks_to_remove.append(executable_task)
-                    # end of if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met
+                        # Get the list of tasks 
+                        for task in self.jobs.list[job_ID].task_list:
+                            if executable_task.base_ID == task.ID:
+                                if executable_task.head == True:
+                                    print('task %d is a head task' %(executable_task.ID))
+                                    # if a task is the leading task of a job
+                                    # then it can start immediately since it has no predecessor
+                                    executable_task.PE_to_PE_wait_time.append(self.env.now)
+                                    executable_task.execution_wait_times.append(self.env.now)
+                                    continue
+                                # end of if ready_task.head == True:
 
-                # Remove executed tasks from this PE's queue
-                if tasks_to_remove:
-                    remove_from_executable[pe_id] = tasks_to_remove
-            # end of for pe_id, pe_queue in common.executable.items():
+                                print('task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
+
+                                for predecessor in task.predecessors:
+
+                                    # data required from the predecessor for $ready_task
+                                    comm_vol = self.jobs.list[job_ID].comm_vol[predecessor, executable_task.base_ID]
+
+                                    # retrieve the real ID  of the predecessor based on the job ID
+                                    real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
+
+                                    # Initialize following two variables which will be used if
+                                    # PE to PE communication is utilized
+                                    predecessor_PE_ID = -1
+                                    predecessor_finish_time = -1
+                                    predecessor_task = None
+
+                                    # Find the predecessor task to get its PE and finish time
+                                    for completed in common.completed:
+                                        if completed.ID == real_predecessor_ID:
+                                            predecessor_PE_ID = completed.PE_ID
+                                            predecessor_finish_time = completed.finish_time
+                                            predecessor_task = completed
+                                            break
+
+                                    # Decide communication timing mode (PE_to_PE or memory)
+                                    if predecessor_task is not None:
+                                        comm_timing = self.decide_comm_timing(executable_task, predecessor_task, executable_task.PE_ID)
+                                        executable_task.comm_timing_mode = comm_timing
+                                    else:
+                                        # No predecessor found (shouldn't happen, but default to legacy behavior)
+                                        comm_timing = 'PE_to_PE' if common.PE_to_PE else 'memory'
+
+                                    if comm_timing == 'PE_to_PE' or common.PE_to_PE:
+                                        # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
+                                        comm_band = common.ResourceManager.comm_band[predecessor_PE_ID, executable_task.PE_ID]
+                                        PE_to_PE_comm_time = int(comm_vol/comm_band)
+                                        executable_task.PE_to_PE_wait_time.append(PE_to_PE_comm_time + predecessor_finish_time)
+
+                                        if (common.DEBUG_SIM):
+                                            mode_str = "forwarding" if common.comm_mode == 'forwarding' else "PE-to-PE"
+                                            print('[D] Time %d: Data transfer (%s) from PE-%s to PE-%s for task %d from task %d is completed at %d us'
+                                                %(self.env.now, mode_str, predecessor_PE_ID, executable_task.PE_ID,
+                                                    executable_task.ID, real_predecessor_ID, executable_task.PE_to_PE_wait_time[-1]))
+
+                                        # In forwarding mode, allocate scratchpad space for the data (TODO)
+                                        if common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE':
+                                            target_PE = self.PEs[executable_task.PE_ID]
+                                            if target_PE.forwarding_enabled:
+                                                data_id = f"{predecessor_task.ID}_output"
+                                                target_PE.allocate_scratchpad(data_id, comm_vol, predecessor_task.ID)
+                                    # end of if comm_timing == 'PE_to_PE':
+
+                                    if comm_timing == 'memory' or common.shared_memory:
+                                        # Use memory communication timing
+                                        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, ready_task.PE_ID]
+                                        from_memory_comm_time = int(comm_vol/comm_band)
+                                        if (common.DEBUG_SIM):
+                                            print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
+                                                %(self.env.now, executable_task.ID, real_predecessor_ID, executable_task.PE_ID, from_memory_comm_time))
+                                        executable_task.execution_wait_times.append(from_memory_comm_time + self.env.now)
+                                    # end of if comm_timing == 'memory'
+                                # end of for predecessor in task.predecessors:
+
+                                if (common.INFO_SIM) and (common.PE_to_PE):
+                                    print('[I] Time %d: Task %d execution ready times due to communication between PEs are'
+                                        %(self.env.now, executable_task.ID))
+                                    print('%12s'%(''), executable_task.PE_to_PE_wait_time)
+
+                                if (common.INFO_SIM) and (common.shared_memory):
+                                    print('[I] Time %d: Task %d execution ready time(s) due to communication between memory and PE-%s are'
+                                        %(self.env.now, executable_task.ID, executable_task.PE_ID))
+                                    print('%12s'%(''), executable_task.execution_wait_times)
+
+                                # Populate all ready tasks in executable with a time stamp
+                                # which will show when a task is ready for execution
+
+                                # Set the time stamp for when the task is ready for execution
+                                if (common.PE_to_PE or (common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE')):
+                                    executable_task.time_stamp = max(executable_task.PE_to_PE_wait_time)
+                                else:
+                                    executable_task.time_stamp = max(executable_task.execution_wait_times)
+                                # end else
+                            # end if executable_task.base_ID == task.ID:
+                        # end  for task in self.jobs.list[job_ID].task_list:
+                    # end elif P.idle and not P.lock:
+                    elif not P.idle and P.lock: 
+                        continue # PE is running when locked and not idle
+                    else:
+                        assert(False) #should be impossible
+            # end of if (self.scheduler.name == 'RELIEF_BASE'):
+            else:   
+                # Go over each PE's queue from common.executable dictionary
+                for pe_id, pe_queue in common.executable.items():
+                    if len(pe_queue) == 0:
+                        continue
+
+                    PE = self.PEs[pe_id]
+
+                    # for PE blocking data collection
+                    if self.env.now >= common.warmup_period:
+                        if not PE.idle:
+                            ready_tasks_count = sum(1 for task in pe_queue if task.time_stamp <= self.env.now)
+                            if ready_tasks_count > 0:
+                                PE.blocking += 1
+
+                    # Process tasks in this PE's queue
+                    tasks_to_remove = []
+                    for executable_task in pe_queue:
+                        is_time_to_execute = (executable_task.time_stamp <= self.env.now)
+                        PE_has_capacity = (len(PE.queue) < PE.capacity)  # capacity is the number of jobs a PE can have waiting?
+                        task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
+
+                        dynamic_dependencies_met = True
+
+                        dependencies_completed = []
+                        for dynamic_dependency in executable_task.dynamic_dependencies:
+                            dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
+                        if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
+                            dynamic_dependencies_met = False
+
+                        if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met and task_has_assignment:
+                            PE.queue.append(executable_task)
+
+                            if (common.INFO_SIM):
+                                print('[I] Time %s: Task %s is ready for execution by PE-%s'
+                                    % (self.env.now, executable_task.ID, pe_id))
+
+                            current_resource = self.resource_matrix.list[pe_id]
+                            self.env.process(PE.run(  # Send the current task and a handle for this simulation manager (self)
+                                self, executable_task, current_resource, DTPM_module))  # This handle is used by the PE to call the update_ready_queue function
+
+                            tasks_to_remove.append(executable_task)
+                        # end of if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met
+
+                    # Remove executed tasks from this PE's queue
+                    if tasks_to_remove:
+                        remove_from_executable[pe_id] = tasks_to_remove
+                # end of for pe_id, pe_queue in common.executable.items():
 
             # Remove the tasks from executable queue that have been executed by a resource
             for pe_id, tasks in remove_from_executable.items():

@@ -8,6 +8,8 @@ import ast
 import networkx as nx
 import pickle
 import numpy as np
+from typing import List
+
 
 #time_at_sim_termination = -1
 
@@ -408,11 +410,11 @@ class ApplicationManager:
 
 #class TaskQueues:
 
-outstanding = []                   # List of *all* tasks waiting to be processed
-ready = []                         # List of tasks that are ready for processing
-running = []                       # List of currently running tasks
-completed = []                     # List of completed tasks
-wait_ready = []                    # List of task waiting for being pushed into ready queue because of memory communication time
+outstanding:List[Tasks] = []                   # List of *all* tasks waiting to be processed
+ready:List[Tasks] = []                         # List of tasks that are ready for processing
+running:List[Tasks] = []                       # List of currently running tasks
+completed:List[Tasks] = []                     # List of completed tasks
+wait_ready:List[Tasks] = []                    # List of task waiting for being pushed into ready queue because of memory communication time
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 
 
