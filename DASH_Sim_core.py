@@ -61,7 +61,8 @@ class SimulationManager:
                 self.PEs[task.PE_ID].queue.remove(task)
 
         # unlock the PE:
-        self.PEs[completed_task.PE_ID].lock = False
+        PE = self.PEs[completed_task.PE_ID]
+        PE.lock = False
 
         # Remove the completed task from the currently running queue
         common.running.remove(completed_task)
@@ -90,6 +91,7 @@ class SimulationManager:
         for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
+                PE.scratchpad[f"{completed_task.ID}_output"]['dependencies'].append(outstanding_task)   # the output of the predecessor will save back to memory when ejected if the outstanding task has not finished computing
 
                 if (common.shared_memory):
                     # Get the communication time to memory for data from a
@@ -231,10 +233,7 @@ class SimulationManager:
 
                             # In forwarding mode, allocate scratchpad space for the data
                             if common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE':
-                                target_PE = self.PEs[ready_task.PE_ID]
-                                if target_PE.forwarding_enabled:
-                                    data_id = f"{predecessor_task.ID}_output"
-                                    target_PE.allocate_scratchpad(data_id, comm_vol, predecessor_task.ID)
+                                assert False # should never be here
                         # end of if comm_timing == 'PE_to_PE':
 
                         if comm_timing == 'memory' or common.shared_memory:

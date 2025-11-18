@@ -210,6 +210,12 @@ class PE:
                         common.results.execution_time = self.env.now
                         common.results.completed_jobs += 1
 
+                        # tail task's deadline is set based on DAG deadline
+                        if (self.env.now < task.deadline):
+                            common.results.deadlines_met += 1
+                        else:
+                            common.results.deadlines_missed += 1
+
                         # Interrupts the timeout of job generator if the inject_jobs_ASAP flag is active
                         if sim_manager.job_gen.generate_job and common.inject_jobs_ASAP:
                             sim_manager.job_gen.action.interrupt()
@@ -307,19 +313,21 @@ class PE:
 
         # Evict data using LRU until we have enough space
         while (self.scratchpad_used + size) > self.scratchpad_capacity:
-            if not self.scratchpad:
+            oldest_data_id = min(self.scratchpad.keys(), key=lambda k: self.scratchpad[k]['timestamp'])
+
+            if not self.scratchpad or self.scratchpad[oldest_data_id]['timestamp'] == self.env.now:
                 # No more data to evict but still not enough space
                 return False
 
             # Find oldest entry (minimum timestamp)
-            oldest_data_id = min(self.scratchpad.keys(), key=lambda k: self.scratchpad[k]['timestamp'])
             self.free_scratchpad(oldest_data_id)
 
         # Allocate space
         self.scratchpad[data_id] = {
             'task_id': task_id,
             'size': size,
-            'timestamp': self.env.now
+            'timestamp': self.env.now,
+            'dependencies': []
         }
         self.scratchpad_used += size
 
@@ -336,11 +344,26 @@ class PE:
         '''
         if data_id in self.scratchpad:
             
+            # Decide whether or not to evict/write back task output to memory
+            writeback = False
+            for predecessor in self.scratchpad[data_id]['dependencies']:
+                if predecessor.start_time == -1 and predecessor.finish_time == -1:
+                    writeback = writeback or True
+                elif predecessor.start_time != -1 and predecessor.finish_time == -1:
+                    self.scratchpad[data_id]['timestamp'] = self.env.now 
+                    # we cannot eject this from cache (being used), and have no way of knowing the exact finish time of predecessor. 
+                    # therefore, we set its timestamp to the current time and return. If there is no room in the scratchpad this could lead to an infinite loop - be careful.
+                    return
+                else:
+                    writeback = False
+
+            
             size = self.scratchpad[data_id]['size']
             del self.scratchpad[data_id]
             self.scratchpad_used -= size
 
-            self.simManager.writeback_handler(data_id, size, self.ID) #writes values back to memory. TODO - only writes back if it will be used in the future (doesn't really matter rn since we have no memory contention)
+            if writeback:
+                self.simManager.writeback_handler(data_id, size, self.ID) #writes values back to memory. TODO - only writes back if it will be used in the future (doesn't really matter rn since we have no memory contention)
 
             if common.DEBUG_SIM:
                 print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'

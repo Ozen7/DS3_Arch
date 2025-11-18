@@ -360,6 +360,8 @@ def run_simulator(scale_values=common.scale_values_list):
                     print('[I] Completed iteration: %d' %(iteration+1))
                     print('[I] Number of injected jobs: %d' %(common.results.injected_jobs))
                     print('[I] Number of completed jobs: %d' %(common.results.completed_jobs))
+                    print('[I] Number of deadlines met: %d' %(common.results.deadlines_met))
+                    print('[I] Number of deadlines missed: %d' %(common.results.deadlines_missed))
                     try:
                         print('[I] Ave latency: %f'
                         %(common.results.cumulative_exe_time/common.results.completed_jobs))
@@ -372,6 +374,7 @@ def run_simulator(scale_values=common.scale_values_list):
                     print("[I] %-30s : %-20s" % ("EDP",
                                                  round((common.results.execution_time - common.warmup_period) * common.results.cumulative_energy_consumption, 2)))
                     print("[I] %-30s : %-20s" % ("Average concurrent jobs", round(common.results.average_job_number, 2)))
+
                     
                     result_exec_time = common.results.execution_time - common.warmup_period
                     result_energy_cons = common.results.cumulative_energy_consumption

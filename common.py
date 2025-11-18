@@ -229,6 +229,8 @@ class PerfStatics:
         self.ave_execution_time = 0.0               # Average execution time for the jobs that are finished 
         self.job_counter = 0                        # Indicate the number of jobsin the system at any given time
         self.average_job_number = 0                 # Shows the average number of jobs in the system for a workload
+        self.deadlines_met = 0                      # Shows the number of deadlines met
+        self.deadlines_missed = 0                   # Shows the number of deadlines missed
         self.job_counter_list = []
         self.sampling_rate_list = []
 # end class PerfStatics
@@ -388,6 +390,7 @@ class Applications:
     '''
     def __init__(self):
         self.name =  ''                         # The name of the application
+        self.deadline = 0
         self.task_list = []                     # List of all tasks in an application
         self.comm_vol = []                      # This variable represents the communication volume matrix
         # i.e. each entry is data volume should be transferred from one task to another
@@ -478,8 +481,8 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                             %(caller.env.now, mode_str, predecessor_PE_ID, PE_ID,
                                 executable_task.ID, real_predecessor_ID, wait_times[-1]))
 
-                    # In forwarding mode, allocate scratchpad space for the data (TODO)
-                    if canAllocate:
+                    # If we are colocating, there is no need to allocate more space (self-to-self bandwidth is set at a high number so there is no latency overhead either)
+                    if canAllocate and predecessor_PE_ID == PE_ID:
                         target_PE = caller.PEs[executable_task.PE_ID]
                         if target_PE.forwarding_enabled:
                             data_id = f"{predecessor_task.ID}_output"
@@ -488,7 +491,7 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
 
                 if comm_timing == 'memory' or shared_memory:
                     # Use memory communication timing
-                    comm_band = ResourceManager.comm_band[ResourceManager.list[-1].ID, PE_ID]
+                    comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
                     from_memory_comm_time = int(comm_vol/comm_band)
                     if f"{predecessor_task.ID}_output" in memory_writeback:
                         from_memory_comm_time += memory_writeback[f"{predecessor_task.ID}_output"]

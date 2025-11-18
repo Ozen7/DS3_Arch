@@ -781,17 +781,17 @@ class Scheduler:
             # Find the PE with minimum execution time for this task (compute + memory movement)
             best_pe_id = -1
             best_pe_type = ""
-            min_exec_time = -1
+            min_finish_time = -1
 
             for i, resource in enumerate(self.resource_matrix.list):
                 if task.name in resource.supported_functionalities:
                     # Get execution time for this task on this PE
                     func_index = resource.supported_functionalities.index(task.name)
-                    exec_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
+                    finish_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
 
                     # Update if this is the fastest PE found so far
-                    if min_exec_time == -1 or exec_time < min_exec_time:
-                        min_exec_time = exec_time
+                    if min_finish_time == -1 or finish_time < min_finish_time:
+                        min_finish_time = finish_time
                         best_pe_id = resource.ID
                         best_pe_type = resource.type
 
@@ -806,7 +806,7 @@ class Scheduler:
             # Calculate task laxity: deadline - runtime
             # Laxity represents slack time before deadline is violated
             task.PE_ID = best_pe_id
-            task.runtime = min_exec_time
+            task.runtime = min_finish_time
             task.laxity = task.deadline - task.runtime
 
             # Insert task into PE's bucket sorted by laxity (ascending order)

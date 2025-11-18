@@ -58,6 +58,9 @@ def job_parse(jobs, file_name):
             if current_line[0] == 'job_name':                               
                 new_job.name = current_line[1]                                  # record new job's name and, 
                 jobs.list.append(new_job)                                       # append the job list with the new job
+
+            elif current_line[0] == 'deadline':
+                new_job.deadline = int(current_line[1])
             
                 
             elif (current_line[0] == 'add_new_tasks'):                          # The key word "add_new_task" implies that the config file defines a new task
@@ -91,6 +94,7 @@ def job_parse(jobs, file_name):
             if current_line[1] == 'TAIL':                                       # Marked as the TAIL
                 ind = new_job.task_list.index(new_job.task_list[-1])            # then take the id of the last added task and
                 new_job.task_list[ind].tail = True                              # change 'tail' to be True
+                new_job.task_list[ind].deadline = new_job.deadline
                 continue
             
             if current_line[1] == 'earliest_start':                                                                      # if 'earliest_start' in current line
