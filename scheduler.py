@@ -11,7 +11,6 @@ import bisect
 
 import common                                                                   # The common parameters used in DASH-Sim are defined in common_parameters.py
 from common import Tasks, ApplicationManager, ResourceManager
-from processing_element import PE
 import DTPM_power_models
 import DASH_Sim_core
 
@@ -779,7 +778,7 @@ class Scheduler:
         fwd_nodes = [[] for _ in range(len(self.PEs))]
 
         for task in list_of_ready:
-            # Find the PE with minimum execution time for this task
+            # Find the PE with minimum execution time for this task (compute + memory movement)
             best_pe_id = -1
             best_pe_type = ""
             min_exec_time = -1
@@ -788,22 +787,27 @@ class Scheduler:
                 if task.name in resource.supported_functionalities:
                     # Get execution time for this task on this PE
                     func_index = resource.supported_functionalities.index(task.name)
-                    exec_time = resource.performance[func_index]
+                    exec_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
 
                     # Update if this is the fastest PE found so far
                     if min_exec_time == -1 or exec_time < min_exec_time:
-                        min_exec_time = int(exec_time)
+                        min_exec_time = exec_time
                         best_pe_id = resource.ID
                         best_pe_type = resource.type
 
             # Ensure task can be executed on at least one PE
             assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
 
+            
+            # predicted runtime uses MAX bandwidth in order to calculate runtime. TODO - this has little impact on RELIEF's limited evaluation, but could be far more important when there are multiple destinations for a task.
+
+
+
             # Calculate task laxity: deadline - runtime
             # Laxity represents slack time before deadline is violated
-            task.laxity = task.deadline - min_exec_time
             task.PE_ID = best_pe_id
             task.runtime = min_exec_time
+            task.laxity = task.deadline - task.runtime
 
             # Insert task into PE's bucket sorted by laxity (ascending order)
             # Smaller laxity = less slack = higher priority
@@ -840,7 +844,7 @@ class Scheduler:
                     # Forward task - insert at front of queue for immediate execution
                     common.executable[task.PE_ID].insert(insert_index, task)
 
-                    # Mark task as forwarded and update metadata
+                    # Mark task as forwarded for analysis purposes (it will be automatically forwarded as long as the target accelerator still has the output data)
                     task.isForwarded = True
                     task.forwarded_to_PE = pe_id
                     can_forward = False  # Can only forward one task per idle PE per scheduling round
@@ -860,8 +864,6 @@ class Scheduler:
 
 
 
-
-
     def is_feasible(self, accelerator_id:int, task:Tasks, index:int):
         '''!
         Determine if forwarding a task to an idle PE is feasible without violating laxity constraints.
@@ -876,271 +878,33 @@ class Scheduler:
         '''
         can_forward = True
 
+        if accelerator_id not in common.executable:
+            assert(False)
         # Check if any task already in this PE's queue would be delayed past its laxity
-        if accelerator_id in common.executable:
+        for i, executable_task in enumerate(common.executable[accelerator_id]):
+            # Stop checking once we reach the insertion point
+            if i == index:
+                break
+
+            # Calculate current laxity relative to simulation time
+            curr_laxity = executable_task.laxity - self.env.now
+
+            # Check if a non-forwarded task with positive laxity would be violated
+            if not executable_task.isForwarded and curr_laxity > 0:
+                # Forwarding is feasible only if this task's laxity exceeds the forwarded task's runtime
+                can_forward = curr_laxity > task.runtime
+                break
+
+        # If forwarding is feasible, update laxity values for tasks that will be delayed
+        # This accounts for the additional delay caused by the forwarded task executing first
+        if can_forward:
             for i, executable_task in enumerate(common.executable[accelerator_id]):
-                # Stop checking once we reach the insertion point
                 if i == index:
                     break
-
-                # Calculate current laxity relative to simulation time
-                curr_laxity = executable_task.laxity - self.env.now
-
-                # Check if a non-forwarded task with positive laxity would be violated
-                if not executable_task.isForwarded and curr_laxity > 0:
-                    # Forwarding is feasible only if this task's laxity exceeds the forwarded task's runtime
-                    can_forward = curr_laxity > task.runtime
-                    break
-
-            # If forwarding is feasible, update laxity values for tasks that will be delayed
-            # This accounts for the additional delay caused by the forwarded task executing first
-            if can_forward:
-                for i, executable_task in enumerate(common.executable[accelerator_id]):
-                    if i == index:
-                        break
-                    # Reduce laxity by the forwarded task's runtime
-                    executable_task.laxity -= task.runtime
+                # Reduce laxity by the forwarded task's runtime
+                executable_task.laxity -= task.runtime
 
         return can_forward
 
-    def update_forward_metadata(self, ready_task:Tasks):
-
-
-
-
-        '''!
-        Update metadata for a task that has been forwarded to an idle PE.
-
-        This function handles all the bookkeeping required when a task is forwarded,
-        including scratchpad management, data location tracking, and communication mode setup.
-
-        @param task: The task that has been forwarded to an idle PE
-
-        TODO: Implement the following functionality:
-
-        1. SCRATCHPAD ALLOCATION FOR FORWARDED TASK'S INPUTS:
-           - Identify all predecessor tasks whose outputs this task needs
-           - For each predecessor:
-             a) Check if predecessor's output is already in the target PE's scratchpad
-                - Use: self.PEs[task.PE_ID].has_data_in_scratchpad(f"{pred_id}_output")
-             b) If not in scratchpad, allocate space for the data
-                - Get data size from task.data_sizes[pred_id] or job.comm_vol matrix
-                - Use: self.PEs[task.PE_ID].allocate_scratchpad(data_id, size, pred_task_id)
-                - This will automatically evict old data if scratchpad is full (LRU policy)
-             c) Track data location in task.data_locations[pred_id] = task.PE_ID
-
-        2. SCRATCHPAD RESERVATION FOR TASK'S OUTPUT:
-           - Calculate output data size for this task
-           - Reserve scratchpad space for task's output so successors can be forwarded
-           - Use: self.PEs[task.PE_ID].allocate_scratchpad(f"{task.ID}_output", output_size, task.ID)
-           - Consider: May need to check if there's sufficient space for output before forwarding
-
-        3. UPDATE COMMUNICATION TIMING METADATA:
-           - Set task.comm_timing_mode = 'PE_to_PE' (already handled by decide_comm_timing)
-           - Update task.data_locations dictionary with locations of all input data
-           - This metadata will be used by DASH_Sim_core.decide_comm_timing() to determine
-             communication costs when the task executes
-
-        4. TRACK PREDECESSOR PE LOCATIONS:
-           - For each predecessor task, record which PE it executed on
-           - Loop through common.completed to find predecessors
-           - Store in task.data_locations[pred_task_ID] = pred_PE_ID
-           - This enables calculating PE-to-PE communication bandwidth and timing
-
-        5. CALCULATE ACTUAL COMMUNICATION COSTS:
-           - For each predecessor:
-             a) Get communication volume from job.comm_vol[pred_base_id, task.base_id]
-             b) Get communication bandwidth:
-                - If data in scratchpad: Use PE-to-PE bandwidth from comm_band matrix
-                - If data in memory: Use memory-to-PE bandwidth
-             c) Update task's expected ready time based on communication delays
-             d) Consider: May need to adjust task.time_stamp based on actual comm delays
-
-        6. HANDLE PARTIAL FORWARDING:
-           - Some inputs may be in scratchpad (can forward), others in memory (cannot)
-           - Track which inputs can use PE_to_PE timing vs memory timing
-           - Store in task.input_comm_modes[pred_id] = 'PE_to_PE' or 'memory'
-           - This allows hybrid communication: forward what's possible, fetch rest from memory
-
-        7. UPDATE SUCCESSOR TASK OPPORTUNITIES:
-           - Mark this task's output as potentially forwardable for successor tasks
-           - When successors become ready, they can check if this task's output is in scratchpad
-           - May want to maintain a global or per-PE data structure tracking available data
-
-        8. STATISTICS AND DEBUGGING:
-           - Track number of successful forwards vs failed forwards
-           - Record scratchpad utilization over time
-           - Log forwarding decisions for analysis
-           - If common.DEBUG_SCH, print forwarding metadata details
-
-        9. EDGE CASES TO HANDLE:
-           - Task has no predecessors (head task): No inputs to forward
-           - Scratchpad full: Need to evict data, may impact future forwarding opportunities
-           - Multiple predecessors on different PEs: Some may be forwardable, others not
-           - Predecessor output too large for scratchpad: Cannot forward, must use memory
-
-        10. INTEGRATION WITH EXISTING COMMUNICATION MODES:
-            - In forwarding mode, this function sets up the metadata
-            - DASH_Sim_core.decide_comm_timing() will use task.isForwarded flag and metadata
-            - DASH_Sim_core.update_execution_queue() will use metadata to calculate delays
-            - Processing_element.run() may need to free scratchpad after task completes
-
-        IMPLEMENTATION NOTES:
-        - Access job information via: self.jobs.list[job_id] where job matches task.jobname
-        - Communication volume matrix: self.jobs.list[job_id].comm_vol[pred_base_id, task_base_id]
-        - Communication bandwidth: common.ResourceManager.comm_band[src_PE_id, dst_PE_id]
-        - Scratchpad methods: PE.allocate_scratchpad(), PE.free_scratchpad(), PE.has_data_in_scratchpad()
-        - Task metadata: task.data_locations, task.data_sizes, task.comm_timing_mode, task.forwarded_from_PE
-        '''
-        # TODO: Implement the functionality described above
-        pass
-
-    def RELIEF_ALT(self, list_of_ready: List[Tasks]):
-        # Note: list_of_ready is a surface copy
-
-        fwd_nodes = [[]*len(self.PEs)]                                          # Keeps track of sorted forwarding candidates for each PE
-
-        for task in list_of_ready:
-            laxity = [np.inf]*len(self.PEs)                                     # Initialize the comparison vector
-            job_ID = -1                                                         # Initialize the job ID
-
-            # Retrieve the job ID which the current task belongs to
-            # Jobs are stored in self.jobs.list, meaning we need to do a 
-            # name lookup in that list to get the DAG structure. Why??
-            for ii, job in enumerate(self.jobs.list):
-                if job.name == task.jobname:
-                    job_ID = ii
-
-            # TODO - calculate critical path deadline of the task
-
-            if (common.DEBUG_SCH):
-                print ('[D] Time %s: The scheduler function is called with task %s'
-                        %(self.env.now, task.ID))
-            
-            # Now, we compute the laxity of the task on each PE.
-            for i in range(len(self.resource_matrix.list)):
-                can_fwd_all = True                                             # indicates whether or not all resources can be forwarded
-                # if the task is supported by the resource, retrieve the index of the task
-                if (task.name in self.resource_matrix.list[i].supported_functionalities):
-                    ind = self.resource_matrix.list[i].supported_functionalities.index(task.name)
-                    PE_FWD_LIST = []                                            # A list of predecessor values to be forwarded, used in runtime calculations
-
-                    # Gather data from each predecessor to determine communication times
-                    for predecessor in self.jobs.list[job_ID].task_list[task.base_ID].predecessors:
-                        # data required from the predecessor for $ready_task
-                        c_vol = self.jobs.list[job_ID].comm_vol[predecessor, task.base_ID]
-                        
-                        # retrieve the real ID  of the predecessor based on the job ID - TODO What is the difference between real id and predecessor ID?
-                        # Why does each task have 15 different types of ID
-                        real_predecessor_ID = predecessor + task.ID - task.base_ID
-                    
-                        predecessor_PE_ID = -1
-                        predecessor_finish_time = -1
-
-                        # TODO - There has to be a better way to do this. Maybe we turn the completed list into a set? 
-                        for completed in common.completed:
-                            if (completed.ID == real_predecessor_ID):
-                                predecessor_PE_ID = completed.PE_ID
-                                predecessor_finish_time = completed.finish_time
-                                break
-                                #print(predecessor, predecessor_finish_time, predecessor_PE_ID)
-                        
-                        if (common.FWD_ENABLED): 
-                            PE_FWD_LIST.append((predecessor,predecessor_PE_ID,predecessor_finish_time,c_vol))
-                            # TODO - find a way to indicate which inputs can be forwarded. Forwarding can ONLY happen to idle PEs, but some inputs can be forwarded and others not.
-                            if can_fwd_all: # no point in computing can_fwd if it can't forward
-                                can_fwd_all = can_fwd_all and can_fwd(task,predecessor_PE_ID,i)
-                    # End of for predecessor in self.jobs.list[job_ID].task_list[task.base_ID].predecessors:
-
-                    # $PE_comm_wait_times is a list to store the estimated communication time 
-                    # (or the remaining communication time) of all predecessors of a task for a PE
-                    # As simulation forwards, relevant data is being sent after a task is completed
-                    # based on the time instance, one should consider either whole communication
-                    # time or the remaining communication time for scheduling
-                    PE_comm_wait_times = []
-
-                    if not can_fwd_all: # use memory
-                        for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
-                            memory_to_PE_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, i]
-                            shared_memory_comm_time = int(c_vol/memory_to_PE_band)
-                        
-                            PE_comm_wait_times.append(shared_memory_comm_time)
-                            if (common.DEBUG_SCH):
-                                print('[D] Time %s: Estimated communication time between memory to PE-%s from task %s to task %s is %d' 
-                                %(self.env.now, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
-                    else:  #directly to PE scratchpad -> scratchpad
-                        for (predecessor, predecessor_PE_ID, predecessor_finish_time, c_vol) in PE_FWD_LIST:
-                        # Compute the PE to PE communication time
-                        # PE_to_PE_band = self.resource_matrix.comm_band[predecessor_PE_ID, i]
-                            PE_to_PE_band = common.ResourceManager.comm_band[predecessor_PE_ID, i]
-                            PE_to_PE_comm_time = int(c_vol/PE_to_PE_band)
-                            
-                            PE_comm_wait_times.append(max((predecessor_finish_time + PE_to_PE_comm_time - self.env.now), 0))
-                            
-                            if (common.DEBUG_SCH):
-                                print('[D] Time %s: Estimated communication time between PE-%s to PE-%s from task %s to task %s is %d' 
-                                        %(self.env.now, predecessor_PE_ID, i, real_predecessor_ID, task.ID, PE_comm_wait_times[-1]))
-                                
-                    
-                    # comparison[i] is how long a task will take to fully run on PE i.
-                    # latency + max(input wait time, PE's remaining runtime for all tasks)
-                    task_finish_time_on_PE = self.resource_matrix.list[i].performance[ind] + max(max(PE_comm_wait_times), max((self.PEs[i].available_time - self.env.now), 0))
-
-                    # TODO- now we need to find the critical path. requires an overhaul of job_generator.py, job_parser.py to include job-level deadlines, I believe
-
-                    task_critical_path_deadline = task.deadline
-
-                    # find least laxity!
-
-                    laxity[i] = task_critical_path_deadline - task_finish_time_on_PE
-                # end if (task.name in self.resource_matrix.list[i].supported_functionalities): - checks if accelerator supports computing this task
-            # end for i in range(len(self.resource_matrix.list)) - computes execution time on each potential accelerator
-            
-            # we schedule on the PE with the highest laxity:
-            max_laxity_pe_index = max(range(len(laxity)), key=laxity.__getitem__)
-            task.laxity = laxity[max_laxity_pe_index]
-
-            # find the index of fwd_nodes to insert into.
-            index = 0
-            while index < len(fwd_nodes[max_laxity_pe_index]) and fwd_nodes[max_laxity_pe_index][index].laxity < task.laxity:
-                index+=1
-
-            fwd_nodes.insert(index, task)
-
-            # TODO - In our can_fwd logic,  we already perform the idle accelerator check, as well as indicate which inputs can be forwarded or not.
-            # we also 
-            task.forwarded = False
-        # end for task in list_of_ready:
-
-
-
-        # So, in our first loop, we perform checks on which inputs can potentially be forwarded or colocated when running, and our second loop will check whether a given PE is idle and whether it's list of nodes 
-        # has room for forwarding. If it does, we forward. If not, we don't and all values are saved to memory.
-
-        # Be very careful - each task can have many children, and each task can also have many parents
-
-
-
-
-        #will be used to pull memory when PE begins working on it. Adjust based on whether the final selected PE is being forwarded to
-
     def LL(self,list_of_ready):
         ""
-
-    def PE_fwdable(PE_ID):
-        # first, we check whether the PE is idle. If it is, we can forward.
-
-        # Then, we check the PE's input queues to see if forwarding on this accelerator at all is feasible.
-        return True
-
-
-    def can_fwd(task,predPE,newPE):
-
-        # Then, performs a check to see if the task is still alive in the producer's output scratchpad
-        # if so, it checks if there is a forwarding opportunity between producer and consumer.
-        # finally, if there is a forwarding opportunity (laxity allows for it), it returns the memory speed 
-        # of the forward (Based on PE-to-PE communication times) or -1 if it cant be forwarded
-
-        #also check for colocation!
-        return True
-

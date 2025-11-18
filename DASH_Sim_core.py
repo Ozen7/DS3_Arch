@@ -8,7 +8,6 @@ import common                                                                   
 import DTPM
 import DTPM_policies
 from scheduler import Scheduler
-from processing_element import PE
 import RELIEF_Sim_helpers
 from typing import List
 
@@ -20,7 +19,7 @@ class SimulationManager:
     '''!
     Define the SimulationManager class to handle the simulation events.
     '''
-    def __init__(self, env, sim_done, job_gen, scheduler:Scheduler, PE_list: List[PE], jobs, resource_matrix):
+    def __init__(self, env, sim_done, job_gen, scheduler:Scheduler, PE_list, jobs, resource_matrix):
         '''!
         @param env: Pointer to the current simulation environment
         @param sim_done: Simpy event object to indicate whether the simulation must be finished
@@ -42,7 +41,7 @@ class SimulationManager:
 
 
     # I want to delete update_ready_queue and update_execution_queue
-    def update_ready_queue(self,ProcessingElement:PE,completed_task):
+    def update_ready_queue(self,completed_task):
         '''!
         This function updates the common.TaskQueues.ready after one task is completed.
 
@@ -87,6 +86,7 @@ class SimulationManager:
 
         # Check if the dependency of any outstanding task is cleared
         # We need to move them to the ready queue
+        
         for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
@@ -117,7 +117,9 @@ class SimulationManager:
                                   common.ready)                                    # We should not append another copy
 
             if (no_predecessors and not(currently_running) and not_in_ready_queue):
-                if (common.PE_to_PE):                                                              # if PE to PE communication is utilized
+                if (common.forwarding_enabled):
+                    common.ready.append(common.outstanding[i]) # if we're forwarding - writing back to memory is done upon ejection from a scratchpad, not when the task stops running
+                elif (common.PE_to_PE):                                                              # if PE to PE communication is utilized
                     common.ready.append(common.outstanding[i])     # Add the task to the ready queue immediately
 
                 elif (common.shared_memory):
@@ -145,47 +147,6 @@ class SimulationManager:
             # the outstanding queue
     #end def update_ready_queue(completed_task)
 
-    def decide_comm_timing(self, task, predecessor_task, target_PE_ID):
-        '''!
-        Decide whether to use PE_to_PE or memory timing for communication.
-        This method supports three modes:
-        - PE_to_PE (legacy): Always use direct PE-to-PE timings
-        - shared_memory (legacy): Always use memory timings
-        - forwarding: Dynamic decision based on data location and forwarding feasibility
-
-        @param task: The task that needs data
-        @param predecessor_task: The task that produced the data
-        @param target_PE_ID: The PE ID where the task will execute
-        @return: 'PE_to_PE' or 'memory' indicating which timing to use
-        '''
-        # Legacy modes - fixed decision
-        if common.comm_mode == 'PE_to_PE':
-            return 'PE_to_PE'
-        elif common.comm_mode == 'shared_memory':
-            return 'memory'
-
-        # Forwarding mode - dynamic decision based on whether task is being forwarded to idle PE
-        elif common.comm_mode == 'forwarding':
-            target_PE = self.PEs[target_PE_ID]
-
-            # If task is marked as forwarded (by scheduler) and target PE was idle when scheduled, use PE_to_PE timing
-            # Otherwise use memory timing
-            if hasattr(task, 'isForwarded') and task.isForwarded:
-                # Task is being forwarded - use PE_to_PE timing
-                if common.DEBUG_SIM:
-                    print('[D] Time %d: Task %d is being forwarded to PE-%d - using PE_to_PE timing'
-                          % (self.env.now, task.ID, target_PE_ID))
-                return 'PE_to_PE'
-            else:
-                # Task is not being forwarded - use memory timing
-                if common.DEBUG_SIM:
-                    print('[D] Time %d: Task %d will fetch data from memory'
-                          % (self.env.now, task.ID))
-                return 'memory'
-
-        # Default fallback (should not reach here)
-        return 'memory'
-    #end def decide_comm_timing
 
     def update_execution_queue(self, ready_list):
         '''!
@@ -251,11 +212,10 @@ class SimulationManager:
 
                         # Decide communication timing mode (PE_to_PE or memory)
                         if predecessor_task is not None:
-                            comm_timing = self.decide_comm_timing(ready_task, predecessor_task, ready_task.PE_ID)
+                            comm_timing = common.decide_comm_timing(ready_task, predecessor_task, predecessor_task.PE_ID)
                             ready_task.comm_timing_mode = comm_timing
                         else:
-                            # No predecessor found (shouldn't happen, but default to legacy behavior)
-                            comm_timing = 'PE_to_PE' if common.PE_to_PE else 'memory'
+                            assert False
 
                         if comm_timing == 'PE_to_PE' or common.PE_to_PE:
                             # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
@@ -340,7 +300,12 @@ class SimulationManager:
             for i,task in enumerate(common.completed):
                 if (task.jobID == first_task_jobID):
                     del common.completed[i]
-            
+    
+    # PEs call this to write values ejected from their scratchpads back to memory
+    def writeback_handler(self,data_id, size, PE_ID):
+        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, PE_ID]
+        memory_comm_time = int(size/comm_band)
+        common.memory_writeback[data_id] = memory_comm_time
         
     #
     def run(self):
@@ -362,6 +327,17 @@ class SimulationManager:
                 # Evaluate idle PEs, busy PEs will be updated and evaluated from the PE class
                 DTPM_module.evaluate_idle_PEs()
             # end of if self.env.now % common.sampling_rate == 0:
+
+            if (common.forwarding_enabled):
+                remove_from_writeback = []
+                for (identifier, finishTime) in common.memory_writeback.items():
+                    if finishTime <= self.env.now:
+                        remove_from_writeback.append(identifier)
+                        if (common.DEBUG_SIM):
+                            print('[D] Time %d: Data transfer for data %s to memory is completed'
+                                %(self.env.now, identifier))
+                for id in remove_from_writeback:
+                    common.memory_writeback.pop(id)
 
             if (common.shared_memory):
                 # this section is activated only if shared memory is used
@@ -473,108 +449,7 @@ class SimulationManager:
                         # lock PE, begin pulling value from input
                         P.lock = True
 
-                        # The rest of this is similar to what goes on in update_execution_queue, since we begin pulling data.
-                        # Get the Job Name
-                        for ind, job in enumerate(self.jobs.list):
-                            if job.name == executable_task.jobname:
-                                job_ID = ind
-
-                        # Get the list of tasks 
-                        for task in self.jobs.list[job_ID].task_list:
-                            if executable_task.base_ID == task.ID:
-                                if executable_task.head == True:
-                                    print('task %d is a head task' %(executable_task.ID))
-                                    # if a task is the leading task of a job
-                                    # then it can start immediately since it has no predecessor
-                                    executable_task.PE_to_PE_wait_time.append(self.env.now)
-                                    executable_task.execution_wait_times.append(self.env.now)
-                                    continue
-                                # end of if ready_task.head == True:
-
-                                print('task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
-
-                                for predecessor in task.predecessors:
-
-                                    # data required from the predecessor for $ready_task
-                                    comm_vol = self.jobs.list[job_ID].comm_vol[predecessor, executable_task.base_ID]
-
-                                    # retrieve the real ID  of the predecessor based on the job ID
-                                    real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
-
-                                    # Initialize following two variables which will be used if
-                                    # PE to PE communication is utilized
-                                    predecessor_PE_ID = -1
-                                    predecessor_finish_time = -1
-                                    predecessor_task = None
-
-                                    # Find the predecessor task to get its PE and finish time
-                                    for completed in common.completed:
-                                        if completed.ID == real_predecessor_ID:
-                                            predecessor_PE_ID = completed.PE_ID
-                                            predecessor_finish_time = completed.finish_time
-                                            predecessor_task = completed
-                                            break
-
-                                    # Decide communication timing mode (PE_to_PE or memory)
-                                    if predecessor_task is not None:
-                                        comm_timing = self.decide_comm_timing(executable_task, predecessor_task, executable_task.PE_ID)
-                                        executable_task.comm_timing_mode = comm_timing
-                                    else:
-                                        # No predecessor found (shouldn't happen, but default to legacy behavior)
-                                        comm_timing = 'PE_to_PE' if common.PE_to_PE else 'memory'
-
-                                    if comm_timing == 'PE_to_PE' or common.PE_to_PE:
-                                        # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
-                                        comm_band = common.ResourceManager.comm_band[predecessor_PE_ID, executable_task.PE_ID]
-                                        PE_to_PE_comm_time = int(comm_vol/comm_band)
-                                        executable_task.PE_to_PE_wait_time.append(PE_to_PE_comm_time + predecessor_finish_time)
-
-                                        if (common.DEBUG_SIM):
-                                            mode_str = "forwarding" if common.comm_mode == 'forwarding' else "PE-to-PE"
-                                            print('[D] Time %d: Data transfer (%s) from PE-%s to PE-%s for task %d from task %d is completed at %d us'
-                                                %(self.env.now, mode_str, predecessor_PE_ID, executable_task.PE_ID,
-                                                    executable_task.ID, real_predecessor_ID, executable_task.PE_to_PE_wait_time[-1]))
-
-                                        # In forwarding mode, allocate scratchpad space for the data (TODO)
-                                        if common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE':
-                                            target_PE = self.PEs[executable_task.PE_ID]
-                                            if target_PE.forwarding_enabled:
-                                                data_id = f"{predecessor_task.ID}_output"
-                                                target_PE.allocate_scratchpad(data_id, comm_vol, predecessor_task.ID)
-                                    # end of if comm_timing == 'PE_to_PE':
-
-                                    if comm_timing == 'memory' or common.shared_memory:
-                                        # Use memory communication timing
-                                        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, ready_task.PE_ID]
-                                        from_memory_comm_time = int(comm_vol/comm_band)
-                                        if (common.DEBUG_SIM):
-                                            print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
-                                                %(self.env.now, executable_task.ID, real_predecessor_ID, executable_task.PE_ID, from_memory_comm_time))
-                                        executable_task.execution_wait_times.append(from_memory_comm_time + self.env.now)
-                                    # end of if comm_timing == 'memory'
-                                # end of for predecessor in task.predecessors:
-
-                                if (common.INFO_SIM) and (common.PE_to_PE):
-                                    print('[I] Time %d: Task %d execution ready times due to communication between PEs are'
-                                        %(self.env.now, executable_task.ID))
-                                    print('%12s'%(''), executable_task.PE_to_PE_wait_time)
-
-                                if (common.INFO_SIM) and (common.shared_memory):
-                                    print('[I] Time %d: Task %d execution ready time(s) due to communication between memory and PE-%s are'
-                                        %(self.env.now, executable_task.ID, executable_task.PE_ID))
-                                    print('%12s'%(''), executable_task.execution_wait_times)
-
-                                # Populate all ready tasks in executable with a time stamp
-                                # which will show when a task is ready for execution
-
-                                # Set the time stamp for when the task is ready for execution
-                                if (common.PE_to_PE or (common.comm_mode == 'forwarding' and comm_timing == 'PE_to_PE')):
-                                    executable_task.time_stamp = max(executable_task.PE_to_PE_wait_time)
-                                else:
-                                    executable_task.time_stamp = max(executable_task.execution_wait_times)
-                                # end else
-                            # end if executable_task.base_ID == task.ID:
-                        # end  for task in self.jobs.list[job_ID].task_list:
+                        executable_task.time_stamp = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
                     # end elif P.idle and not P.lock:
                     elif not P.idle and P.lock: 
                         continue # PE is running when locked and not idle

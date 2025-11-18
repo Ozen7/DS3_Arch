@@ -1,6 +1,7 @@
 '''!
 @brief This file contains the process elements and their attributes.
 '''
+from DASH_Sim_core import SimulationManager
 import simpy
 import copy
 
@@ -13,6 +14,7 @@ class PE:
     '''!
     A processing element (PE) is the basic resource that defines the simpy processes.
     '''
+    simManager = None
     def __init__(self, env, type, name, ID, cluster_ID, capacity):
         '''!
         @param env: Pointer to the current simulation environment
@@ -52,7 +54,7 @@ class PE:
 
         # Scratchpad/buffer management (only used in forwarding mode)
         self.scratchpad = {}                                                    # Dictionary mapping data_id to {'task_id': X, 'size': Y, 'timestamp': Z}
-        self.scratchpad_capacity = 0                                            # Total scratchpad buffer size in bytes (configured per PE type)
+        self.scratchpad_capacity = 1000                                           # Total scratchpad buffer size in bytes (configured per PE type) (TODO - implement this into parser)
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
@@ -61,7 +63,7 @@ class PE:
             print('[D] Constructed PE-%d with name %s' %(ID,name))
 
     # Start the "run" process for this PE
-    def run(self, sim_manager, task, resource, DVFS_module):
+    def run(self, sim_manager:SimulationManager, task:common.Tasks, resource:common.Resource, DVFS_module):
         '''!
         Run this PE to execute a given task.
         The execution time is retrieved from resource_matrix and task name.
@@ -80,10 +82,17 @@ class PE:
                         DTPM_policies.initialize_frequency(common.ClusterManager.cluster_list[self.cluster_ID])
 
                         DASH_Sim_utils.trace_frequency(self.env.now)
+                
+                # really messy solution to be able to use simManager in the scratchpad code, but I couldn't find another way to do this without rewriting how everything is wired together
+                if self.simManager == None:
+                    self.simManager = sim_manager
 
                 self.idle = False                                               # Since the PE starts execution of a task, it is not idle anymore
                 common.running.append(task)                     # Since the execution started for the task we should add it to the running queue 
                 task.start_time = self.env.now                                  # When a resource starts executing the task, record it as the start time
+
+                # note: output packet size is the number of packets being output by this task.
+                self.allocate_scratchpad(f"{task.ID}_output",task.output_packet_size,task.ID)                 # allocate room in the scratchpad for the output of this task.
 
                 # if this is the leading task of this job, increment the injection counter
                 if ((task.head == True) and
@@ -173,7 +182,7 @@ class PE:
                 task.task_elapsed_time_max_freq = 0
 
                 if (common.DEBUG_JOB):
-                    print('[D] Time %d: Task %s execution is finished by PE-%d %s'
+                    print('[D] Time %d: Task %s execution is finished by PE-%d (%s)'
                       % (self.env.now, task.ID, self.ID, self.name))
                 
                 task_time = task.finish_time - task.start_time
@@ -233,7 +242,9 @@ class PE:
 
                 # Since the current task is processed, it should be removed
                 # from the outstanding task queue 
-                sim_manager.update_ready_queue(self,task)
+                sim_manager.update_ready_queue(task)
+
+
 
                 # Case 2: Evaluate the PE after the queues are updated
                 if self.env.now % common.sampling_rate == 0:
@@ -269,15 +280,15 @@ class PE:
     # end of def run(self, sim_manager, task, resource):
 
     # Scratchpad management methods (only used in forwarding mode)
-    def has_data_in_scratchpad(self, data_id):
+    def has_data_in_scratchpad(self, data_id:str):
         '''!
         Check if data is available in this PE's scratchpad.
         @param data_id: Identifier for the data (e.g., "task_123_output")
         @return: True if data is in scratchpad, False otherwise
-        '''
+        '''            
         return data_id in self.scratchpad
 
-    def allocate_scratchpad(self, data_id, size, task_id):
+    def allocate_scratchpad(self, data_id:str, size:int, task_id:common.Tasks):
         '''!
         Allocate scratchpad space for data. Evict oldest data if needed (LRU).
         @param data_id: Identifier for the data
@@ -318,18 +329,21 @@ class PE:
 
         return True
 
-    def free_scratchpad(self, data_id):
+    def free_scratchpad(self, data_id:str):
         '''!
         Free scratchpad space by removing data.
         @param data_id: Identifier for the data to remove
         '''
         if data_id in self.scratchpad:
+            
             size = self.scratchpad[data_id]['size']
             del self.scratchpad[data_id]
             self.scratchpad_used -= size
 
+            self.simManager.writeback_handler(data_id, size, self.ID) #writes values back to memory. TODO - only writes back if it will be used in the future (doesn't really matter rn since we have no memory contention)
+
             if common.DEBUG_SIM:
-                print('[D] Time %d: PE-%d freed %d bytes in scratchpad for data %s (used: %d/%d)'
+                print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
                       % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
 
     def get_scratchpad_available(self):
@@ -344,7 +358,7 @@ class PE:
         Check if this PE can accept forwarded data (is idle and has scratchpad space).
         @return: True if PE is idle and has some scratchpad capacity, False otherwise
         '''
-        return self.idle and self.forwarding_enabled and self.scratchpad_capacity > 0
+        return self.idle and self.forwarding_enabled
 
 
 # end class PE(object):

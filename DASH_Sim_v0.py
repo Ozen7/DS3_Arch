@@ -337,18 +337,6 @@ def run_simulator(scale_values=common.scale_values_list):
                 for pe in DASH_resources:
                     common.PETypeManager.register_PE(pe.ID, pe.type)
 
-                # Configure forwarding mode if enabled
-                if common.comm_mode == 'forwarding':
-                    for pe in DASH_resources:
-                        pe.forwarding_enabled = True
-                        # Set scratchpad capacity from config
-                        if pe.type in common.scratchpad_capacity_per_type:
-                            pe.scratchpad_capacity = common.scratchpad_capacity_per_type[pe.type]
-                            pe.scratchpad_used = 0
-                        else:
-                            # Default to 0 if not specified
-                            pe.scratchpad_capacity = 0
-
                 # Construct the scheduler
                 DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,
                                                      DASH_resources, jobs)
