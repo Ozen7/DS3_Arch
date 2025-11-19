@@ -1,0 +1,409 @@
+# Configuration file for Gated Recurrent Unit (GRU) RNN
+# Lines that start with "#" are comments
+# DAG implements 8-cell GRU sequence (120 nodes total, 15 nodes per cell)
+# Deadline: 7000 us
+
+job_name GRU
+deadline 7000
+add_new_tasks 120
+# Cell 0 (nodes 0-14)
+cell0_init 0
+cell0_init HEAD
+cell0_init earliest_start 0 deadline 2321 input_vol 131072 output_vol 65536
+cell0_ug_weight 1 0
+cell0_ug_weight earliest_start 0 deadline 2646 input_vol 131072 output_vol 65536
+cell0_ug_bias 2 1
+cell0_ug_bias earliest_start 0 deadline 2703 input_vol 131072 output_vol 65536
+cell0_ug_sigmoid 3 2
+cell0_ug_sigmoid earliest_start 0 deadline 2742 input_vol 65536 output_vol 65536
+cell0_ug_output 4 3
+cell0_ug_output earliest_start 0 deadline 2799 input_vol 131072 output_vol 65536
+cell0_rg_weight 5 0
+cell0_rg_weight earliest_start 0 deadline 2378 input_vol 131072 output_vol 65536
+cell0_rg_bias 6 5
+cell0_rg_bias earliest_start 0 deadline 2435 input_vol 131072 output_vol 65536
+cell0_rg_sigmoid 7 6
+cell0_rg_sigmoid earliest_start 0 deadline 2474 input_vol 65536 output_vol 65536
+cell0_rg_mult1 8 7
+cell0_rg_mult1 earliest_start 0 deadline 2531 input_vol 131072 output_vol 65536
+cell0_rg_add1 9 8
+cell0_rg_add1 earliest_start 0 deadline 2588 input_vol 131072 output_vol 65536
+cell0_rg_mult2 10 9
+cell0_rg_mult2 earliest_start 0 deadline 2646 input_vol 131072 output_vol 65536
+cell0_rg_add2 11 10
+cell0_rg_add2 earliest_start 0 deadline 2703 input_vol 131072 output_vol 65536
+cell0_rg_tanh 12 11
+cell0_rg_tanh earliest_start 0 deadline 2742 input_vol 65536 output_vol 65536
+cell0_ug_rg_mult 13 3 12
+cell0_ug_rg_mult earliest_start 0 deadline 2799 input_vol 131072 output_vol 65536
+cell0_output 14 4 13
+cell0_output earliest_start 0 deadline 2856 input_vol 131072 output_vol 65536
+# Cell 1 (nodes 15-29)
+cell1_init 15 14
+cell1_init earliest_start 0 deadline 2913 input_vol 131072 output_vol 65536
+cell1_ug_weight 16 15
+cell1_ug_weight earliest_start 0 deadline 3238 input_vol 131072 output_vol 65536
+cell1_ug_bias 17 16
+cell1_ug_bias earliest_start 0 deadline 3295 input_vol 131072 output_vol 65536
+cell1_ug_sigmoid 18 17
+cell1_ug_sigmoid earliest_start 0 deadline 3334 input_vol 65536 output_vol 65536
+cell1_ug_output 19 14 18
+cell1_ug_output earliest_start 0 deadline 3391 input_vol 131072 output_vol 65536
+cell1_rg_weight 20 15
+cell1_rg_weight earliest_start 0 deadline 2970 input_vol 131072 output_vol 65536
+cell1_rg_bias 21 20
+cell1_rg_bias earliest_start 0 deadline 3027 input_vol 131072 output_vol 65536
+cell1_rg_sigmoid 22 21
+cell1_rg_sigmoid earliest_start 0 deadline 3066 input_vol 65536 output_vol 65536
+cell1_rg_mult1 23 14 22
+cell1_rg_mult1 earliest_start 0 deadline 3123 input_vol 131072 output_vol 65536
+cell1_rg_add1 24 23
+cell1_rg_add1 earliest_start 0 deadline 3180 input_vol 131072 output_vol 65536
+cell1_rg_mult2 25 24
+cell1_rg_mult2 earliest_start 0 deadline 3238 input_vol 131072 output_vol 65536
+cell1_rg_add2 26 25
+cell1_rg_add2 earliest_start 0 deadline 3295 input_vol 131072 output_vol 65536
+cell1_rg_tanh 27 26
+cell1_rg_tanh earliest_start 0 deadline 3334 input_vol 65536 output_vol 65536
+cell1_ug_rg_mult 28 18 27
+cell1_ug_rg_mult earliest_start 0 deadline 3391 input_vol 131072 output_vol 65536
+cell1_output 29 19 28
+cell1_output earliest_start 0 deadline 3448 input_vol 131072 output_vol 65536
+# Cell 2 (nodes 30-44)
+cell2_init 30 29
+cell2_init earliest_start 0 deadline 3505 input_vol 131072 output_vol 65536
+cell2_ug_weight 31 30
+cell2_ug_weight earliest_start 0 deadline 3830 input_vol 131072 output_vol 65536
+cell2_ug_bias 32 31
+cell2_ug_bias earliest_start 0 deadline 3887 input_vol 131072 output_vol 65536
+cell2_ug_sigmoid 33 32
+cell2_ug_sigmoid earliest_start 0 deadline 3926 input_vol 65536 output_vol 65536
+cell2_ug_output 34 29 33
+cell2_ug_output earliest_start 0 deadline 3983 input_vol 131072 output_vol 65536
+cell2_rg_weight 35 30
+cell2_rg_weight earliest_start 0 deadline 3562 input_vol 131072 output_vol 65536
+cell2_rg_bias 36 35
+cell2_rg_bias earliest_start 0 deadline 3619 input_vol 131072 output_vol 65536
+cell2_rg_sigmoid 37 36
+cell2_rg_sigmoid earliest_start 0 deadline 3658 input_vol 65536 output_vol 65536
+cell2_rg_mult1 38 29 37
+cell2_rg_mult1 earliest_start 0 deadline 3715 input_vol 131072 output_vol 65536
+cell2_rg_add1 39 38
+cell2_rg_add1 earliest_start 0 deadline 3772 input_vol 131072 output_vol 65536
+cell2_rg_mult2 40 39
+cell2_rg_mult2 earliest_start 0 deadline 3830 input_vol 131072 output_vol 65536
+cell2_rg_add2 41 40
+cell2_rg_add2 earliest_start 0 deadline 3887 input_vol 131072 output_vol 65536
+cell2_rg_tanh 42 41
+cell2_rg_tanh earliest_start 0 deadline 3926 input_vol 65536 output_vol 65536
+cell2_ug_rg_mult 43 33 42
+cell2_ug_rg_mult earliest_start 0 deadline 3983 input_vol 131072 output_vol 65536
+cell2_output 44 34 43
+cell2_output earliest_start 0 deadline 4040 input_vol 131072 output_vol 65536
+# Cell 3 (nodes 45-59)
+cell3_init 45 44
+cell3_init earliest_start 0 deadline 4097 input_vol 131072 output_vol 65536
+cell3_ug_weight 46 45
+cell3_ug_weight earliest_start 0 deadline 4422 input_vol 131072 output_vol 65536
+cell3_ug_bias 47 46
+cell3_ug_bias earliest_start 0 deadline 4479 input_vol 131072 output_vol 65536
+cell3_ug_sigmoid 48 47
+cell3_ug_sigmoid earliest_start 0 deadline 4518 input_vol 65536 output_vol 65536
+cell3_ug_output 49 44 48
+cell3_ug_output earliest_start 0 deadline 4575 input_vol 131072 output_vol 65536
+cell3_rg_weight 50 45
+cell3_rg_weight earliest_start 0 deadline 4154 input_vol 131072 output_vol 65536
+cell3_rg_bias 51 50
+cell3_rg_bias earliest_start 0 deadline 4211 input_vol 131072 output_vol 65536
+cell3_rg_sigmoid 52 51
+cell3_rg_sigmoid earliest_start 0 deadline 4250 input_vol 65536 output_vol 65536
+cell3_rg_mult1 53 44 52
+cell3_rg_mult1 earliest_start 0 deadline 4307 input_vol 131072 output_vol 65536
+cell3_rg_add1 54 53
+cell3_rg_add1 earliest_start 0 deadline 4364 input_vol 131072 output_vol 65536
+cell3_rg_mult2 55 54
+cell3_rg_mult2 earliest_start 0 deadline 4422 input_vol 131072 output_vol 65536
+cell3_rg_add2 56 55
+cell3_rg_add2 earliest_start 0 deadline 4479 input_vol 131072 output_vol 65536
+cell3_rg_tanh 57 56
+cell3_rg_tanh earliest_start 0 deadline 4518 input_vol 65536 output_vol 65536
+cell3_ug_rg_mult 58 48 57
+cell3_ug_rg_mult earliest_start 0 deadline 4575 input_vol 131072 output_vol 65536
+cell3_output 59 49 58
+cell3_output earliest_start 0 deadline 4632 input_vol 131072 output_vol 65536
+# Cell 4 (nodes 60-74)
+cell4_init 60 59
+cell4_init earliest_start 0 deadline 4689 input_vol 131072 output_vol 65536
+cell4_ug_weight 61 60
+cell4_ug_weight earliest_start 0 deadline 5014 input_vol 131072 output_vol 65536
+cell4_ug_bias 62 61
+cell4_ug_bias earliest_start 0 deadline 5071 input_vol 131072 output_vol 65536
+cell4_ug_sigmoid 63 62
+cell4_ug_sigmoid earliest_start 0 deadline 5110 input_vol 65536 output_vol 65536
+cell4_ug_output 64 59 63
+cell4_ug_output earliest_start 0 deadline 5167 input_vol 131072 output_vol 65536
+cell4_rg_weight 65 60
+cell4_rg_weight earliest_start 0 deadline 4746 input_vol 131072 output_vol 65536
+cell4_rg_bias 66 65
+cell4_rg_bias earliest_start 0 deadline 4803 input_vol 131072 output_vol 65536
+cell4_rg_sigmoid 67 66
+cell4_rg_sigmoid earliest_start 0 deadline 4842 input_vol 65536 output_vol 65536
+cell4_rg_mult1 68 59 67
+cell4_rg_mult1 earliest_start 0 deadline 4899 input_vol 131072 output_vol 65536
+cell4_rg_add1 69 68
+cell4_rg_add1 earliest_start 0 deadline 4956 input_vol 131072 output_vol 65536
+cell4_rg_mult2 70 69
+cell4_rg_mult2 earliest_start 0 deadline 5014 input_vol 131072 output_vol 65536
+cell4_rg_add2 71 70
+cell4_rg_add2 earliest_start 0 deadline 5071 input_vol 131072 output_vol 65536
+cell4_rg_tanh 72 71
+cell4_rg_tanh earliest_start 0 deadline 5110 input_vol 65536 output_vol 65536
+cell4_ug_rg_mult 73 63 72
+cell4_ug_rg_mult earliest_start 0 deadline 5167 input_vol 131072 output_vol 65536
+cell4_output 74 64 73
+cell4_output earliest_start 0 deadline 5224 input_vol 131072 output_vol 65536
+# Cell 5 (nodes 75-89)
+cell5_init 75 74
+cell5_init earliest_start 0 deadline 5281 input_vol 131072 output_vol 65536
+cell5_ug_weight 76 75
+cell5_ug_weight earliest_start 0 deadline 5606 input_vol 131072 output_vol 65536
+cell5_ug_bias 77 76
+cell5_ug_bias earliest_start 0 deadline 5663 input_vol 131072 output_vol 65536
+cell5_ug_sigmoid 78 77
+cell5_ug_sigmoid earliest_start 0 deadline 5702 input_vol 65536 output_vol 65536
+cell5_ug_output 79 74 78
+cell5_ug_output earliest_start 0 deadline 5759 input_vol 131072 output_vol 65536
+cell5_rg_weight 80 75
+cell5_rg_weight earliest_start 0 deadline 5338 input_vol 131072 output_vol 65536
+cell5_rg_bias 81 80
+cell5_rg_bias earliest_start 0 deadline 5395 input_vol 131072 output_vol 65536
+cell5_rg_sigmoid 82 81
+cell5_rg_sigmoid earliest_start 0 deadline 5434 input_vol 65536 output_vol 65536
+cell5_rg_mult1 83 74 82
+cell5_rg_mult1 earliest_start 0 deadline 5491 input_vol 131072 output_vol 65536
+cell5_rg_add1 84 83
+cell5_rg_add1 earliest_start 0 deadline 5548 input_vol 131072 output_vol 65536
+cell5_rg_mult2 85 84
+cell5_rg_mult2 earliest_start 0 deadline 5606 input_vol 131072 output_vol 65536
+cell5_rg_add2 86 85
+cell5_rg_add2 earliest_start 0 deadline 5663 input_vol 131072 output_vol 65536
+cell5_rg_tanh 87 86
+cell5_rg_tanh earliest_start 0 deadline 5702 input_vol 65536 output_vol 65536
+cell5_ug_rg_mult 88 78 87
+cell5_ug_rg_mult earliest_start 0 deadline 5759 input_vol 131072 output_vol 65536
+cell5_output 89 79 88
+cell5_output earliest_start 0 deadline 5816 input_vol 131072 output_vol 65536
+# Cell 6 (nodes 90-104)
+cell6_init 90 89
+cell6_init earliest_start 0 deadline 5873 input_vol 131072 output_vol 65536
+cell6_ug_weight 91 90
+cell6_ug_weight earliest_start 0 deadline 6198 input_vol 131072 output_vol 65536
+cell6_ug_bias 92 91
+cell6_ug_bias earliest_start 0 deadline 6255 input_vol 131072 output_vol 65536
+cell6_ug_sigmoid 93 92
+cell6_ug_sigmoid earliest_start 0 deadline 6294 input_vol 65536 output_vol 65536
+cell6_ug_output 94 89 93
+cell6_ug_output earliest_start 0 deadline 6351 input_vol 131072 output_vol 65536
+cell6_rg_weight 95 90
+cell6_rg_weight earliest_start 0 deadline 5930 input_vol 131072 output_vol 65536
+cell6_rg_bias 96 95
+cell6_rg_bias earliest_start 0 deadline 5987 input_vol 131072 output_vol 65536
+cell6_rg_sigmoid 97 96
+cell6_rg_sigmoid earliest_start 0 deadline 6026 input_vol 65536 output_vol 65536
+cell6_rg_mult1 98 89 97
+cell6_rg_mult1 earliest_start 0 deadline 6083 input_vol 131072 output_vol 65536
+cell6_rg_add1 99 98
+cell6_rg_add1 earliest_start 0 deadline 6140 input_vol 131072 output_vol 65536
+cell6_rg_mult2 100 99
+cell6_rg_mult2 earliest_start 0 deadline 6198 input_vol 131072 output_vol 65536
+cell6_rg_add2 101 100
+cell6_rg_add2 earliest_start 0 deadline 6255 input_vol 131072 output_vol 65536
+cell6_rg_tanh 102 101
+cell6_rg_tanh earliest_start 0 deadline 6294 input_vol 65536 output_vol 65536
+cell6_ug_rg_mult 103 93 102
+cell6_ug_rg_mult earliest_start 0 deadline 6351 input_vol 131072 output_vol 65536
+cell6_output 104 94 103
+cell6_output earliest_start 0 deadline 6408 input_vol 131072 output_vol 65536
+# Cell 7 (nodes 105-119)
+cell7_init 105 104
+cell7_init earliest_start 0 deadline 6465 input_vol 131072 output_vol 65536
+cell7_ug_weight 106 105
+cell7_ug_weight earliest_start 0 deadline 6790 input_vol 131072 output_vol 65536
+cell7_ug_bias 107 106
+cell7_ug_bias earliest_start 0 deadline 6847 input_vol 131072 output_vol 65536
+cell7_ug_sigmoid 108 107
+cell7_ug_sigmoid earliest_start 0 deadline 6886 input_vol 65536 output_vol 65536
+cell7_ug_output 109 104 108
+cell7_ug_output earliest_start 0 deadline 6943 input_vol 131072 output_vol 65536
+cell7_rg_weight 110 105
+cell7_rg_weight earliest_start 0 deadline 6522 input_vol 131072 output_vol 65536
+cell7_rg_bias 111 110
+cell7_rg_bias earliest_start 0 deadline 6579 input_vol 131072 output_vol 65536
+cell7_rg_sigmoid 112 111
+cell7_rg_sigmoid earliest_start 0 deadline 6618 input_vol 65536 output_vol 65536
+cell7_rg_mult1 113 104 112
+cell7_rg_mult1 earliest_start 0 deadline 6675 input_vol 131072 output_vol 65536
+cell7_rg_add1 114 113
+cell7_rg_add1 earliest_start 0 deadline 6732 input_vol 131072 output_vol 65536
+cell7_rg_mult2 115 114
+cell7_rg_mult2 earliest_start 0 deadline 6790 input_vol 131072 output_vol 65536
+cell7_rg_add2 116 115
+cell7_rg_add2 earliest_start 0 deadline 6847 input_vol 131072 output_vol 65536
+cell7_rg_tanh 117 116
+cell7_rg_tanh earliest_start 0 deadline 6886 input_vol 65536 output_vol 65536
+cell7_ug_rg_mult 118 108 117
+cell7_ug_rg_mult earliest_start 0 deadline 6943 input_vol 131072 output_vol 65536
+cell7_output 119 109 118
+cell7_output TAIL
+cell7_output earliest_start 0 deadline 7000 input_vol 131072 output_vol 65536
+
+
+comm_vol 0 1 256
+comm_vol 1 2 256
+comm_vol 2 3 256
+comm_vol 3 4 256
+comm_vol 0 5 256
+comm_vol 5 6 256
+comm_vol 6 7 256
+comm_vol 7 8 256
+comm_vol 8 9 256
+comm_vol 9 10 256
+comm_vol 10 11 256
+comm_vol 11 12 256
+comm_vol 3 13 256
+comm_vol 12 13 256
+comm_vol 4 14 256
+comm_vol 13 14 256
+comm_vol 14 15 256
+comm_vol 15 16 256
+comm_vol 16 17 256
+comm_vol 17 18 256
+comm_vol 14 19 256
+comm_vol 18 19 256
+comm_vol 15 20 256
+comm_vol 20 21 256
+comm_vol 21 22 256
+comm_vol 14 23 256
+comm_vol 22 23 256
+comm_vol 23 24 256
+comm_vol 24 25 256
+comm_vol 25 26 256
+comm_vol 26 27 256
+comm_vol 18 28 256
+comm_vol 27 28 256
+comm_vol 19 29 256
+comm_vol 28 29 256
+comm_vol 29 30 256
+comm_vol 30 31 256
+comm_vol 31 32 256
+comm_vol 32 33 256
+comm_vol 29 34 256
+comm_vol 33 34 256
+comm_vol 30 35 256
+comm_vol 35 36 256
+comm_vol 36 37 256
+comm_vol 29 38 256
+comm_vol 37 38 256
+comm_vol 38 39 256
+comm_vol 39 40 256
+comm_vol 40 41 256
+comm_vol 41 42 256
+comm_vol 33 43 256
+comm_vol 42 43 256
+comm_vol 34 44 256
+comm_vol 43 44 256
+comm_vol 44 45 256
+comm_vol 45 46 256
+comm_vol 46 47 256
+comm_vol 47 48 256
+comm_vol 44 49 256
+comm_vol 48 49 256
+comm_vol 45 50 256
+comm_vol 50 51 256
+comm_vol 51 52 256
+comm_vol 44 53 256
+comm_vol 52 53 256
+comm_vol 53 54 256
+comm_vol 54 55 256
+comm_vol 55 56 256
+comm_vol 56 57 256
+comm_vol 48 58 256
+comm_vol 57 58 256
+comm_vol 49 59 256
+comm_vol 58 59 256
+comm_vol 59 60 256
+comm_vol 60 61 256
+comm_vol 61 62 256
+comm_vol 62 63 256
+comm_vol 59 64 256
+comm_vol 63 64 256
+comm_vol 60 65 256
+comm_vol 65 66 256
+comm_vol 66 67 256
+comm_vol 59 68 256
+comm_vol 67 68 256
+comm_vol 68 69 256
+comm_vol 69 70 256
+comm_vol 70 71 256
+comm_vol 71 72 256
+comm_vol 63 73 256
+comm_vol 72 73 256
+comm_vol 64 74 256
+comm_vol 73 74 256
+comm_vol 74 75 256
+comm_vol 75 76 256
+comm_vol 76 77 256
+comm_vol 77 78 256
+comm_vol 74 79 256
+comm_vol 78 79 256
+comm_vol 75 80 256
+comm_vol 80 81 256
+comm_vol 81 82 256
+comm_vol 74 83 256
+comm_vol 82 83 256
+comm_vol 83 84 256
+comm_vol 84 85 256
+comm_vol 85 86 256
+comm_vol 86 87 256
+comm_vol 78 88 256
+comm_vol 87 88 256
+comm_vol 79 89 256
+comm_vol 88 89 256
+comm_vol 89 90 256
+comm_vol 90 91 256
+comm_vol 91 92 256
+comm_vol 92 93 256
+comm_vol 89 94 256
+comm_vol 93 94 256
+comm_vol 90 95 256
+comm_vol 95 96 256
+comm_vol 96 97 256
+comm_vol 89 98 256
+comm_vol 97 98 256
+comm_vol 98 99 256
+comm_vol 99 100 256
+comm_vol 100 101 256
+comm_vol 101 102 256
+comm_vol 93 103 256
+comm_vol 102 103 256
+comm_vol 94 104 256
+comm_vol 103 104 256
+comm_vol 104 105 256
+comm_vol 105 106 256
+comm_vol 106 107 256
+comm_vol 107 108 256
+comm_vol 104 109 256
+comm_vol 108 109 256
+comm_vol 105 110 256
+comm_vol 110 111 256
+comm_vol 111 112 256
+comm_vol 104 113 256
+comm_vol 112 113 256
+comm_vol 113 114 256
+comm_vol 114 115 256
+comm_vol 115 116 256
+comm_vol 116 117 256
+comm_vol 108 118 256
+comm_vol 117 118 256
+comm_vol 109 119 256
+comm_vol 118 119 256

@@ -114,7 +114,7 @@ class JobGenerator:
                     next_task.jobID = i                                         # assign job id to the next task
                     next_task.base_ID = ii                                      # also record the original ID of the next task
                     next_task.ID = ii + self.offset                             # and change the ID of the task accordingly
-                    next_task.deadline += self.env.now                          # set task deadlines based on starting time - uses critical path. Tail task has deadline = DAG deadline
+                    next_task.deadline += self.env.now                          # set task deadlines based on starting time
 
                     if next_task.head:
                         next_task.job_start = self.env.now                      # When a new job is generated, its execution is also started

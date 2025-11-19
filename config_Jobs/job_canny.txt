@@ -1,0 +1,50 @@
+# Configuration file for Canny Edge Detection
+# Lines that start with "#" are comments
+# DAG implements the Canny edge detection algorithm with 12 nodes
+# Deadline: 16667 us (~60 FPS)
+
+job_name CANNY
+deadline 16667
+add_new_tasks 12
+isp 0
+isp HEAD
+isp earliest_start 0 deadline 13564 input_vol 16900 output_vol 49152
+grayscale 1 0
+grayscale earliest_start 0 deadline 13601 input_vol 49152 output_vol 65536
+noise_reduction 2 1
+noise_reduction earliest_start 0 deadline 15177 input_vol 65636 output_vol 65536
+sobel_x 3 2
+sobel_x earliest_start 0 deadline 15846 input_vol 65572 output_vol 65536
+sobel_y 4 2
+sobel_y earliest_start 0 deadline 15846 input_vol 65572 output_vol 65536
+gradient_xx 5 3
+gradient_xx earliest_start 0 deadline 15885 input_vol 65536 output_vol 65536
+gradient_theta 6 3 4
+gradient_theta earliest_start 0 deadline 15981 input_vol 131072 output_vol 65536
+gradient_yy 7 4
+gradient_yy earliest_start 0 deadline 15885 input_vol 65536 output_vol 65536
+gradient_sum 8 5 7
+gradient_sum earliest_start 0 deadline 15942 input_vol 131072 output_vol 65536
+gradient_magnitude 9 8
+gradient_magnitude earliest_start 0 deadline 15981 input_vol 65536 output_vol 65536
+canny_non_max 10 9 6
+canny_non_max earliest_start 0 deadline 16427 input_vol 131072 output_vol 65536
+edge_tracking 11 10
+edge_tracking TAIL
+edge_tracking earliest_start 0 deadline 16667 input_vol 65536 output_vol 16384
+
+
+comm_vol 0 1 192
+comm_vol 1 2 256
+comm_vol 2 3 256
+comm_vol 2 4 256
+comm_vol 3 5 256
+comm_vol 3 6 256
+comm_vol 4 6 256
+comm_vol 4 7 256
+comm_vol 5 8 256
+comm_vol 7 8 256
+comm_vol 8 9 256
+comm_vol 9 10 256
+comm_vol 6 10 256
+comm_vol 10 11 256

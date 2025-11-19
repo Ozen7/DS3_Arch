@@ -1,0 +1,256 @@
+system.acctest.convolution.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.0315537seconds
+   Simulation Time:                 10.9477seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         1545612 cycles
+   Runtime:                         1545.61 us
+   Stalls:                          3 cycles
+   Executed Nodes:                  1545608 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      3.15537e+07ns
+   Simulation Time:                 1.09477e+10ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         1545612 cycles
+   Runtime:                         0.000154561 seconds
+   Stalls:                          3 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                2 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  1545608 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                1142524 cycles
+       Compute & Store:             1127 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              386700 cycles
+       Load & Compute & Store:      15256 cycles
+
+
+system.acctest.isp.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.708448seconds
+   Simulation Time:                 35.456seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         34761 cycles
+   Runtime:                         34.761 us
+   Stalls:                          1 cycles
+   Executed Nodes:                  34759 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      7.08448e+08ns
+   Simulation Time:                 3.5456e+10ns
+   System Clock:                    1GHz
+   Transistor Latency:              0ns
+   Runtime:                         34761 cycles
+   Runtime:                         3.4761e-06 seconds
+   Stalls:                          1 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                0 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  34759 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                1917 cycles
+       Compute & Store:             20534 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              2316 cycles
+       Load & Compute & Store:      9991 cycles
+
+
+system.acctest.convolution.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.000844963seconds
+   Simulation Time:                 0.249939seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         105010 cycles
+   Runtime:                         105.01 us
+   Stalls:                          0 cycles
+   Executed Nodes:                  105009 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      844963ns
+   Simulation Time:                 2.49939e+08ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         105010 cycles
+   Runtime:                         1.0501e-05 seconds
+   Stalls:                          0 cycles
+       Load Only:                   0 cycles
+       Store Only:                  0 cycles
+       Compute Only:                0 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  105009 cycles
+       Load Only:                   0 cycles
+       Store Only:                  0 cycles
+       Compute Only:                72241 cycles
+       Compute & Store:             16384 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              16384 cycles
+       Load & Compute & Store:      0 cycles
+
+
+system.acctest.grayscale.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.00568139seconds
+   Simulation Time:                 9.1727seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         6166 cycles
+   Runtime:                         6.166 us
+   Stalls:                          0 cycles
+   Executed Nodes:                  6165 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      5.6814e+06ns
+   Simulation Time:                 9.1727e+09ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         6166 cycles
+   Runtime:                         6.166e-07 seconds
+   Stalls:                          0 cycles
+       Load Only:                   0 cycles
+       Store Only:                  0 cycles
+       Compute Only:                0 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  6165 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                8 cycles
+       Compute & Store:             22 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              1549 cycles
+       Load & Compute & Store:      4585 cycles
+
+
+system.acctest.elem_matrix.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.384939seconds
+   Simulation Time:                 5.80028seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         4106 cycles
+   Runtime:                         4.106 us
+   Stalls:                          1 cycles
+   Executed Nodes:                  4104 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      3.84939e+08ns
+   Simulation Time:                 5.80028e+09ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         4106 cycles
+   Runtime:                         4.106e-07 seconds
+   Stalls:                          1 cycles
+       Load Only:                   0 cycles
+       Store Only:                  1 cycles
+       Compute Only:                0 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  4104 cycles
+       Load Only:                   0 cycles
+       Store Only:                  5 cycles
+       Compute Only:                1 cycles
+       Compute & Store:             8 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              7 cycles
+       Load & Compute & Store:      4083 cycles
+
+system.acctest.edge_tracking.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.095272seconds
+   Simulation Time:                 6.86071seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         324704 cycles
+   Runtime:                         324.704 us
+   Stalls:                          64269 cycles
+   Executed Nodes:                  260434 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      9.5272e+07ns
+   Simulation Time:                 6.86071e+09ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         324704 cycles
+   Runtime:                         3.24704e-05 seconds
+   Stalls:                          64269 cycles
+       Load Only:                   64263 cycles
+       Store Only:                  0 cycles
+       Compute Only:                6 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  260434 cycles
+       Load Only:                   0 cycles
+       Store Only:                  0 cycles
+       Compute Only:                147018 cycles
+       Compute & Store:             32768 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              80648 cycles
+       Load & Compute & Store:      0 cycles
+
+
+system.acctest.canny_non_max.compute
+   ========= Performance Analysis =============
+   Setup Time:                      0.10708seconds
+   Simulation Time:                 3.09392seconds
+   System Clock:                    1GHz
+   Transistor Latency:              1ns
+   Runtime:                         443012 cycles
+   Runtime:                         443.012 us
+   Stalls:                          133358 cycles
+   Executed Nodes:                  309653 cycles
+
+********************************************************************************
+   ========= Performance Analysis =================
+   Setup Time:                      1.0708e+08ns
+   Simulation Time:                 3.09392e+09ns
+   System Clock:                    1GHz
+   Transistor Latency:              459604009ns
+   Runtime:                         443012 cycles
+   Runtime:                         4.43012e-05 seconds
+   Stalls:                          133358 cycles
+       Load Only:                   22226 cycles
+       Store Only:                  0 cycles
+       Compute Only:                111132 cycles
+       Compute & Store:             0 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              0 cycles
+       Load & Compute & Store:      0 cycles
+   Executed Nodes:                  309653 cycles
+       Load Only:                   0 cycles
+       Store Only:                  0 cycles
+       Compute Only:                245641 cycles
+       Compute & Store:             16384 cycles
+       Load & Store:                0 cycles
+       Load & Compute:              47628 cycles
+       Load & Compute & Store:      0 cycles

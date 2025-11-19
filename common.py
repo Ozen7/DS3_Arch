@@ -486,7 +486,7 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                         target_PE = caller.PEs[executable_task.PE_ID]
                         if target_PE.forwarding_enabled:
                             data_id = f"{predecessor_task.ID}_output"
-                            target_PE.allocate_scratchpad(data_id, comm_vol, predecessor_task.ID)
+                            target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
