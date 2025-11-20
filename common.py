@@ -411,11 +411,14 @@ ready:List[Tasks] = []                         # List of tasks that are ready fo
 running:List[Tasks] = []                       # List of currently running tasks
 completed:List[Tasks] = []                     # List of completed tasks
 wait_ready:List[Tasks] = []                    # List of task waiting for being pushed into ready queue because of memory communication time
+active_noc_transfers = []                      # List of active NoC transfers
 memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocate):
+
+    cleanup_completed_transfers(caller) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
 
     # The rest of this is similar to what goes on in update_execution_queue, since we begin pulling data.
     # Get the Job Name
@@ -472,8 +475,16 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                 if comm_timing == 'PE_to_PE' or PE_to_PE:
                     # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
                     comm_band = ResourceManager.comm_band[predecessor_PE_ID, PE_ID]
-                    PE_to_PE_comm_time = int(comm_vol/comm_band)
+                    PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
                     wait_times.append(PE_to_PE_comm_time + caller.env.now)
+
+                    if canAllocate:
+                        active_noc_transfers.append({
+                            'end_time': caller.env.now + PE_to_PE_comm_time,
+                            'src_PE': predecessor_PE_ID,
+                            'dst_PE': PE_ID,
+                            'task_ID': executable_task.ID
+                        })
 
                     if (DEBUG_SIM) and canAllocate:
                         mode_str = "forwarding" if comm_mode == 'forwarding' else "PE-to-PE"
@@ -492,13 +503,20 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                 if comm_timing == 'memory' or shared_memory:
                     # Use memory communication timing
                     comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
-                    from_memory_comm_time = int(comm_vol/comm_band)
+                    from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
                     if f"{predecessor_task.ID}_output" in memory_writeback:
                         from_memory_comm_time += memory_writeback[f"{predecessor_task.ID}_output"]
                     wait_times.append(from_memory_comm_time + caller.env.now)
                     if (DEBUG_SIM and canAllocate):
                         print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
                             %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1]))
+                    if canAllocate:
+                        active_noc_transfers.append({
+                            'end_time': caller.env.now + from_memory_comm_time,
+                            'src_PE': -1,  # memory
+                            'dst_PE': PE_ID,
+                            'task_ID': executable_task.ID
+                        })
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
 
@@ -519,6 +537,26 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
             # end else
         # end if executable_task.base_ID == task.ID:
     # end  for task in self.jobs.list[job_ID].task_list:
+
+
+
+def get_congestion_factor(caller):
+    """Calculate NoC congestion scaling factor"""
+    normalized_load = len(active_noc_transfers) / (len(caller.resource_matrix.list) / 2.0)
+    
+    if normalized_load < 0.5:
+        return 1.0
+    elif normalized_load < 1.0:
+        return 1.0 + normalized_load
+    else:
+        return 2.0 + 3.0 * (normalized_load - 1.0) ** 2
+
+def cleanup_completed_transfers(caller):
+    """Remove transfers that have finished"""
+    active_noc_transfers[:] = [
+        t for t in active_noc_transfers 
+        if t['end_time'] > caller.env.now
+    ]
 
             
 def decide_comm_timing(caller, task:Tasks, predecessor_task, predecessor_PE_ID, canAllocate):
@@ -556,8 +594,6 @@ def decide_comm_timing(caller, task:Tasks, predecessor_task, predecessor_PE_ID, 
     # Default fallback (should not reach here)
     return 'memory'
 #end def decide_comm_timing
-
-
 
 
 # =============================================================================

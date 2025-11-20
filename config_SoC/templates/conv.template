@@ -1,0 +1,21 @@
+add_new_resource resource_type ACC resource_name {NAME} resource_ID {ID} capacity 1 num_supported_functionalities 16 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+noise_reduction 1545.61
+sobel_x 637.32
+sobel_y 637.32
+conv_psf_iter0 1545.61
+conv_psf_flip_iter0 1545.61
+conv_psf_iter1 1545.61
+conv_psf_flip_iter1 1545.61
+conv_psf_iter2 1545.61
+conv_psf_flip_iter2 1545.61
+conv_psf_iter3 1545.61
+conv_psf_flip_iter3 1545.61
+conv_psf_iter4 1545.61
+conv_psf_flip_iter4 1545.61
+gauss_filter_xx 1545.61
+gauss_filter_xy 1545.61
+gauss_filter_yy 1545.61

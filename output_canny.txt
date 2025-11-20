@@ -1,0 +1,150 @@
+                           **** Welcome to DASH_Sim.v0 ****
+                    **** © 2020 eLab ASU ALL RIGHTS RESERVED ****
+          [I] Simulation starts for scale value 100
+[I] Starting iteration: 1
+[D] Time 0: Task 0 is pushed to the ready queue list, the ready queue list has 1 tasks
+[D] Time 0: Adding task 1 to the outstanding queue, task 1 has predecessors: [0]
+[D] Time 0: Adding task 2 to the outstanding queue, task 2 has predecessors: [1]
+[D] Time 0: Adding task 3 to the outstanding queue, task 3 has predecessors: [2]
+[D] Time 0: Adding task 4 to the outstanding queue, task 4 has predecessors: [2]
+[D] Time 0: Adding task 5 to the outstanding queue, task 5 has predecessors: [3]
+[D] Time 0: Adding task 6 to the outstanding queue, task 6 has predecessors: [3, 4]
+[D] Time 0: Adding task 7 to the outstanding queue, task 7 has predecessors: [4]
+[D] Time 0: Adding task 8 to the outstanding queue, task 8 has predecessors: [5, 7]
+[D] Time 0: Adding task 9 to the outstanding queue, task 9 has predecessors: [8]
+[D] Time 0: Adding task 10 to the outstanding queue, task 10 has predecessors: [9, 6]
+[D] Time 0: Adding task 11 to the outstanding queue, task 11 has predecessors: [10]
+[I] Time 0: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 0 is a head task
+task 0 num predecessors 0
+[I] Time 0: Task 0 execution ready time(s) due to communication:
+             [0, 0]
+[I] Time 1: Task 0 is ready for execution by PE-0
+[D] Time 1: PE-0 allocated 49152 bytes in scratchpad for data 0_output (used: 49152/262144)
+Randomized execution time is 34.761, the original was 34.761
+[I] Time 35: Task 0 is finished by PE-0 ISP_0 with 34.00 us and energy consumption 0.00 J
+[2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+[I] Time 36: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 1 num predecessors 1
+[D] Time 36: Data transfer (forwarding) from PE-0 to PE-1 for task 1 from task 0 is completed at 39 us
+[I] Time 36: Task 1 execution ready time(s) due to communication:
+             [39]
+[I] Time 39: Task 1 is ready for execution by PE-1
+[D] Time 39: PE-1 allocated 65536 bytes in scratchpad for data 1_output (used: 65536/262144)
+Randomized execution time is 6.166, the original was 6.166
+[I] Time 45: Task 1 is finished by PE-1 GRAYSCALE_1 with 6.00 us and energy consumption 0.00 J
+[3, 4, 5, 6, 7, 8, 9, 10, 11]
+[I] Time 46: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 2 num predecessors 1
+[D] Time 46: Data transfer (forwarding) from PE-1 to PE-2 for task 2 from task 1 is completed at 50 us
+[I] Time 46: Task 2 execution ready time(s) due to communication:
+             [50]
+[I] Time 50: Task 2 is ready for execution by PE-2
+[D] Time 50: PE-2 allocated 65536 bytes in scratchpad for data 2_output (used: 65536/262144)
+Randomized execution time is 1545.61, the original was 1545.61
+[I] Time 1595: Task 2 is finished by PE-2 CONVOLUTION_2 with 1545.00 us and energy consumption 0.00 J
+[5, 6, 7, 8, 9, 10, 11]
+[I] Time 1596: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 3 num predecessors 1
+[D] Time 1596: Data transfer (forwarding) from PE-2 to PE-2 for task 3 from task 2 is completed at 1596 us
+[I] Time 1596: Task 3 execution ready time(s) due to communication:
+             [1596]
+[I] Time 1597: Task 3 is ready for execution by PE-2
+[D] Time 1597: PE-2 allocated 65536 bytes in scratchpad for data 3_output (used: 131072/262144)
+Randomized execution time is 637.32, the original was 637.32
+[I] Time 2234: Task 3 is finished by PE-2 CONVOLUTION_2 with 637.00 us and energy consumption 0.00 J
+[6, 7, 8, 9, 10, 11]
+[I] Time 2235: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 4 num predecessors 1
+[D] Time 2235: Data transfer (forwarding) from PE-2 to PE-2 for task 4 from task 2 is completed at 2235 us
+[I] Time 2235: Task 4 execution ready time(s) due to communication:
+             [2235]
+task 5 num predecessors 1
+[D] Time 2235: Data transfer (forwarding) from PE-2 to PE-6 for task 5 from task 3 is completed at 2239 us
+[I] Time 2235: Task 5 execution ready time(s) due to communication:
+             [2239]
+[I] Time 2236: Task 4 is ready for execution by PE-2
+[D] Time 2236: PE-2 allocated 65536 bytes in scratchpad for data 4_output (used: 196608/262144)
+Randomized execution time is 637.32, the original was 637.32
+[I] Time 2239: Task 5 is ready for execution by PE-6
+[D] Time 2239: PE-6 allocated 65536 bytes in scratchpad for data 5_output (used: 65536/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 2247: Task 5 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[6, 7, 8, 9, 10, 11]
+[I] Time 2873: Task 4 is finished by PE-2 CONVOLUTION_2 with 637.00 us and energy consumption 0.00 J
+[8, 9, 10, 11]
+[I] Time 2874: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 7 num predecessors 1
+[D] Time 2874: Data transfer (forwarding) from PE-2 to PE-6 for task 7 from task 4 is completed at 2878 us
+[I] Time 2874: Task 7 execution ready time(s) due to communication:
+             [2878]
+[I] Time 2878: Task 7 is ready for execution by PE-6
+[D] Time 2878: PE-6 allocated 65536 bytes in scratchpad for data 7_output (used: 131072/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 2886: Task 7 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[9, 10, 11]
+[I] Time 2886: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 8 num predecessors 2
+[D] Time 2886: Data transfer (forwarding) from PE-6 to PE-6 for task 8 from task 5 is completed at 2886 us
+[D] Time 2886: Data transfer (forwarding) from PE-6 to PE-6 for task 8 from task 7 is completed at 2886 us
+[I] Time 2886: Task 8 execution ready time(s) due to communication:
+             [2886, 2886]
+[I] Time 2887: Task 8 is ready for execution by PE-6
+[D] Time 2887: PE-6 allocated 65536 bytes in scratchpad for data 8_output (used: 196608/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 2898: Task 8 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[10, 11]
+[I] Time 2898: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 9 num predecessors 1
+[D] Time 2898: Data transfer (forwarding) from PE-6 to PE-6 for task 9 from task 8 is completed at 2898 us
+[I] Time 2898: Task 9 execution ready time(s) due to communication:
+             [2898]
+[I] Time 2899: Task 9 is ready for execution by PE-6
+[D] Time 2899: PE-6 allocated 65536 bytes in scratchpad for data 9_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 2907: Task 9 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[10, 11]
+task 6 num predecessors 2
+[D] Time 2907: Data transfer (forwarding) from PE-2 to PE-6 for task 6 from task 3 is completed at 2911 us
+[D] Time 2907: Data transfer (forwarding) from PE-2 to PE-6 for task 6 from task 4 is completed at 2911 us
+[I] Time 2907: Task 6 execution ready time(s) due to communication:
+             [2911, 2911]
+[I] Time 2911: Task 6 is ready for execution by PE-6
+[D] Time 2911: PE-6 freed 65536 bytes (5_output) in scratchpad (used: 196608/262144)
+[D] Time 2911: PE-6 allocated 65536 bytes in scratchpad for data 6_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 2922: Task 6 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[11]
+[I] Time 2922: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 10 num predecessors 2
+[D] Time 2922: Data transfer (forwarding) from PE-6 to PE-5 for task 10 from task 9 is completed at 2926 us
+[D] Time 2922: Data transfer (forwarding) from PE-6 to PE-5 for task 10 from task 6 is completed at 2926 us
+[I] Time 2922: Task 10 execution ready time(s) due to communication:
+             [2926, 2926]
+[I] Time 2926: Task 10 is ready for execution by PE-5
+[D] Time 2926: PE-5 allocated 65536 bytes in scratchpad for data 10_output (used: 65536/262144)
+Randomized execution time is 377.906, the original was 377.906
+[I] Time 3303: Task 10 is finished by PE-5 CANNY_NON_MAX_5 with 377.00 us and energy consumption 0.00 J
+[]
+[I] Time 3304: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 11 num predecessors 1
+[D] Time 3304: Data transfer (forwarding) from PE-5 to PE-4 for task 11 from task 10 is completed at 3308 us
+[I] Time 3304: Task 11 execution ready time(s) due to communication:
+             [3308]
+[I] Time 3308: Task 11 is ready for execution by PE-4
+[D] Time 3308: PE-4 allocated 16384 bytes in scratchpad for data 11_output (used: 16384/262144)
+Randomized execution time is 216.928, the original was 216.928
+[I] Time 3524: Task 11 is finished by PE-4 EDGE_TRACKING_4 with 216.00 us and energy consumption 0.00 J
+[]
+[I] Completed iteration: 1
+[I] Number of injected jobs: 1
+[I] Number of completed jobs: 1
+[I] Number of deadlines met: 1
+[I] Number of deadlines missed: 0
+[I] Ave latency: 3524.928000
+[I] Execution time(us)             : 3524.93             
+[I] Cumulative Execution time(us)  : 3524.93             
+[I] Total energy consumption(J)    : 0.000941            
+[I] EDP                            : 3.32                
+[I] Average concurrent jobs        : 1.0                 
+[I] Completed all 1 iterations for scale = 100, injection rate:0.000284, completion rate:0.000284, ave_execution_time:3524.928000

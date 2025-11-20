@@ -1,0 +1,6 @@
+add_new_resource resource_type ACC resource_name {NAME} resource_ID {ID} capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+canny_non_max 377.906

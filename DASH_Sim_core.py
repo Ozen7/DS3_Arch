@@ -142,6 +142,7 @@ class SimulationManager:
         for task in remove_from_outstanding_queue:
             common.outstanding.remove(task)
 
+        print([obj.ID for obj in common.outstanding])
         # At the end of this function:
             # Newly processed $completed_task is added to the completed tasks
             # outstanding tasks with no dependencies are added to the ready queue
@@ -303,8 +304,15 @@ class SimulationManager:
     # PEs call this to write values ejected from their scratchpads back to memory
     def writeback_handler(self,data_id, size, PE_ID):
         comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, PE_ID]
-        memory_comm_time = int(size/comm_band)
-        common.memory_writeback[data_id] = memory_comm_time
+        memory_comm_time = int((size/comm_band) * common.get_congestion_factor(self))
+        common.memory_writeback[data_id] = self.env.now + memory_comm_time
+
+        common.active_noc_transfers.append({
+            'end_time': self.env.now + memory_comm_time,
+            'src_PE': PE_ID,
+            'dst_PE': -1,  # memory
+            'task_ID': -1
+        })
         
     #
     def run(self):
@@ -337,6 +345,7 @@ class SimulationManager:
                                 %(self.env.now, identifier))
                 for id in remove_from_writeback:
                     common.memory_writeback.pop(id)
+            
 
             if (common.shared_memory):
                 # this section is activated only if shared memory is used
@@ -347,7 +356,6 @@ class SimulationManager:
 
                 for waiting_task in common.wait_ready:
                     if waiting_task.time_stamp <= self.env.now:
-                        print("HELLO", waiting_task.time_stamp, self.env.now)
                         common.ready.append(waiting_task)
                         remove_from_wait_ready.append(waiting_task)
                 # at the end of this loop, all the waiting tasks with a time stamp
@@ -425,8 +433,10 @@ class SimulationManager:
                         dependencies_completed = []
                         for dynamic_dependency in executable_task.dynamic_dependencies:
                             dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
+
                         if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
                             dynamic_dependencies_met = False
+
                         task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
 
                         if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment): # if it's time to execute

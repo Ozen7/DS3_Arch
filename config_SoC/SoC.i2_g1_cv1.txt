@@ -1,0 +1,52 @@
+add_new_resource resource_type ACC resource_name ISP_0 resource_ID 0 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+isp 34.761
+
+add_new_resource resource_type ACC resource_name ISP_1 resource_ID 1 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+isp 34.761
+
+add_new_resource resource_type ACC resource_name GRAYSCALE resource_ID 2 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+grayscale 6.166
+
+add_new_resource resource_type ACC resource_name CONVOLUTION resource_ID 3 capacity 1 num_supported_functionalities 16 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+noise_reduction 1545.61
+sobel_x 637.32
+sobel_y 637.32
+conv_psf_iter0 1545.61
+conv_psf_flip_iter0 1545.61
+conv_psf_iter1 1545.61
+conv_psf_flip_iter1 1545.61
+conv_psf_iter2 1545.61
+conv_psf_flip_iter2 1545.61
+conv_psf_iter3 1545.61
+conv_psf_flip_iter3 1545.61
+conv_psf_iter4 1545.61
+conv_psf_flip_iter4 1545.61
+gauss_filter_xx 1545.61
+gauss_filter_xy 1545.61
+gauss_filter_yy 1545.61
+
+comm_band_self 1000000
+comm_band 0 1 16000
+comm_band 0 2 16000
+comm_band 0 3 16000
+comm_band 1 2 16000
+comm_band 1 3 16000
+comm_band 2 3 16000
+add_new_resource resource_type MEM resource_name MEMORY resource_ID 4 capacity 1 num_supported_functionalities 1 DVFS_mode none
+None 0

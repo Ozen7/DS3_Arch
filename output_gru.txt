@@ -1,0 +1,1481 @@
+                           **** Welcome to DASH_Sim.v0 ****
+                    **** © 2020 eLab ASU ALL RIGHTS RESERVED ****
+          [I] Simulation starts for scale value 100
+[I] Starting iteration: 1
+[D] Time 0: Task 0 is pushed to the ready queue list, the ready queue list has 1 tasks
+[D] Time 0: Adding task 1 to the outstanding queue, task 1 has predecessors: [0]
+[D] Time 0: Adding task 2 to the outstanding queue, task 2 has predecessors: [1]
+[D] Time 0: Adding task 3 to the outstanding queue, task 3 has predecessors: [2]
+[D] Time 0: Adding task 4 to the outstanding queue, task 4 has predecessors: [3]
+[D] Time 0: Adding task 5 to the outstanding queue, task 5 has predecessors: [0]
+[D] Time 0: Adding task 6 to the outstanding queue, task 6 has predecessors: [5]
+[D] Time 0: Adding task 7 to the outstanding queue, task 7 has predecessors: [6]
+[D] Time 0: Adding task 8 to the outstanding queue, task 8 has predecessors: [7]
+[D] Time 0: Adding task 9 to the outstanding queue, task 9 has predecessors: [8]
+[D] Time 0: Adding task 10 to the outstanding queue, task 10 has predecessors: [9]
+[D] Time 0: Adding task 11 to the outstanding queue, task 11 has predecessors: [10]
+[D] Time 0: Adding task 12 to the outstanding queue, task 12 has predecessors: [11]
+[D] Time 0: Adding task 13 to the outstanding queue, task 13 has predecessors: [3, 12]
+[D] Time 0: Adding task 14 to the outstanding queue, task 14 has predecessors: [4, 13]
+[D] Time 0: Adding task 15 to the outstanding queue, task 15 has predecessors: [14]
+[D] Time 0: Adding task 16 to the outstanding queue, task 16 has predecessors: [15]
+[D] Time 0: Adding task 17 to the outstanding queue, task 17 has predecessors: [16]
+[D] Time 0: Adding task 18 to the outstanding queue, task 18 has predecessors: [17]
+[D] Time 0: Adding task 19 to the outstanding queue, task 19 has predecessors: [14, 18]
+[D] Time 0: Adding task 20 to the outstanding queue, task 20 has predecessors: [15]
+[D] Time 0: Adding task 21 to the outstanding queue, task 21 has predecessors: [20]
+[D] Time 0: Adding task 22 to the outstanding queue, task 22 has predecessors: [21]
+[D] Time 0: Adding task 23 to the outstanding queue, task 23 has predecessors: [14, 22]
+[D] Time 0: Adding task 24 to the outstanding queue, task 24 has predecessors: [23]
+[D] Time 0: Adding task 25 to the outstanding queue, task 25 has predecessors: [24]
+[D] Time 0: Adding task 26 to the outstanding queue, task 26 has predecessors: [25]
+[D] Time 0: Adding task 27 to the outstanding queue, task 27 has predecessors: [26]
+[D] Time 0: Adding task 28 to the outstanding queue, task 28 has predecessors: [18, 27]
+[D] Time 0: Adding task 29 to the outstanding queue, task 29 has predecessors: [19, 28]
+[D] Time 0: Adding task 30 to the outstanding queue, task 30 has predecessors: [29]
+[D] Time 0: Adding task 31 to the outstanding queue, task 31 has predecessors: [30]
+[D] Time 0: Adding task 32 to the outstanding queue, task 32 has predecessors: [31]
+[D] Time 0: Adding task 33 to the outstanding queue, task 33 has predecessors: [32]
+[D] Time 0: Adding task 34 to the outstanding queue, task 34 has predecessors: [29, 33]
+[D] Time 0: Adding task 35 to the outstanding queue, task 35 has predecessors: [30]
+[D] Time 0: Adding task 36 to the outstanding queue, task 36 has predecessors: [35]
+[D] Time 0: Adding task 37 to the outstanding queue, task 37 has predecessors: [36]
+[D] Time 0: Adding task 38 to the outstanding queue, task 38 has predecessors: [29, 37]
+[D] Time 0: Adding task 39 to the outstanding queue, task 39 has predecessors: [38]
+[D] Time 0: Adding task 40 to the outstanding queue, task 40 has predecessors: [39]
+[D] Time 0: Adding task 41 to the outstanding queue, task 41 has predecessors: [40]
+[D] Time 0: Adding task 42 to the outstanding queue, task 42 has predecessors: [41]
+[D] Time 0: Adding task 43 to the outstanding queue, task 43 has predecessors: [33, 42]
+[D] Time 0: Adding task 44 to the outstanding queue, task 44 has predecessors: [34, 43]
+[D] Time 0: Adding task 45 to the outstanding queue, task 45 has predecessors: [44]
+[D] Time 0: Adding task 46 to the outstanding queue, task 46 has predecessors: [45]
+[D] Time 0: Adding task 47 to the outstanding queue, task 47 has predecessors: [46]
+[D] Time 0: Adding task 48 to the outstanding queue, task 48 has predecessors: [47]
+[D] Time 0: Adding task 49 to the outstanding queue, task 49 has predecessors: [44, 48]
+[D] Time 0: Adding task 50 to the outstanding queue, task 50 has predecessors: [45]
+[D] Time 0: Adding task 51 to the outstanding queue, task 51 has predecessors: [50]
+[D] Time 0: Adding task 52 to the outstanding queue, task 52 has predecessors: [51]
+[D] Time 0: Adding task 53 to the outstanding queue, task 53 has predecessors: [44, 52]
+[D] Time 0: Adding task 54 to the outstanding queue, task 54 has predecessors: [53]
+[D] Time 0: Adding task 55 to the outstanding queue, task 55 has predecessors: [54]
+[D] Time 0: Adding task 56 to the outstanding queue, task 56 has predecessors: [55]
+[D] Time 0: Adding task 57 to the outstanding queue, task 57 has predecessors: [56]
+[D] Time 0: Adding task 58 to the outstanding queue, task 58 has predecessors: [48, 57]
+[D] Time 0: Adding task 59 to the outstanding queue, task 59 has predecessors: [49, 58]
+[D] Time 0: Adding task 60 to the outstanding queue, task 60 has predecessors: [59]
+[D] Time 0: Adding task 61 to the outstanding queue, task 61 has predecessors: [60]
+[D] Time 0: Adding task 62 to the outstanding queue, task 62 has predecessors: [61]
+[D] Time 0: Adding task 63 to the outstanding queue, task 63 has predecessors: [62]
+[D] Time 0: Adding task 64 to the outstanding queue, task 64 has predecessors: [59, 63]
+[D] Time 0: Adding task 65 to the outstanding queue, task 65 has predecessors: [60]
+[D] Time 0: Adding task 66 to the outstanding queue, task 66 has predecessors: [65]
+[D] Time 0: Adding task 67 to the outstanding queue, task 67 has predecessors: [66]
+[D] Time 0: Adding task 68 to the outstanding queue, task 68 has predecessors: [59, 67]
+[D] Time 0: Adding task 69 to the outstanding queue, task 69 has predecessors: [68]
+[D] Time 0: Adding task 70 to the outstanding queue, task 70 has predecessors: [69]
+[D] Time 0: Adding task 71 to the outstanding queue, task 71 has predecessors: [70]
+[D] Time 0: Adding task 72 to the outstanding queue, task 72 has predecessors: [71]
+[D] Time 0: Adding task 73 to the outstanding queue, task 73 has predecessors: [63, 72]
+[D] Time 0: Adding task 74 to the outstanding queue, task 74 has predecessors: [64, 73]
+[D] Time 0: Adding task 75 to the outstanding queue, task 75 has predecessors: [74]
+[D] Time 0: Adding task 76 to the outstanding queue, task 76 has predecessors: [75]
+[D] Time 0: Adding task 77 to the outstanding queue, task 77 has predecessors: [76]
+[D] Time 0: Adding task 78 to the outstanding queue, task 78 has predecessors: [77]
+[D] Time 0: Adding task 79 to the outstanding queue, task 79 has predecessors: [74, 78]
+[D] Time 0: Adding task 80 to the outstanding queue, task 80 has predecessors: [75]
+[D] Time 0: Adding task 81 to the outstanding queue, task 81 has predecessors: [80]
+[D] Time 0: Adding task 82 to the outstanding queue, task 82 has predecessors: [81]
+[D] Time 0: Adding task 83 to the outstanding queue, task 83 has predecessors: [74, 82]
+[D] Time 0: Adding task 84 to the outstanding queue, task 84 has predecessors: [83]
+[D] Time 0: Adding task 85 to the outstanding queue, task 85 has predecessors: [84]
+[D] Time 0: Adding task 86 to the outstanding queue, task 86 has predecessors: [85]
+[D] Time 0: Adding task 87 to the outstanding queue, task 87 has predecessors: [86]
+[D] Time 0: Adding task 88 to the outstanding queue, task 88 has predecessors: [78, 87]
+[D] Time 0: Adding task 89 to the outstanding queue, task 89 has predecessors: [79, 88]
+[D] Time 0: Adding task 90 to the outstanding queue, task 90 has predecessors: [89]
+[D] Time 0: Adding task 91 to the outstanding queue, task 91 has predecessors: [90]
+[D] Time 0: Adding task 92 to the outstanding queue, task 92 has predecessors: [91]
+[D] Time 0: Adding task 93 to the outstanding queue, task 93 has predecessors: [92]
+[D] Time 0: Adding task 94 to the outstanding queue, task 94 has predecessors: [89, 93]
+[D] Time 0: Adding task 95 to the outstanding queue, task 95 has predecessors: [90]
+[D] Time 0: Adding task 96 to the outstanding queue, task 96 has predecessors: [95]
+[D] Time 0: Adding task 97 to the outstanding queue, task 97 has predecessors: [96]
+[D] Time 0: Adding task 98 to the outstanding queue, task 98 has predecessors: [89, 97]
+[D] Time 0: Adding task 99 to the outstanding queue, task 99 has predecessors: [98]
+[D] Time 0: Adding task 100 to the outstanding queue, task 100 has predecessors: [99]
+[D] Time 0: Adding task 101 to the outstanding queue, task 101 has predecessors: [100]
+[D] Time 0: Adding task 102 to the outstanding queue, task 102 has predecessors: [101]
+[D] Time 0: Adding task 103 to the outstanding queue, task 103 has predecessors: [93, 102]
+[D] Time 0: Adding task 104 to the outstanding queue, task 104 has predecessors: [94, 103]
+[D] Time 0: Adding task 105 to the outstanding queue, task 105 has predecessors: [104]
+[D] Time 0: Adding task 106 to the outstanding queue, task 106 has predecessors: [105]
+[D] Time 0: Adding task 107 to the outstanding queue, task 107 has predecessors: [106]
+[D] Time 0: Adding task 108 to the outstanding queue, task 108 has predecessors: [107]
+[D] Time 0: Adding task 109 to the outstanding queue, task 109 has predecessors: [104, 108]
+[D] Time 0: Adding task 110 to the outstanding queue, task 110 has predecessors: [105]
+[D] Time 0: Adding task 111 to the outstanding queue, task 111 has predecessors: [110]
+[D] Time 0: Adding task 112 to the outstanding queue, task 112 has predecessors: [111]
+[D] Time 0: Adding task 113 to the outstanding queue, task 113 has predecessors: [104, 112]
+[D] Time 0: Adding task 114 to the outstanding queue, task 114 has predecessors: [113]
+[D] Time 0: Adding task 115 to the outstanding queue, task 115 has predecessors: [114]
+[D] Time 0: Adding task 116 to the outstanding queue, task 116 has predecessors: [115]
+[D] Time 0: Adding task 117 to the outstanding queue, task 117 has predecessors: [116]
+[D] Time 0: Adding task 118 to the outstanding queue, task 118 has predecessors: [108, 117]
+[D] Time 0: Adding task 119 to the outstanding queue, task 119 has predecessors: [109, 118]
+[I] Time 0: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 0 is a head task
+task 0 num predecessors 0
+[I] Time 0: Task 0 execution ready time(s) due to communication:
+             [0, 0]
+[I] Time 1: Task 0 is ready for execution by PE-6
+[D] Time 1: PE-6 allocated 65536 bytes in scratchpad for data 0_output (used: 65536/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 12: Task 0 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 12: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 5 num predecessors 1
+[D] Time 12: Data transfer (forwarding) from PE-6 to PE-6 for task 5 from task 0 is completed at 12 us
+[I] Time 12: Task 5 execution ready time(s) due to communication:
+             [12]
+[I] Time 13: Task 5 is ready for execution by PE-6
+[D] Time 13: PE-6 allocated 65536 bytes in scratchpad for data 5_output (used: 131072/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 24: Task 5 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 24: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 6 num predecessors 1
+[D] Time 24: Data transfer (forwarding) from PE-6 to PE-6 for task 6 from task 5 is completed at 24 us
+[I] Time 24: Task 6 execution ready time(s) due to communication:
+             [24]
+[I] Time 25: Task 6 is ready for execution by PE-6
+[D] Time 25: PE-6 allocated 65536 bytes in scratchpad for data 6_output (used: 196608/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 36: Task 6 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 36: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 7 num predecessors 1
+[D] Time 36: Data transfer (forwarding) from PE-6 to PE-6 for task 7 from task 6 is completed at 36 us
+[I] Time 36: Task 7 execution ready time(s) due to communication:
+             [36]
+[I] Time 37: Task 7 is ready for execution by PE-6
+[D] Time 37: PE-6 allocated 65536 bytes in scratchpad for data 7_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 45: Task 7 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[2, 3, 4, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 45: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 8 num predecessors 1
+[D] Time 45: Data transfer (forwarding) from PE-6 to PE-6 for task 8 from task 7 is completed at 45 us
+[I] Time 45: Task 8 execution ready time(s) due to communication:
+             [45]
+[I] Time 46: Task 8 is ready for execution by PE-6
+[D] Time 46: PE-6 freed 65536 bytes (0_output) in scratchpad (used: 196608/262144)
+[D] Time 46: PE-6 allocated 65536 bytes in scratchpad for data 8_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 57: Task 8 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 57: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 9 num predecessors 1
+[D] Time 57: Data transfer (forwarding) from PE-6 to PE-6 for task 9 from task 8 is completed at 57 us
+[I] Time 57: Task 9 execution ready time(s) due to communication:
+             [57]
+[I] Time 58: Task 9 is ready for execution by PE-6
+[D] Time 58: PE-6 freed 65536 bytes (5_output) in scratchpad (used: 196608/262144)
+[D] Time 58: PE-6 allocated 65536 bytes in scratchpad for data 9_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 69: Task 9 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 69: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 10 num predecessors 1
+[D] Time 69: Data transfer (forwarding) from PE-6 to PE-6 for task 10 from task 9 is completed at 69 us
+[I] Time 69: Task 10 execution ready time(s) due to communication:
+             [69]
+[I] Time 70: Task 10 is ready for execution by PE-6
+[D] Time 70: PE-6 freed 65536 bytes (6_output) in scratchpad (used: 196608/262144)
+[D] Time 70: PE-6 allocated 65536 bytes in scratchpad for data 10_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 81: Task 10 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 81: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 11 num predecessors 1
+[D] Time 81: Data transfer (forwarding) from PE-6 to PE-6 for task 11 from task 10 is completed at 81 us
+[I] Time 81: Task 11 execution ready time(s) due to communication:
+             [81]
+[I] Time 82: Task 11 is ready for execution by PE-6
+[D] Time 82: PE-6 freed 65536 bytes (7_output) in scratchpad (used: 196608/262144)
+[D] Time 82: PE-6 allocated 65536 bytes in scratchpad for data 11_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 93: Task 11 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[2, 3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 93: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 1 num predecessors 1
+[D] Time 93: Data from memory for task 1 from task 0 will be sent to PE-6 in 97 us
+[I] Time 93: Task 1 execution ready time(s) due to communication:
+             [97]
+[I] Time 97: Task 1 is ready for execution by PE-6
+[D] Time 97: PE-6 freed 65536 bytes (8_output) in scratchpad (used: 196608/262144)
+[D] Time 97: PE-6 allocated 65536 bytes in scratchpad for data 1_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 108: Task 1 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 108: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 2 num predecessors 1
+[D] Time 108: Data transfer (forwarding) from PE-6 to PE-6 for task 2 from task 1 is completed at 108 us
+[I] Time 108: Task 2 execution ready time(s) due to communication:
+             [108]
+[I] Time 109: Task 2 is ready for execution by PE-6
+[D] Time 109: PE-6 freed 65536 bytes (9_output) in scratchpad (used: 196608/262144)
+[D] Time 109: PE-6 allocated 65536 bytes in scratchpad for data 2_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 120: Task 2 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 120: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 3 num predecessors 1
+[D] Time 120: Data transfer (forwarding) from PE-6 to PE-6 for task 3 from task 2 is completed at 120 us
+[I] Time 120: Task 3 execution ready time(s) due to communication:
+             [120]
+[I] Time 121: Task 3 is ready for execution by PE-6
+[D] Time 121: PE-6 freed 65536 bytes (10_output) in scratchpad (used: 196608/262144)
+[D] Time 121: PE-6 allocated 65536 bytes in scratchpad for data 3_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 129: Task 3 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 129: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 12 num predecessors 1
+[D] Time 129: Data transfer (forwarding) from PE-6 to PE-6 for task 12 from task 11 is completed at 129 us
+[I] Time 129: Task 12 execution ready time(s) due to communication:
+             [129]
+[I] Time 130: Task 12 is ready for execution by PE-6
+[D] Time 130: PE-6 freed 65536 bytes (1_output) in scratchpad (used: 196608/262144)
+[D] Time 130: PE-6 allocated 65536 bytes in scratchpad for data 12_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 138: Task 12 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 138: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 13 num predecessors 2
+[D] Time 138: Data transfer (forwarding) from PE-6 to PE-6 for task 13 from task 3 is completed at 138 us
+[D] Time 138: Data transfer (forwarding) from PE-6 to PE-6 for task 13 from task 12 is completed at 138 us
+[I] Time 138: Task 13 execution ready time(s) due to communication:
+             [138, 138]
+[I] Time 139: Task 13 is ready for execution by PE-6
+[D] Time 139: PE-6 freed 65536 bytes (2_output) in scratchpad (used: 196608/262144)
+[D] Time 139: PE-6 allocated 65536 bytes in scratchpad for data 13_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 150: Task 13 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 4 num predecessors 1
+[D] Time 150: Data transfer (forwarding) from PE-6 to PE-6 for task 4 from task 3 is completed at 150 us
+[I] Time 150: Task 4 execution ready time(s) due to communication:
+             [150]
+[I] Time 151: Task 4 is ready for execution by PE-6
+[D] Time 151: PE-6 freed 65536 bytes (11_output) in scratchpad (used: 196608/262144)
+[D] Time 151: PE-6 allocated 65536 bytes in scratchpad for data 4_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 162: Task 4 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 162: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 14 num predecessors 2
+[D] Time 162: Data transfer (forwarding) from PE-6 to PE-6 for task 14 from task 4 is completed at 162 us
+[D] Time 162: Data transfer (forwarding) from PE-6 to PE-6 for task 14 from task 13 is completed at 162 us
+[I] Time 162: Task 14 execution ready time(s) due to communication:
+             [162, 162]
+[I] Time 163: Task 14 is ready for execution by PE-6
+[D] Time 163: PE-6 freed 65536 bytes (12_output) in scratchpad (used: 196608/262144)
+[D] Time 163: PE-6 allocated 65536 bytes in scratchpad for data 14_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 174: Task 14 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 174: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 15 num predecessors 1
+[D] Time 174: Data transfer (forwarding) from PE-6 to PE-6 for task 15 from task 14 is completed at 174 us
+[I] Time 174: Task 15 execution ready time(s) due to communication:
+             [174]
+[I] Time 175: Task 15 is ready for execution by PE-6
+[D] Time 175: PE-6 freed 65536 bytes (13_output) in scratchpad (used: 196608/262144)
+[D] Time 175: PE-6 allocated 65536 bytes in scratchpad for data 15_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 186: Task 15 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 186: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 20 num predecessors 1
+[D] Time 186: Data transfer (forwarding) from PE-6 to PE-6 for task 20 from task 15 is completed at 186 us
+[I] Time 186: Task 20 execution ready time(s) due to communication:
+             [186]
+[I] Time 187: Task 20 is ready for execution by PE-6
+[D] Time 187: PE-6 freed 65536 bytes (3_output) in scratchpad (used: 196608/262144)
+[D] Time 187: PE-6 allocated 65536 bytes in scratchpad for data 20_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 198: Task 20 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 198: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 21 num predecessors 1
+[D] Time 198: Data transfer (forwarding) from PE-6 to PE-6 for task 21 from task 20 is completed at 198 us
+[I] Time 198: Task 21 execution ready time(s) due to communication:
+             [198]
+[I] Time 199: Task 21 is ready for execution by PE-6
+[D] Time 199: PE-6 freed 65536 bytes (4_output) in scratchpad (used: 196608/262144)
+[D] Time 199: PE-6 allocated 65536 bytes in scratchpad for data 21_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 210: Task 21 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 210: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 22 num predecessors 1
+[D] Time 210: Data transfer (forwarding) from PE-6 to PE-6 for task 22 from task 21 is completed at 210 us
+[I] Time 210: Task 22 execution ready time(s) due to communication:
+             [210]
+[I] Time 211: Task 22 is ready for execution by PE-6
+[D] Time 211: PE-6 freed 65536 bytes (14_output) in scratchpad (used: 196608/262144)
+[D] Time 211: PE-6 allocated 65536 bytes in scratchpad for data 22_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 212: Data transfer for data 14_output to memory is completed
+[I] Time 219: Task 22 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[17, 18, 19, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 219: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 23 num predecessors 2
+[D] Time 219: Data from memory for task 23 from task 14 will be sent to PE-6 in 223 us
+[D] Time 219: Data transfer (forwarding) from PE-6 to PE-6 for task 23 from task 22 is completed at 219 us
+[I] Time 219: Task 23 execution ready time(s) due to communication:
+             [223, 219]
+[I] Time 223: Task 23 is ready for execution by PE-6
+[D] Time 223: PE-6 freed 65536 bytes (15_output) in scratchpad (used: 196608/262144)
+[D] Time 223: PE-6 allocated 65536 bytes in scratchpad for data 23_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 234: Task 23 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 234: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 24 num predecessors 1
+[D] Time 234: Data transfer (forwarding) from PE-6 to PE-6 for task 24 from task 23 is completed at 234 us
+[I] Time 234: Task 24 execution ready time(s) due to communication:
+             [234]
+[I] Time 235: Task 24 is ready for execution by PE-6
+[D] Time 235: PE-6 freed 65536 bytes (20_output) in scratchpad (used: 196608/262144)
+[D] Time 235: PE-6 allocated 65536 bytes in scratchpad for data 24_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 246: Task 24 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 246: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 25 num predecessors 1
+[D] Time 246: Data transfer (forwarding) from PE-6 to PE-6 for task 25 from task 24 is completed at 246 us
+[I] Time 246: Task 25 execution ready time(s) due to communication:
+             [246]
+[I] Time 247: Task 25 is ready for execution by PE-6
+[D] Time 247: PE-6 freed 65536 bytes (21_output) in scratchpad (used: 196608/262144)
+[D] Time 247: PE-6 allocated 65536 bytes in scratchpad for data 25_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 258: Task 25 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 258: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 26 num predecessors 1
+[D] Time 258: Data transfer (forwarding) from PE-6 to PE-6 for task 26 from task 25 is completed at 258 us
+[I] Time 258: Task 26 execution ready time(s) due to communication:
+             [258]
+[I] Time 259: Task 26 is ready for execution by PE-6
+[D] Time 259: PE-6 freed 65536 bytes (22_output) in scratchpad (used: 196608/262144)
+[D] Time 259: PE-6 allocated 65536 bytes in scratchpad for data 26_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 270: Task 26 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[17, 18, 19, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 270: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 16 num predecessors 1
+[D] Time 270: Data from memory for task 16 from task 15 will be sent to PE-6 in 274 us
+[I] Time 270: Task 16 execution ready time(s) due to communication:
+             [274]
+[I] Time 274: Task 16 is ready for execution by PE-6
+[D] Time 274: PE-6 freed 65536 bytes (23_output) in scratchpad (used: 196608/262144)
+[D] Time 274: PE-6 allocated 65536 bytes in scratchpad for data 16_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 285: Task 16 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[18, 19, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 285: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 17 num predecessors 1
+[D] Time 285: Data transfer (forwarding) from PE-6 to PE-6 for task 17 from task 16 is completed at 285 us
+[I] Time 285: Task 17 execution ready time(s) due to communication:
+             [285]
+[I] Time 286: Task 17 is ready for execution by PE-6
+[D] Time 286: PE-6 freed 65536 bytes (24_output) in scratchpad (used: 196608/262144)
+[D] Time 286: PE-6 allocated 65536 bytes in scratchpad for data 17_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 297: Task 17 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[19, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 297: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 18 num predecessors 1
+[D] Time 297: Data transfer (forwarding) from PE-6 to PE-6 for task 18 from task 17 is completed at 297 us
+[I] Time 297: Task 18 execution ready time(s) due to communication:
+             [297]
+[I] Time 298: Task 18 is ready for execution by PE-6
+[D] Time 298: PE-6 freed 65536 bytes (25_output) in scratchpad (used: 196608/262144)
+[D] Time 298: PE-6 allocated 65536 bytes in scratchpad for data 18_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 306: Task 18 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 306: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 27 num predecessors 1
+[D] Time 306: Data transfer (forwarding) from PE-6 to PE-6 for task 27 from task 26 is completed at 306 us
+[I] Time 306: Task 27 execution ready time(s) due to communication:
+             [306]
+[I] Time 307: Task 27 is ready for execution by PE-6
+[D] Time 307: PE-6 freed 65536 bytes (16_output) in scratchpad (used: 196608/262144)
+[D] Time 307: PE-6 allocated 65536 bytes in scratchpad for data 27_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 315: Task 27 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 315: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 28 num predecessors 2
+[D] Time 315: Data transfer (forwarding) from PE-6 to PE-6 for task 28 from task 18 is completed at 315 us
+[D] Time 315: Data transfer (forwarding) from PE-6 to PE-6 for task 28 from task 27 is completed at 315 us
+[I] Time 315: Task 28 execution ready time(s) due to communication:
+             [315, 315]
+[I] Time 316: Task 28 is ready for execution by PE-6
+[D] Time 316: PE-6 freed 65536 bytes (17_output) in scratchpad (used: 196608/262144)
+[D] Time 316: PE-6 allocated 65536 bytes in scratchpad for data 28_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 327: Task 28 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 19 num predecessors 2
+[D] Time 327: Data from memory for task 19 from task 14 will be sent to PE-6 in 331 us
+[D] Time 327: Data transfer (forwarding) from PE-6 to PE-6 for task 19 from task 18 is completed at 327 us
+[I] Time 327: Task 19 execution ready time(s) due to communication:
+             [331, 327]
+[I] Time 331: Task 19 is ready for execution by PE-6
+[D] Time 331: PE-6 freed 65536 bytes (26_output) in scratchpad (used: 196608/262144)
+[D] Time 331: PE-6 allocated 65536 bytes in scratchpad for data 19_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 342: Task 19 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 342: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 29 num predecessors 2
+[D] Time 342: Data transfer (forwarding) from PE-6 to PE-6 for task 29 from task 19 is completed at 342 us
+[D] Time 342: Data transfer (forwarding) from PE-6 to PE-6 for task 29 from task 28 is completed at 342 us
+[I] Time 342: Task 29 execution ready time(s) due to communication:
+             [342, 342]
+[I] Time 343: Task 29 is ready for execution by PE-6
+[D] Time 343: PE-6 freed 65536 bytes (27_output) in scratchpad (used: 196608/262144)
+[D] Time 343: PE-6 allocated 65536 bytes in scratchpad for data 29_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 354: Task 29 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 354: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 30 num predecessors 1
+[D] Time 354: Data transfer (forwarding) from PE-6 to PE-6 for task 30 from task 29 is completed at 354 us
+[I] Time 354: Task 30 execution ready time(s) due to communication:
+             [354]
+[I] Time 355: Task 30 is ready for execution by PE-6
+[D] Time 355: PE-6 freed 65536 bytes (28_output) in scratchpad (used: 196608/262144)
+[D] Time 355: PE-6 allocated 65536 bytes in scratchpad for data 30_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 366: Task 30 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 366: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 35 num predecessors 1
+[D] Time 366: Data transfer (forwarding) from PE-6 to PE-6 for task 35 from task 30 is completed at 366 us
+[I] Time 366: Task 35 execution ready time(s) due to communication:
+             [366]
+[I] Time 367: Task 35 is ready for execution by PE-6
+[D] Time 367: PE-6 freed 65536 bytes (18_output) in scratchpad (used: 196608/262144)
+[D] Time 367: PE-6 allocated 65536 bytes in scratchpad for data 35_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 378: Task 35 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 378: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 36 num predecessors 1
+[D] Time 378: Data transfer (forwarding) from PE-6 to PE-6 for task 36 from task 35 is completed at 378 us
+[I] Time 378: Task 36 execution ready time(s) due to communication:
+             [378]
+[I] Time 379: Task 36 is ready for execution by PE-6
+[D] Time 379: PE-6 freed 65536 bytes (19_output) in scratchpad (used: 196608/262144)
+[D] Time 379: PE-6 allocated 65536 bytes in scratchpad for data 36_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 390: Task 36 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 390: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 37 num predecessors 1
+[D] Time 390: Data transfer (forwarding) from PE-6 to PE-6 for task 37 from task 36 is completed at 390 us
+[I] Time 390: Task 37 execution ready time(s) due to communication:
+             [390]
+[I] Time 391: Task 37 is ready for execution by PE-6
+[D] Time 391: PE-6 freed 65536 bytes (29_output) in scratchpad (used: 196608/262144)
+[D] Time 391: PE-6 allocated 65536 bytes in scratchpad for data 37_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 392: Data transfer for data 29_output to memory is completed
+[I] Time 399: Task 37 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[32, 33, 34, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 399: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 38 num predecessors 2
+[D] Time 399: Data from memory for task 38 from task 29 will be sent to PE-6 in 403 us
+[D] Time 399: Data transfer (forwarding) from PE-6 to PE-6 for task 38 from task 37 is completed at 399 us
+[I] Time 399: Task 38 execution ready time(s) due to communication:
+             [403, 399]
+[I] Time 403: Task 38 is ready for execution by PE-6
+[D] Time 403: PE-6 freed 65536 bytes (30_output) in scratchpad (used: 196608/262144)
+[D] Time 403: PE-6 allocated 65536 bytes in scratchpad for data 38_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 414: Task 38 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 414: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 39 num predecessors 1
+[D] Time 414: Data transfer (forwarding) from PE-6 to PE-6 for task 39 from task 38 is completed at 414 us
+[I] Time 414: Task 39 execution ready time(s) due to communication:
+             [414]
+[I] Time 415: Task 39 is ready for execution by PE-6
+[D] Time 415: PE-6 freed 65536 bytes (35_output) in scratchpad (used: 196608/262144)
+[D] Time 415: PE-6 allocated 65536 bytes in scratchpad for data 39_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 426: Task 39 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 426: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 40 num predecessors 1
+[D] Time 426: Data transfer (forwarding) from PE-6 to PE-6 for task 40 from task 39 is completed at 426 us
+[I] Time 426: Task 40 execution ready time(s) due to communication:
+             [426]
+[I] Time 427: Task 40 is ready for execution by PE-6
+[D] Time 427: PE-6 freed 65536 bytes (36_output) in scratchpad (used: 196608/262144)
+[D] Time 427: PE-6 allocated 65536 bytes in scratchpad for data 40_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 438: Task 40 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 438: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 41 num predecessors 1
+[D] Time 438: Data transfer (forwarding) from PE-6 to PE-6 for task 41 from task 40 is completed at 438 us
+[I] Time 438: Task 41 execution ready time(s) due to communication:
+             [438]
+[I] Time 439: Task 41 is ready for execution by PE-6
+[D] Time 439: PE-6 freed 65536 bytes (37_output) in scratchpad (used: 196608/262144)
+[D] Time 439: PE-6 allocated 65536 bytes in scratchpad for data 41_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 450: Task 41 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[32, 33, 34, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 450: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 31 num predecessors 1
+[D] Time 450: Data from memory for task 31 from task 30 will be sent to PE-6 in 454 us
+[I] Time 450: Task 31 execution ready time(s) due to communication:
+             [454]
+[I] Time 454: Task 31 is ready for execution by PE-6
+[D] Time 454: PE-6 freed 65536 bytes (38_output) in scratchpad (used: 196608/262144)
+[D] Time 454: PE-6 allocated 65536 bytes in scratchpad for data 31_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 465: Task 31 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[33, 34, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 465: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 32 num predecessors 1
+[D] Time 465: Data transfer (forwarding) from PE-6 to PE-6 for task 32 from task 31 is completed at 465 us
+[I] Time 465: Task 32 execution ready time(s) due to communication:
+             [465]
+[I] Time 466: Task 32 is ready for execution by PE-6
+[D] Time 466: PE-6 freed 65536 bytes (39_output) in scratchpad (used: 196608/262144)
+[D] Time 466: PE-6 allocated 65536 bytes in scratchpad for data 32_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 477: Task 32 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[34, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 477: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 33 num predecessors 1
+[D] Time 477: Data transfer (forwarding) from PE-6 to PE-6 for task 33 from task 32 is completed at 477 us
+[I] Time 477: Task 33 execution ready time(s) due to communication:
+             [477]
+[I] Time 478: Task 33 is ready for execution by PE-6
+[D] Time 478: PE-6 freed 65536 bytes (40_output) in scratchpad (used: 196608/262144)
+[D] Time 478: PE-6 allocated 65536 bytes in scratchpad for data 33_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 486: Task 33 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 486: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 42 num predecessors 1
+[D] Time 486: Data transfer (forwarding) from PE-6 to PE-6 for task 42 from task 41 is completed at 486 us
+[I] Time 486: Task 42 execution ready time(s) due to communication:
+             [486]
+[I] Time 487: Task 42 is ready for execution by PE-6
+[D] Time 487: PE-6 freed 65536 bytes (31_output) in scratchpad (used: 196608/262144)
+[D] Time 487: PE-6 allocated 65536 bytes in scratchpad for data 42_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 495: Task 42 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 495: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 43 num predecessors 2
+[D] Time 495: Data transfer (forwarding) from PE-6 to PE-6 for task 43 from task 33 is completed at 495 us
+[D] Time 495: Data transfer (forwarding) from PE-6 to PE-6 for task 43 from task 42 is completed at 495 us
+[I] Time 495: Task 43 execution ready time(s) due to communication:
+             [495, 495]
+[I] Time 496: Task 43 is ready for execution by PE-6
+[D] Time 496: PE-6 freed 65536 bytes (32_output) in scratchpad (used: 196608/262144)
+[D] Time 496: PE-6 allocated 65536 bytes in scratchpad for data 43_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 507: Task 43 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 34 num predecessors 2
+[D] Time 507: Data from memory for task 34 from task 29 will be sent to PE-6 in 511 us
+[D] Time 507: Data transfer (forwarding) from PE-6 to PE-6 for task 34 from task 33 is completed at 507 us
+[I] Time 507: Task 34 execution ready time(s) due to communication:
+             [511, 507]
+[I] Time 511: Task 34 is ready for execution by PE-6
+[D] Time 511: PE-6 freed 65536 bytes (41_output) in scratchpad (used: 196608/262144)
+[D] Time 511: PE-6 allocated 65536 bytes in scratchpad for data 34_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 522: Task 34 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 522: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 44 num predecessors 2
+[D] Time 522: Data transfer (forwarding) from PE-6 to PE-6 for task 44 from task 34 is completed at 522 us
+[D] Time 522: Data transfer (forwarding) from PE-6 to PE-6 for task 44 from task 43 is completed at 522 us
+[I] Time 522: Task 44 execution ready time(s) due to communication:
+             [522, 522]
+[I] Time 523: Task 44 is ready for execution by PE-6
+[D] Time 523: PE-6 freed 65536 bytes (42_output) in scratchpad (used: 196608/262144)
+[D] Time 523: PE-6 allocated 65536 bytes in scratchpad for data 44_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 534: Task 44 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 534: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 45 num predecessors 1
+[D] Time 534: Data transfer (forwarding) from PE-6 to PE-6 for task 45 from task 44 is completed at 534 us
+[I] Time 534: Task 45 execution ready time(s) due to communication:
+             [534]
+[I] Time 535: Task 45 is ready for execution by PE-6
+[D] Time 535: PE-6 freed 65536 bytes (43_output) in scratchpad (used: 196608/262144)
+[D] Time 535: PE-6 allocated 65536 bytes in scratchpad for data 45_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 546: Task 45 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 546: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 50 num predecessors 1
+[D] Time 546: Data transfer (forwarding) from PE-6 to PE-6 for task 50 from task 45 is completed at 546 us
+[I] Time 546: Task 50 execution ready time(s) due to communication:
+             [546]
+[I] Time 547: Task 50 is ready for execution by PE-6
+[D] Time 547: PE-6 freed 65536 bytes (33_output) in scratchpad (used: 196608/262144)
+[D] Time 547: PE-6 allocated 65536 bytes in scratchpad for data 50_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 558: Task 50 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 558: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 51 num predecessors 1
+[D] Time 558: Data transfer (forwarding) from PE-6 to PE-6 for task 51 from task 50 is completed at 558 us
+[I] Time 558: Task 51 execution ready time(s) due to communication:
+             [558]
+[I] Time 559: Task 51 is ready for execution by PE-6
+[D] Time 559: PE-6 freed 65536 bytes (34_output) in scratchpad (used: 196608/262144)
+[D] Time 559: PE-6 allocated 65536 bytes in scratchpad for data 51_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 570: Task 51 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 570: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 52 num predecessors 1
+[D] Time 570: Data transfer (forwarding) from PE-6 to PE-6 for task 52 from task 51 is completed at 570 us
+[I] Time 570: Task 52 execution ready time(s) due to communication:
+             [570]
+[I] Time 571: Task 52 is ready for execution by PE-6
+[D] Time 571: PE-6 freed 65536 bytes (44_output) in scratchpad (used: 196608/262144)
+[D] Time 571: PE-6 allocated 65536 bytes in scratchpad for data 52_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 572: Data transfer for data 44_output to memory is completed
+[I] Time 579: Task 52 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[47, 48, 49, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 579: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 53 num predecessors 2
+[D] Time 579: Data from memory for task 53 from task 44 will be sent to PE-6 in 583 us
+[D] Time 579: Data transfer (forwarding) from PE-6 to PE-6 for task 53 from task 52 is completed at 579 us
+[I] Time 579: Task 53 execution ready time(s) due to communication:
+             [583, 579]
+[I] Time 583: Task 53 is ready for execution by PE-6
+[D] Time 583: PE-6 freed 65536 bytes (45_output) in scratchpad (used: 196608/262144)
+[D] Time 583: PE-6 allocated 65536 bytes in scratchpad for data 53_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 594: Task 53 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 594: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 54 num predecessors 1
+[D] Time 594: Data transfer (forwarding) from PE-6 to PE-6 for task 54 from task 53 is completed at 594 us
+[I] Time 594: Task 54 execution ready time(s) due to communication:
+             [594]
+[I] Time 595: Task 54 is ready for execution by PE-6
+[D] Time 595: PE-6 freed 65536 bytes (50_output) in scratchpad (used: 196608/262144)
+[D] Time 595: PE-6 allocated 65536 bytes in scratchpad for data 54_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 606: Task 54 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 606: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 55 num predecessors 1
+[D] Time 606: Data transfer (forwarding) from PE-6 to PE-6 for task 55 from task 54 is completed at 606 us
+[I] Time 606: Task 55 execution ready time(s) due to communication:
+             [606]
+[I] Time 607: Task 55 is ready for execution by PE-6
+[D] Time 607: PE-6 freed 65536 bytes (51_output) in scratchpad (used: 196608/262144)
+[D] Time 607: PE-6 allocated 65536 bytes in scratchpad for data 55_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 618: Task 55 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 618: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 56 num predecessors 1
+[D] Time 618: Data transfer (forwarding) from PE-6 to PE-6 for task 56 from task 55 is completed at 618 us
+[I] Time 618: Task 56 execution ready time(s) due to communication:
+             [618]
+[I] Time 619: Task 56 is ready for execution by PE-6
+[D] Time 619: PE-6 freed 65536 bytes (52_output) in scratchpad (used: 196608/262144)
+[D] Time 619: PE-6 allocated 65536 bytes in scratchpad for data 56_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 630: Task 56 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[47, 48, 49, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 630: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 46 num predecessors 1
+[D] Time 630: Data from memory for task 46 from task 45 will be sent to PE-6 in 634 us
+[I] Time 630: Task 46 execution ready time(s) due to communication:
+             [634]
+[I] Time 634: Task 46 is ready for execution by PE-6
+[D] Time 634: PE-6 freed 65536 bytes (53_output) in scratchpad (used: 196608/262144)
+[D] Time 634: PE-6 allocated 65536 bytes in scratchpad for data 46_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 645: Task 46 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[48, 49, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 645: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 47 num predecessors 1
+[D] Time 645: Data transfer (forwarding) from PE-6 to PE-6 for task 47 from task 46 is completed at 645 us
+[I] Time 645: Task 47 execution ready time(s) due to communication:
+             [645]
+[I] Time 646: Task 47 is ready for execution by PE-6
+[D] Time 646: PE-6 freed 65536 bytes (54_output) in scratchpad (used: 196608/262144)
+[D] Time 646: PE-6 allocated 65536 bytes in scratchpad for data 47_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 657: Task 47 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[49, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 657: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 48 num predecessors 1
+[D] Time 657: Data transfer (forwarding) from PE-6 to PE-6 for task 48 from task 47 is completed at 657 us
+[I] Time 657: Task 48 execution ready time(s) due to communication:
+             [657]
+[I] Time 658: Task 48 is ready for execution by PE-6
+[D] Time 658: PE-6 freed 65536 bytes (55_output) in scratchpad (used: 196608/262144)
+[D] Time 658: PE-6 allocated 65536 bytes in scratchpad for data 48_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 666: Task 48 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 666: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 57 num predecessors 1
+[D] Time 666: Data transfer (forwarding) from PE-6 to PE-6 for task 57 from task 56 is completed at 666 us
+[I] Time 666: Task 57 execution ready time(s) due to communication:
+             [666]
+[I] Time 667: Task 57 is ready for execution by PE-6
+[D] Time 667: PE-6 freed 65536 bytes (46_output) in scratchpad (used: 196608/262144)
+[D] Time 667: PE-6 allocated 65536 bytes in scratchpad for data 57_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 675: Task 57 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 675: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 58 num predecessors 2
+[D] Time 675: Data transfer (forwarding) from PE-6 to PE-6 for task 58 from task 48 is completed at 675 us
+[D] Time 675: Data transfer (forwarding) from PE-6 to PE-6 for task 58 from task 57 is completed at 675 us
+[I] Time 675: Task 58 execution ready time(s) due to communication:
+             [675, 675]
+[I] Time 676: Task 58 is ready for execution by PE-6
+[D] Time 676: PE-6 freed 65536 bytes (47_output) in scratchpad (used: 196608/262144)
+[D] Time 676: PE-6 allocated 65536 bytes in scratchpad for data 58_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 687: Task 58 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 49 num predecessors 2
+[D] Time 687: Data from memory for task 49 from task 44 will be sent to PE-6 in 691 us
+[D] Time 687: Data transfer (forwarding) from PE-6 to PE-6 for task 49 from task 48 is completed at 687 us
+[I] Time 687: Task 49 execution ready time(s) due to communication:
+             [691, 687]
+[I] Time 691: Task 49 is ready for execution by PE-6
+[D] Time 691: PE-6 freed 65536 bytes (56_output) in scratchpad (used: 196608/262144)
+[D] Time 691: PE-6 allocated 65536 bytes in scratchpad for data 49_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 702: Task 49 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 702: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 59 num predecessors 2
+[D] Time 702: Data transfer (forwarding) from PE-6 to PE-6 for task 59 from task 49 is completed at 702 us
+[D] Time 702: Data transfer (forwarding) from PE-6 to PE-6 for task 59 from task 58 is completed at 702 us
+[I] Time 702: Task 59 execution ready time(s) due to communication:
+             [702, 702]
+[I] Time 703: Task 59 is ready for execution by PE-6
+[D] Time 703: PE-6 freed 65536 bytes (57_output) in scratchpad (used: 196608/262144)
+[D] Time 703: PE-6 allocated 65536 bytes in scratchpad for data 59_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 714: Task 59 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 714: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 60 num predecessors 1
+[D] Time 714: Data transfer (forwarding) from PE-6 to PE-6 for task 60 from task 59 is completed at 714 us
+[I] Time 714: Task 60 execution ready time(s) due to communication:
+             [714]
+[I] Time 715: Task 60 is ready for execution by PE-6
+[D] Time 715: PE-6 freed 65536 bytes (58_output) in scratchpad (used: 196608/262144)
+[D] Time 715: PE-6 allocated 65536 bytes in scratchpad for data 60_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 726: Task 60 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 726: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 65 num predecessors 1
+[D] Time 726: Data transfer (forwarding) from PE-6 to PE-6 for task 65 from task 60 is completed at 726 us
+[I] Time 726: Task 65 execution ready time(s) due to communication:
+             [726]
+[I] Time 727: Task 65 is ready for execution by PE-6
+[D] Time 727: PE-6 freed 65536 bytes (48_output) in scratchpad (used: 196608/262144)
+[D] Time 727: PE-6 allocated 65536 bytes in scratchpad for data 65_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 738: Task 65 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 738: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 66 num predecessors 1
+[D] Time 738: Data transfer (forwarding) from PE-6 to PE-6 for task 66 from task 65 is completed at 738 us
+[I] Time 738: Task 66 execution ready time(s) due to communication:
+             [738]
+[I] Time 739: Task 66 is ready for execution by PE-6
+[D] Time 739: PE-6 freed 65536 bytes (49_output) in scratchpad (used: 196608/262144)
+[D] Time 739: PE-6 allocated 65536 bytes in scratchpad for data 66_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 750: Task 66 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 750: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 67 num predecessors 1
+[D] Time 750: Data transfer (forwarding) from PE-6 to PE-6 for task 67 from task 66 is completed at 750 us
+[I] Time 750: Task 67 execution ready time(s) due to communication:
+             [750]
+[I] Time 751: Task 67 is ready for execution by PE-6
+[D] Time 751: PE-6 freed 65536 bytes (59_output) in scratchpad (used: 196608/262144)
+[D] Time 751: PE-6 allocated 65536 bytes in scratchpad for data 67_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 752: Data transfer for data 59_output to memory is completed
+[I] Time 759: Task 67 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[62, 63, 64, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 759: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 68 num predecessors 2
+[D] Time 759: Data from memory for task 68 from task 59 will be sent to PE-6 in 763 us
+[D] Time 759: Data transfer (forwarding) from PE-6 to PE-6 for task 68 from task 67 is completed at 759 us
+[I] Time 759: Task 68 execution ready time(s) due to communication:
+             [763, 759]
+[I] Time 763: Task 68 is ready for execution by PE-6
+[D] Time 763: PE-6 freed 65536 bytes (60_output) in scratchpad (used: 196608/262144)
+[D] Time 763: PE-6 allocated 65536 bytes in scratchpad for data 68_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 774: Task 68 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 774: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 69 num predecessors 1
+[D] Time 774: Data transfer (forwarding) from PE-6 to PE-6 for task 69 from task 68 is completed at 774 us
+[I] Time 774: Task 69 execution ready time(s) due to communication:
+             [774]
+[I] Time 775: Task 69 is ready for execution by PE-6
+[D] Time 775: PE-6 freed 65536 bytes (65_output) in scratchpad (used: 196608/262144)
+[D] Time 775: PE-6 allocated 65536 bytes in scratchpad for data 69_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 786: Task 69 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 786: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 70 num predecessors 1
+[D] Time 786: Data transfer (forwarding) from PE-6 to PE-6 for task 70 from task 69 is completed at 786 us
+[I] Time 786: Task 70 execution ready time(s) due to communication:
+             [786]
+[I] Time 787: Task 70 is ready for execution by PE-6
+[D] Time 787: PE-6 freed 65536 bytes (66_output) in scratchpad (used: 196608/262144)
+[D] Time 787: PE-6 allocated 65536 bytes in scratchpad for data 70_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 798: Task 70 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 798: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 71 num predecessors 1
+[D] Time 798: Data transfer (forwarding) from PE-6 to PE-6 for task 71 from task 70 is completed at 798 us
+[I] Time 798: Task 71 execution ready time(s) due to communication:
+             [798]
+[I] Time 799: Task 71 is ready for execution by PE-6
+[D] Time 799: PE-6 freed 65536 bytes (67_output) in scratchpad (used: 196608/262144)
+[D] Time 799: PE-6 allocated 65536 bytes in scratchpad for data 71_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 810: Task 71 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[62, 63, 64, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 810: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 61 num predecessors 1
+[D] Time 810: Data from memory for task 61 from task 60 will be sent to PE-6 in 814 us
+[I] Time 810: Task 61 execution ready time(s) due to communication:
+             [814]
+[I] Time 814: Task 61 is ready for execution by PE-6
+[D] Time 814: PE-6 freed 65536 bytes (68_output) in scratchpad (used: 196608/262144)
+[D] Time 814: PE-6 allocated 65536 bytes in scratchpad for data 61_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 825: Task 61 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[63, 64, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 825: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 62 num predecessors 1
+[D] Time 825: Data transfer (forwarding) from PE-6 to PE-6 for task 62 from task 61 is completed at 825 us
+[I] Time 825: Task 62 execution ready time(s) due to communication:
+             [825]
+[I] Time 826: Task 62 is ready for execution by PE-6
+[D] Time 826: PE-6 freed 65536 bytes (69_output) in scratchpad (used: 196608/262144)
+[D] Time 826: PE-6 allocated 65536 bytes in scratchpad for data 62_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 837: Task 62 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[64, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 837: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 63 num predecessors 1
+[D] Time 837: Data transfer (forwarding) from PE-6 to PE-6 for task 63 from task 62 is completed at 837 us
+[I] Time 837: Task 63 execution ready time(s) due to communication:
+             [837]
+[I] Time 838: Task 63 is ready for execution by PE-6
+[D] Time 838: PE-6 freed 65536 bytes (70_output) in scratchpad (used: 196608/262144)
+[D] Time 838: PE-6 allocated 65536 bytes in scratchpad for data 63_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 846: Task 63 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 846: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 72 num predecessors 1
+[D] Time 846: Data transfer (forwarding) from PE-6 to PE-6 for task 72 from task 71 is completed at 846 us
+[I] Time 846: Task 72 execution ready time(s) due to communication:
+             [846]
+[I] Time 847: Task 72 is ready for execution by PE-6
+[D] Time 847: PE-6 freed 65536 bytes (61_output) in scratchpad (used: 196608/262144)
+[D] Time 847: PE-6 allocated 65536 bytes in scratchpad for data 72_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 855: Task 72 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 855: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 73 num predecessors 2
+[D] Time 855: Data transfer (forwarding) from PE-6 to PE-6 for task 73 from task 63 is completed at 855 us
+[D] Time 855: Data transfer (forwarding) from PE-6 to PE-6 for task 73 from task 72 is completed at 855 us
+[I] Time 855: Task 73 execution ready time(s) due to communication:
+             [855, 855]
+[I] Time 856: Task 73 is ready for execution by PE-6
+[D] Time 856: PE-6 freed 65536 bytes (62_output) in scratchpad (used: 196608/262144)
+[D] Time 856: PE-6 allocated 65536 bytes in scratchpad for data 73_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 867: Task 73 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 64 num predecessors 2
+[D] Time 867: Data from memory for task 64 from task 59 will be sent to PE-6 in 871 us
+[D] Time 867: Data transfer (forwarding) from PE-6 to PE-6 for task 64 from task 63 is completed at 867 us
+[I] Time 867: Task 64 execution ready time(s) due to communication:
+             [871, 867]
+[I] Time 871: Task 64 is ready for execution by PE-6
+[D] Time 871: PE-6 freed 65536 bytes (71_output) in scratchpad (used: 196608/262144)
+[D] Time 871: PE-6 allocated 65536 bytes in scratchpad for data 64_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 882: Task 64 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 882: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 74 num predecessors 2
+[D] Time 882: Data transfer (forwarding) from PE-6 to PE-6 for task 74 from task 64 is completed at 882 us
+[D] Time 882: Data transfer (forwarding) from PE-6 to PE-6 for task 74 from task 73 is completed at 882 us
+[I] Time 882: Task 74 execution ready time(s) due to communication:
+             [882, 882]
+[I] Time 883: Task 74 is ready for execution by PE-6
+[D] Time 883: PE-6 freed 65536 bytes (72_output) in scratchpad (used: 196608/262144)
+[D] Time 883: PE-6 allocated 65536 bytes in scratchpad for data 74_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 894: Task 74 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 894: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 75 num predecessors 1
+[D] Time 894: Data transfer (forwarding) from PE-6 to PE-6 for task 75 from task 74 is completed at 894 us
+[I] Time 894: Task 75 execution ready time(s) due to communication:
+             [894]
+[I] Time 895: Task 75 is ready for execution by PE-6
+[D] Time 895: PE-6 freed 65536 bytes (73_output) in scratchpad (used: 196608/262144)
+[D] Time 895: PE-6 allocated 65536 bytes in scratchpad for data 75_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 906: Task 75 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 906: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 80 num predecessors 1
+[D] Time 906: Data transfer (forwarding) from PE-6 to PE-6 for task 80 from task 75 is completed at 906 us
+[I] Time 906: Task 80 execution ready time(s) due to communication:
+             [906]
+[I] Time 907: Task 80 is ready for execution by PE-6
+[D] Time 907: PE-6 freed 65536 bytes (63_output) in scratchpad (used: 196608/262144)
+[D] Time 907: PE-6 allocated 65536 bytes in scratchpad for data 80_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 918: Task 80 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 918: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 81 num predecessors 1
+[D] Time 918: Data transfer (forwarding) from PE-6 to PE-6 for task 81 from task 80 is completed at 918 us
+[I] Time 918: Task 81 execution ready time(s) due to communication:
+             [918]
+[I] Time 919: Task 81 is ready for execution by PE-6
+[D] Time 919: PE-6 freed 65536 bytes (64_output) in scratchpad (used: 196608/262144)
+[D] Time 919: PE-6 allocated 65536 bytes in scratchpad for data 81_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 930: Task 81 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 930: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 82 num predecessors 1
+[D] Time 930: Data transfer (forwarding) from PE-6 to PE-6 for task 82 from task 81 is completed at 930 us
+[I] Time 930: Task 82 execution ready time(s) due to communication:
+             [930]
+[I] Time 931: Task 82 is ready for execution by PE-6
+[D] Time 931: PE-6 freed 65536 bytes (74_output) in scratchpad (used: 196608/262144)
+[D] Time 931: PE-6 allocated 65536 bytes in scratchpad for data 82_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 932: Data transfer for data 74_output to memory is completed
+[I] Time 939: Task 82 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[77, 78, 79, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 939: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 83 num predecessors 2
+[D] Time 939: Data from memory for task 83 from task 74 will be sent to PE-6 in 943 us
+[D] Time 939: Data transfer (forwarding) from PE-6 to PE-6 for task 83 from task 82 is completed at 939 us
+[I] Time 939: Task 83 execution ready time(s) due to communication:
+             [943, 939]
+[I] Time 943: Task 83 is ready for execution by PE-6
+[D] Time 943: PE-6 freed 65536 bytes (75_output) in scratchpad (used: 196608/262144)
+[D] Time 943: PE-6 allocated 65536 bytes in scratchpad for data 83_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 954: Task 83 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 954: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 84 num predecessors 1
+[D] Time 954: Data transfer (forwarding) from PE-6 to PE-6 for task 84 from task 83 is completed at 954 us
+[I] Time 954: Task 84 execution ready time(s) due to communication:
+             [954]
+[I] Time 955: Task 84 is ready for execution by PE-6
+[D] Time 955: PE-6 freed 65536 bytes (80_output) in scratchpad (used: 196608/262144)
+[D] Time 955: PE-6 allocated 65536 bytes in scratchpad for data 84_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 966: Task 84 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 966: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 85 num predecessors 1
+[D] Time 966: Data transfer (forwarding) from PE-6 to PE-6 for task 85 from task 84 is completed at 966 us
+[I] Time 966: Task 85 execution ready time(s) due to communication:
+             [966]
+[I] Time 967: Task 85 is ready for execution by PE-6
+[D] Time 967: PE-6 freed 65536 bytes (81_output) in scratchpad (used: 196608/262144)
+[D] Time 967: PE-6 allocated 65536 bytes in scratchpad for data 85_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 978: Task 85 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 978: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 86 num predecessors 1
+[D] Time 978: Data transfer (forwarding) from PE-6 to PE-6 for task 86 from task 85 is completed at 978 us
+[I] Time 978: Task 86 execution ready time(s) due to communication:
+             [978]
+[I] Time 979: Task 86 is ready for execution by PE-6
+[D] Time 979: PE-6 freed 65536 bytes (82_output) in scratchpad (used: 196608/262144)
+[D] Time 979: PE-6 allocated 65536 bytes in scratchpad for data 86_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 990: Task 86 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[77, 78, 79, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 990: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 76 num predecessors 1
+[D] Time 990: Data from memory for task 76 from task 75 will be sent to PE-6 in 994 us
+[I] Time 990: Task 76 execution ready time(s) due to communication:
+             [994]
+[I] Time 994: Task 76 is ready for execution by PE-6
+[D] Time 994: PE-6 freed 65536 bytes (83_output) in scratchpad (used: 196608/262144)
+[D] Time 994: PE-6 allocated 65536 bytes in scratchpad for data 76_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1005: Task 76 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[78, 79, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1005: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 77 num predecessors 1
+[D] Time 1005: Data transfer (forwarding) from PE-6 to PE-6 for task 77 from task 76 is completed at 1005 us
+[I] Time 1005: Task 77 execution ready time(s) due to communication:
+             [1005]
+[I] Time 1006: Task 77 is ready for execution by PE-6
+[D] Time 1006: PE-6 freed 65536 bytes (84_output) in scratchpad (used: 196608/262144)
+[D] Time 1006: PE-6 allocated 65536 bytes in scratchpad for data 77_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1017: Task 77 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[79, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1017: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 78 num predecessors 1
+[D] Time 1017: Data transfer (forwarding) from PE-6 to PE-6 for task 78 from task 77 is completed at 1017 us
+[I] Time 1017: Task 78 execution ready time(s) due to communication:
+             [1017]
+[I] Time 1018: Task 78 is ready for execution by PE-6
+[D] Time 1018: PE-6 freed 65536 bytes (85_output) in scratchpad (used: 196608/262144)
+[D] Time 1018: PE-6 allocated 65536 bytes in scratchpad for data 78_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1026: Task 78 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1026: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 87 num predecessors 1
+[D] Time 1026: Data transfer (forwarding) from PE-6 to PE-6 for task 87 from task 86 is completed at 1026 us
+[I] Time 1026: Task 87 execution ready time(s) due to communication:
+             [1026]
+[I] Time 1027: Task 87 is ready for execution by PE-6
+[D] Time 1027: PE-6 freed 65536 bytes (76_output) in scratchpad (used: 196608/262144)
+[D] Time 1027: PE-6 allocated 65536 bytes in scratchpad for data 87_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1035: Task 87 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1035: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 88 num predecessors 2
+[D] Time 1035: Data transfer (forwarding) from PE-6 to PE-6 for task 88 from task 78 is completed at 1035 us
+[D] Time 1035: Data transfer (forwarding) from PE-6 to PE-6 for task 88 from task 87 is completed at 1035 us
+[I] Time 1035: Task 88 execution ready time(s) due to communication:
+             [1035, 1035]
+[I] Time 1036: Task 88 is ready for execution by PE-6
+[D] Time 1036: PE-6 freed 65536 bytes (77_output) in scratchpad (used: 196608/262144)
+[D] Time 1036: PE-6 allocated 65536 bytes in scratchpad for data 88_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1047: Task 88 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 79 num predecessors 2
+[D] Time 1047: Data from memory for task 79 from task 74 will be sent to PE-6 in 1051 us
+[D] Time 1047: Data transfer (forwarding) from PE-6 to PE-6 for task 79 from task 78 is completed at 1047 us
+[I] Time 1047: Task 79 execution ready time(s) due to communication:
+             [1051, 1047]
+[I] Time 1051: Task 79 is ready for execution by PE-6
+[D] Time 1051: PE-6 freed 65536 bytes (86_output) in scratchpad (used: 196608/262144)
+[D] Time 1051: PE-6 allocated 65536 bytes in scratchpad for data 79_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1062: Task 79 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1062: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 89 num predecessors 2
+[D] Time 1062: Data transfer (forwarding) from PE-6 to PE-6 for task 89 from task 79 is completed at 1062 us
+[D] Time 1062: Data transfer (forwarding) from PE-6 to PE-6 for task 89 from task 88 is completed at 1062 us
+[I] Time 1062: Task 89 execution ready time(s) due to communication:
+             [1062, 1062]
+[I] Time 1063: Task 89 is ready for execution by PE-6
+[D] Time 1063: PE-6 freed 65536 bytes (87_output) in scratchpad (used: 196608/262144)
+[D] Time 1063: PE-6 allocated 65536 bytes in scratchpad for data 89_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1074: Task 89 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1074: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 90 num predecessors 1
+[D] Time 1074: Data transfer (forwarding) from PE-6 to PE-6 for task 90 from task 89 is completed at 1074 us
+[I] Time 1074: Task 90 execution ready time(s) due to communication:
+             [1074]
+[I] Time 1075: Task 90 is ready for execution by PE-6
+[D] Time 1075: PE-6 freed 65536 bytes (88_output) in scratchpad (used: 196608/262144)
+[D] Time 1075: PE-6 allocated 65536 bytes in scratchpad for data 90_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1086: Task 90 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1086: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 95 num predecessors 1
+[D] Time 1086: Data transfer (forwarding) from PE-6 to PE-6 for task 95 from task 90 is completed at 1086 us
+[I] Time 1086: Task 95 execution ready time(s) due to communication:
+             [1086]
+[I] Time 1087: Task 95 is ready for execution by PE-6
+[D] Time 1087: PE-6 freed 65536 bytes (78_output) in scratchpad (used: 196608/262144)
+[D] Time 1087: PE-6 allocated 65536 bytes in scratchpad for data 95_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1098: Task 95 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1098: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 96 num predecessors 1
+[D] Time 1098: Data transfer (forwarding) from PE-6 to PE-6 for task 96 from task 95 is completed at 1098 us
+[I] Time 1098: Task 96 execution ready time(s) due to communication:
+             [1098]
+[I] Time 1099: Task 96 is ready for execution by PE-6
+[D] Time 1099: PE-6 freed 65536 bytes (79_output) in scratchpad (used: 196608/262144)
+[D] Time 1099: PE-6 allocated 65536 bytes in scratchpad for data 96_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1110: Task 96 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1110: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 97 num predecessors 1
+[D] Time 1110: Data transfer (forwarding) from PE-6 to PE-6 for task 97 from task 96 is completed at 1110 us
+[I] Time 1110: Task 97 execution ready time(s) due to communication:
+             [1110]
+[I] Time 1111: Task 97 is ready for execution by PE-6
+[D] Time 1111: PE-6 freed 65536 bytes (89_output) in scratchpad (used: 196608/262144)
+[D] Time 1111: PE-6 allocated 65536 bytes in scratchpad for data 97_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 1112: Data transfer for data 89_output to memory is completed
+[I] Time 1119: Task 97 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[92, 93, 94, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1119: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 98 num predecessors 2
+[D] Time 1119: Data from memory for task 98 from task 89 will be sent to PE-6 in 1123 us
+[D] Time 1119: Data transfer (forwarding) from PE-6 to PE-6 for task 98 from task 97 is completed at 1119 us
+[I] Time 1119: Task 98 execution ready time(s) due to communication:
+             [1123, 1119]
+[I] Time 1123: Task 98 is ready for execution by PE-6
+[D] Time 1123: PE-6 freed 65536 bytes (90_output) in scratchpad (used: 196608/262144)
+[D] Time 1123: PE-6 allocated 65536 bytes in scratchpad for data 98_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1134: Task 98 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1134: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 99 num predecessors 1
+[D] Time 1134: Data transfer (forwarding) from PE-6 to PE-6 for task 99 from task 98 is completed at 1134 us
+[I] Time 1134: Task 99 execution ready time(s) due to communication:
+             [1134]
+[I] Time 1135: Task 99 is ready for execution by PE-6
+[D] Time 1135: PE-6 freed 65536 bytes (95_output) in scratchpad (used: 196608/262144)
+[D] Time 1135: PE-6 allocated 65536 bytes in scratchpad for data 99_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1146: Task 99 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1146: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 100 num predecessors 1
+[D] Time 1146: Data transfer (forwarding) from PE-6 to PE-6 for task 100 from task 99 is completed at 1146 us
+[I] Time 1146: Task 100 execution ready time(s) due to communication:
+             [1146]
+[I] Time 1147: Task 100 is ready for execution by PE-6
+[D] Time 1147: PE-6 freed 65536 bytes (96_output) in scratchpad (used: 196608/262144)
+[D] Time 1147: PE-6 allocated 65536 bytes in scratchpad for data 100_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1158: Task 100 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1158: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 101 num predecessors 1
+[D] Time 1158: Data transfer (forwarding) from PE-6 to PE-6 for task 101 from task 100 is completed at 1158 us
+[I] Time 1158: Task 101 execution ready time(s) due to communication:
+             [1158]
+[I] Time 1159: Task 101 is ready for execution by PE-6
+[D] Time 1159: PE-6 freed 65536 bytes (97_output) in scratchpad (used: 196608/262144)
+[D] Time 1159: PE-6 allocated 65536 bytes in scratchpad for data 101_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1170: Task 101 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[92, 93, 94, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1170: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 91 num predecessors 1
+[D] Time 1170: Data from memory for task 91 from task 90 will be sent to PE-6 in 1174 us
+[I] Time 1170: Task 91 execution ready time(s) due to communication:
+             [1174]
+[I] Time 1174: Task 91 is ready for execution by PE-6
+[D] Time 1174: PE-6 freed 65536 bytes (98_output) in scratchpad (used: 196608/262144)
+[D] Time 1174: PE-6 allocated 65536 bytes in scratchpad for data 91_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1185: Task 91 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[93, 94, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1185: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 92 num predecessors 1
+[D] Time 1185: Data transfer (forwarding) from PE-6 to PE-6 for task 92 from task 91 is completed at 1185 us
+[I] Time 1185: Task 92 execution ready time(s) due to communication:
+             [1185]
+[I] Time 1186: Task 92 is ready for execution by PE-6
+[D] Time 1186: PE-6 freed 65536 bytes (99_output) in scratchpad (used: 196608/262144)
+[D] Time 1186: PE-6 allocated 65536 bytes in scratchpad for data 92_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1197: Task 92 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[94, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1197: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 93 num predecessors 1
+[D] Time 1197: Data transfer (forwarding) from PE-6 to PE-6 for task 93 from task 92 is completed at 1197 us
+[I] Time 1197: Task 93 execution ready time(s) due to communication:
+             [1197]
+[I] Time 1198: Task 93 is ready for execution by PE-6
+[D] Time 1198: PE-6 freed 65536 bytes (100_output) in scratchpad (used: 196608/262144)
+[D] Time 1198: PE-6 allocated 65536 bytes in scratchpad for data 93_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1206: Task 93 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1206: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 102 num predecessors 1
+[D] Time 1206: Data transfer (forwarding) from PE-6 to PE-6 for task 102 from task 101 is completed at 1206 us
+[I] Time 1206: Task 102 execution ready time(s) due to communication:
+             [1206]
+[I] Time 1207: Task 102 is ready for execution by PE-6
+[D] Time 1207: PE-6 freed 65536 bytes (91_output) in scratchpad (used: 196608/262144)
+[D] Time 1207: PE-6 allocated 65536 bytes in scratchpad for data 102_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1215: Task 102 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1215: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 103 num predecessors 2
+[D] Time 1215: Data transfer (forwarding) from PE-6 to PE-6 for task 103 from task 93 is completed at 1215 us
+[D] Time 1215: Data transfer (forwarding) from PE-6 to PE-6 for task 103 from task 102 is completed at 1215 us
+[I] Time 1215: Task 103 execution ready time(s) due to communication:
+             [1215, 1215]
+[I] Time 1216: Task 103 is ready for execution by PE-6
+[D] Time 1216: PE-6 freed 65536 bytes (92_output) in scratchpad (used: 196608/262144)
+[D] Time 1216: PE-6 allocated 65536 bytes in scratchpad for data 103_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1227: Task 103 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+task 94 num predecessors 2
+[D] Time 1227: Data from memory for task 94 from task 89 will be sent to PE-6 in 1231 us
+[D] Time 1227: Data transfer (forwarding) from PE-6 to PE-6 for task 94 from task 93 is completed at 1227 us
+[I] Time 1227: Task 94 execution ready time(s) due to communication:
+             [1231, 1227]
+[I] Time 1231: Task 94 is ready for execution by PE-6
+[D] Time 1231: PE-6 freed 65536 bytes (101_output) in scratchpad (used: 196608/262144)
+[D] Time 1231: PE-6 allocated 65536 bytes in scratchpad for data 94_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1242: Task 94 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1242: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 104 num predecessors 2
+[D] Time 1242: Data transfer (forwarding) from PE-6 to PE-6 for task 104 from task 94 is completed at 1242 us
+[D] Time 1242: Data transfer (forwarding) from PE-6 to PE-6 for task 104 from task 103 is completed at 1242 us
+[I] Time 1242: Task 104 execution ready time(s) due to communication:
+             [1242, 1242]
+[I] Time 1243: Task 104 is ready for execution by PE-6
+[D] Time 1243: PE-6 freed 65536 bytes (102_output) in scratchpad (used: 196608/262144)
+[D] Time 1243: PE-6 allocated 65536 bytes in scratchpad for data 104_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1254: Task 104 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1254: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 105 num predecessors 1
+[D] Time 1254: Data transfer (forwarding) from PE-6 to PE-6 for task 105 from task 104 is completed at 1254 us
+[I] Time 1254: Task 105 execution ready time(s) due to communication:
+             [1254]
+[I] Time 1255: Task 105 is ready for execution by PE-6
+[D] Time 1255: PE-6 freed 65536 bytes (103_output) in scratchpad (used: 196608/262144)
+[D] Time 1255: PE-6 allocated 65536 bytes in scratchpad for data 105_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1266: Task 105 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 111, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1266: DASH-Sim ticks with 2 task ready for being assigned to a PE
+task 110 num predecessors 1
+[D] Time 1266: Data transfer (forwarding) from PE-6 to PE-6 for task 110 from task 105 is completed at 1266 us
+[I] Time 1266: Task 110 execution ready time(s) due to communication:
+             [1266]
+[I] Time 1267: Task 110 is ready for execution by PE-6
+[D] Time 1267: PE-6 freed 65536 bytes (93_output) in scratchpad (used: 196608/262144)
+[D] Time 1267: PE-6 allocated 65536 bytes in scratchpad for data 110_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1278: Task 110 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 112, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1278: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 111 num predecessors 1
+[D] Time 1278: Data transfer (forwarding) from PE-6 to PE-6 for task 111 from task 110 is completed at 1278 us
+[I] Time 1278: Task 111 execution ready time(s) due to communication:
+             [1278]
+[I] Time 1279: Task 111 is ready for execution by PE-6
+[D] Time 1279: PE-6 freed 65536 bytes (94_output) in scratchpad (used: 196608/262144)
+[D] Time 1279: PE-6 allocated 65536 bytes in scratchpad for data 111_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1290: Task 111 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 113, 114, 115, 116, 117, 118, 119]
+[I] Time 1290: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 112 num predecessors 1
+[D] Time 1290: Data transfer (forwarding) from PE-6 to PE-6 for task 112 from task 111 is completed at 1290 us
+[I] Time 1290: Task 112 execution ready time(s) due to communication:
+             [1290]
+[I] Time 1291: Task 112 is ready for execution by PE-6
+[D] Time 1291: PE-6 freed 65536 bytes (104_output) in scratchpad (used: 196608/262144)
+[D] Time 1291: PE-6 allocated 65536 bytes in scratchpad for data 112_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[D] Time 1292: Data transfer for data 104_output to memory is completed
+[I] Time 1299: Task 112 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[107, 108, 109, 114, 115, 116, 117, 118, 119]
+[I] Time 1299: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 113 num predecessors 2
+[D] Time 1299: Data from memory for task 113 from task 104 will be sent to PE-6 in 1303 us
+[D] Time 1299: Data transfer (forwarding) from PE-6 to PE-6 for task 113 from task 112 is completed at 1299 us
+[I] Time 1299: Task 113 execution ready time(s) due to communication:
+             [1303, 1299]
+[I] Time 1303: Task 113 is ready for execution by PE-6
+[D] Time 1303: PE-6 freed 65536 bytes (105_output) in scratchpad (used: 196608/262144)
+[D] Time 1303: PE-6 allocated 65536 bytes in scratchpad for data 113_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1314: Task 113 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 115, 116, 117, 118, 119]
+[I] Time 1314: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 114 num predecessors 1
+[D] Time 1314: Data transfer (forwarding) from PE-6 to PE-6 for task 114 from task 113 is completed at 1314 us
+[I] Time 1314: Task 114 execution ready time(s) due to communication:
+             [1314]
+[I] Time 1315: Task 114 is ready for execution by PE-6
+[D] Time 1315: PE-6 freed 65536 bytes (110_output) in scratchpad (used: 196608/262144)
+[D] Time 1315: PE-6 allocated 65536 bytes in scratchpad for data 114_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1326: Task 114 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 116, 117, 118, 119]
+[I] Time 1326: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 115 num predecessors 1
+[D] Time 1326: Data transfer (forwarding) from PE-6 to PE-6 for task 115 from task 114 is completed at 1326 us
+[I] Time 1326: Task 115 execution ready time(s) due to communication:
+             [1326]
+[I] Time 1327: Task 115 is ready for execution by PE-6
+[D] Time 1327: PE-6 freed 65536 bytes (111_output) in scratchpad (used: 196608/262144)
+[D] Time 1327: PE-6 allocated 65536 bytes in scratchpad for data 115_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1338: Task 115 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 117, 118, 119]
+[I] Time 1338: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 116 num predecessors 1
+[D] Time 1338: Data transfer (forwarding) from PE-6 to PE-6 for task 116 from task 115 is completed at 1338 us
+[I] Time 1338: Task 116 execution ready time(s) due to communication:
+             [1338]
+[I] Time 1339: Task 116 is ready for execution by PE-6
+[D] Time 1339: PE-6 freed 65536 bytes (112_output) in scratchpad (used: 196608/262144)
+[D] Time 1339: PE-6 allocated 65536 bytes in scratchpad for data 116_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1350: Task 116 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[107, 108, 109, 118, 119]
+[I] Time 1350: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 106 num predecessors 1
+[D] Time 1350: Data from memory for task 106 from task 105 will be sent to PE-6 in 1354 us
+[I] Time 1350: Task 106 execution ready time(s) due to communication:
+             [1354]
+[I] Time 1354: Task 106 is ready for execution by PE-6
+[D] Time 1354: PE-6 freed 65536 bytes (113_output) in scratchpad (used: 196608/262144)
+[D] Time 1354: PE-6 allocated 65536 bytes in scratchpad for data 106_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1365: Task 106 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[108, 109, 118, 119]
+[I] Time 1365: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 107 num predecessors 1
+[D] Time 1365: Data transfer (forwarding) from PE-6 to PE-6 for task 107 from task 106 is completed at 1365 us
+[I] Time 1365: Task 107 execution ready time(s) due to communication:
+             [1365]
+[I] Time 1366: Task 107 is ready for execution by PE-6
+[D] Time 1366: PE-6 freed 65536 bytes (114_output) in scratchpad (used: 196608/262144)
+[D] Time 1366: PE-6 allocated 65536 bytes in scratchpad for data 107_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1377: Task 107 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[109, 118, 119]
+[I] Time 1377: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 108 num predecessors 1
+[D] Time 1377: Data transfer (forwarding) from PE-6 to PE-6 for task 108 from task 107 is completed at 1377 us
+[I] Time 1377: Task 108 execution ready time(s) due to communication:
+             [1377]
+[I] Time 1378: Task 108 is ready for execution by PE-6
+[D] Time 1378: PE-6 freed 65536 bytes (115_output) in scratchpad (used: 196608/262144)
+[D] Time 1378: PE-6 allocated 65536 bytes in scratchpad for data 108_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1386: Task 108 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[118, 119]
+[I] Time 1386: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 117 num predecessors 1
+[D] Time 1386: Data transfer (forwarding) from PE-6 to PE-6 for task 117 from task 116 is completed at 1386 us
+[I] Time 1386: Task 117 execution ready time(s) due to communication:
+             [1386]
+[I] Time 1387: Task 117 is ready for execution by PE-6
+[D] Time 1387: PE-6 freed 65536 bytes (106_output) in scratchpad (used: 196608/262144)
+[D] Time 1387: PE-6 allocated 65536 bytes in scratchpad for data 117_output (used: 262144/262144)
+Randomized execution time is 8.0, the original was 8.0
+[I] Time 1395: Task 117 is finished by PE-6 ELEM_MATRIX_6 with 8.00 us and energy consumption 0.00 J
+[119]
+[I] Time 1395: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 118 num predecessors 2
+[D] Time 1395: Data transfer (forwarding) from PE-6 to PE-6 for task 118 from task 108 is completed at 1395 us
+[D] Time 1395: Data transfer (forwarding) from PE-6 to PE-6 for task 118 from task 117 is completed at 1395 us
+[I] Time 1395: Task 118 execution ready time(s) due to communication:
+             [1395, 1395]
+[I] Time 1396: Task 118 is ready for execution by PE-6
+[D] Time 1396: PE-6 freed 65536 bytes (107_output) in scratchpad (used: 196608/262144)
+[D] Time 1396: PE-6 allocated 65536 bytes in scratchpad for data 118_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1407: Task 118 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[119]
+task 109 num predecessors 2
+[D] Time 1407: Data from memory for task 109 from task 104 will be sent to PE-6 in 1411 us
+[D] Time 1407: Data transfer (forwarding) from PE-6 to PE-6 for task 109 from task 108 is completed at 1407 us
+[I] Time 1407: Task 109 execution ready time(s) due to communication:
+             [1411, 1407]
+[I] Time 1411: Task 109 is ready for execution by PE-6
+[D] Time 1411: PE-6 freed 65536 bytes (116_output) in scratchpad (used: 196608/262144)
+[D] Time 1411: PE-6 allocated 65536 bytes in scratchpad for data 109_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1422: Task 109 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[]
+[I] Time 1422: DASH-Sim ticks with 1 task ready for being assigned to a PE
+task 119 num predecessors 2
+[D] Time 1422: Data transfer (forwarding) from PE-6 to PE-6 for task 119 from task 109 is completed at 1422 us
+[D] Time 1422: Data transfer (forwarding) from PE-6 to PE-6 for task 119 from task 118 is completed at 1422 us
+[I] Time 1422: Task 119 execution ready time(s) due to communication:
+             [1422, 1422]
+[I] Time 1423: Task 119 is ready for execution by PE-6
+[D] Time 1423: PE-6 freed 65536 bytes (117_output) in scratchpad (used: 196608/262144)
+[D] Time 1423: PE-6 allocated 65536 bytes in scratchpad for data 119_output (used: 262144/262144)
+Randomized execution time is 11.0, the original was 11.0
+[I] Time 1434: Task 119 is finished by PE-6 ELEM_MATRIX_6 with 11.00 us and energy consumption 0.00 J
+[]
+[I] Completed iteration: 1
+[I] Number of injected jobs: 1
+[I] Number of completed jobs: 1
+[I] Number of deadlines met: 1
+[I] Number of deadlines missed: 0
+[I] Ave latency: 1434.000000
+[I] Execution time(us)             : 1434.0              
+[I] Cumulative Execution time(us)  : 1434.0              
+[I] Total energy consumption(J)    : 0.000366            
+[I] EDP                            : 0.52                
+[I] Average concurrent jobs        : 1.0                 
+[I] Completed all 1 iterations for scale = 100, injection rate:0.000697, completion rate:0.000697, ave_execution_time:1434.000000

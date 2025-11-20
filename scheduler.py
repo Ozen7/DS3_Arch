@@ -855,7 +855,10 @@ class Scheduler:
                     task.isForwarded = False
         
         # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
         for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
             common.ready.remove(task)
         
         return

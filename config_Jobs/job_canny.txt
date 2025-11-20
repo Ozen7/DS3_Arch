@@ -2,6 +2,8 @@
 # Lines that start with "#" are comments
 # DAG implements the Canny edge detection algorithm with 12 nodes
 # Deadline: 16667 us (~60 FPS)
+# I/O values are in terms of bytes
+# Comm_vol is in terms of bytes
 
 job_name CANNY
 deadline 16667
@@ -34,17 +36,17 @@ edge_tracking TAIL
 edge_tracking earliest_start 0 deadline 16667 input_vol 65536 output_vol 16384
 
 
-comm_vol 0 1 192
-comm_vol 1 2 256
-comm_vol 2 3 256
-comm_vol 2 4 256
-comm_vol 3 5 256
-comm_vol 3 6 256
-comm_vol 4 6 256
-comm_vol 4 7 256
-comm_vol 5 8 256
-comm_vol 7 8 256
-comm_vol 8 9 256
-comm_vol 9 10 256
-comm_vol 6 10 256
-comm_vol 10 11 256
+comm_vol 0 1 49152
+comm_vol 1 2 65536
+comm_vol 2 3 65536
+comm_vol 2 4 65536
+comm_vol 3 5 65536
+comm_vol 3 6 65536
+comm_vol 4 6 65536
+comm_vol 4 7 65536
+comm_vol 5 8 65536
+comm_vol 7 8 65536
+comm_vol 8 9 65536
+comm_vol 9 10 65536
+comm_vol 6 10 65536
+comm_vol 10 11 65536

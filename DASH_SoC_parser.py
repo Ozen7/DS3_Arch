@@ -203,10 +203,10 @@ def resource_parse(resource_matrix, file_name):
                     ind_PE = length-1-ii
 
                     if (each_PE_functionality > len(resource_matrix.list[ind_PE].supported_functionalities)):
-                        #print("Reading a new functionality: ", current_line[0])
+                        # print("Reading a new functionality: ", current_line[0])
                         resource_matrix.list[ind_PE].supported_functionalities.append(current_line[0])
 
-                        #print("The runtime for this functionality: ", current_line[1])
+                        # print("The runtime for this functionality: ", current_line[1])
                         resource_matrix.list[ind_PE].performance.append(float(current_line[1]))
 
                         #print("number of functionality read: ", num_functionality_read)

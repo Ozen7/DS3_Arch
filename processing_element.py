@@ -54,7 +54,7 @@ class PE:
 
         # Scratchpad/buffer management (only used in forwarding mode)
         self.scratchpad = {}                                                    # Dictionary mapping data_id to {'task_id': X, 'size': Y, 'timestamp': Z}
-        self.scratchpad_capacity = 1000                                           # Total scratchpad buffer size in bytes (configured per PE type) (TODO - implement this into parser)
+        self.scratchpad_capacity = 262144                                       # Total scratchpad buffer size in bytes (TODO - implement in parser)
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
@@ -92,7 +92,7 @@ class PE:
                 task.start_time = self.env.now                                  # When a resource starts executing the task, record it as the start time
 
                 # note: output packet size is the number of packets being output by this task.
-                self.allocate_scratchpad(f"{task.ID}_output",task.output_packet_size,task.ID)                 # allocate room in the scratchpad for the output of this task.
+                self.allocate_scratchpad(f"{task.ID}_output",task.output_packet_size*common.packet_size,task.ID)                 # allocate room in the scratchpad for the output of this task.
 
                 # if this is the leading task of this job, increment the injection counter
                 if ((task.head == True) and
