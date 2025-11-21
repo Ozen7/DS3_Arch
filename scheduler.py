@@ -270,7 +270,6 @@ class Scheduler:
                 if (common.DEBUG_SCH):
                     print('[D] Time %s: Estimated execution times for each PE with task %s, respectively'
                               %(self.env.now, task.ID))
-                    print('%12s'%(''), comparison)
                     print ('[D] Time %s: The scheduler assigns task %s to resource %s: %s'
                            %(self.env.now, task.ID, task.PE_ID, self.resource_matrix.list[task.PE_ID].type))
 
@@ -522,7 +521,6 @@ class Scheduler:
                 if (common.DEBUG_SCH):
                     print('[D] Time %s: Estimated execution times for each PE with task %s, respectively'
                           % (self.env.now, shortest_task.ID))
-                    print('%12s' % (''), comparison)
                     print('[D] Time %s: The scheduler assigns task %s to PE-%s: %s'
                           % (self.env.now, shortest_task.ID, shortest_task.PE_ID, self.resource_matrix.list[shortest_task.PE_ID].name))
 
@@ -694,7 +692,6 @@ class Scheduler:
                 if (common.DEBUG_SCH):
                     print('[D] Time %s: Estimated execution times for each PE with task %s, respectively' 
                               %(self.env.now, shortest_task.ID))
-                    print('%12s'%(''), comparison)
                     print ('[D] Time %s: The scheduler assigns task %s to PE-%s: %s'
                            %(self.env.now, shortest_task.ID, shortest_task.PE_ID, 
                              self.resource_matrix.list[shortest_task.PE_ID].name))
@@ -780,9 +777,10 @@ class Scheduler:
         for task in list_of_ready:
             # Find the PE with minimum execution time for this task (compute + memory movement)
             best_pe_id = -1
-            best_pe_type = ""
             min_finish_time = -1
+            best_family = ""
 
+            # Find the fastest PE type for this task
             for i, resource in enumerate(self.resource_matrix.list):
                 if task.name in resource.supported_functionalities:
                     # Get execution time for this task on this PE
@@ -793,10 +791,24 @@ class Scheduler:
                     if min_finish_time == -1 or finish_time < min_finish_time:
                         min_finish_time = finish_time
                         best_pe_id = resource.ID
-                        best_pe_type = resource.type
+                        best_family = resource.accelerator_family
 
             # Ensure task can be executed on at least one PE
             assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
+
+            # TODO - implement multiple ways of choosing the best suited accelerator within the family (least load, laxity, total estimated runtime, etc.)
+            # If the best PE has an accelerator_family, find the least-loaded instance of that family
+            if best_family:
+                family_pes = common.PETypeManager.get_PEs_of_family(best_family)
+                if len(family_pes) > 1:
+                    # Multiple instances exist - find the one with shortest execution queue
+                    min_queue_len = float('inf')
+                    for pe_id in family_pes:
+
+                        queue_len = len(common.executable.get(pe_id))
+                        if queue_len < min_queue_len:
+                            min_queue_len = queue_len
+                            best_pe_id = pe_id
 
             
             # predicted runtime uses MAX bandwidth in order to calculate runtime. TODO - this has little impact on RELIEF's limited evaluation, but could be far more important when there are multiple destinations for a task.
@@ -910,4 +922,76 @@ class Scheduler:
         return can_forward
 
     def LL(self,list_of_ready):
-        ""
+        '''!
+        Least Laxity Scheduler.
+        
+        Maps each task to its fastest PE and calculates laxity
+
+        @param list_of_ready: List of tasks ready to be scheduled
+        '''
+        # Map tasks to PEs and organize by laxity
+        fwd_nodes = [[] for _ in range(len(self.PEs))]
+
+        for task in list_of_ready:
+            # Find the PE with minimum execution time for this task (compute + memory movement)
+            best_pe_id = -1
+            min_finish_time = -1
+            best_family = ""
+
+            # Find the fastest PE type for this task
+            for i, resource in enumerate(self.resource_matrix.list):
+                if task.name in resource.supported_functionalities:
+                    # Get execution time for this task on this PE
+                    func_index = resource.supported_functionalities.index(task.name)
+                    finish_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
+
+                    # Update if this is the fastest PE found so far
+                    if min_finish_time == -1 or finish_time < min_finish_time:
+                        min_finish_time = finish_time
+                        best_pe_id = resource.ID
+                        best_family = resource.accelerator_family
+
+            # Ensure task can be executed on at least one PE
+            assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
+
+            # TODO - implement multiple ways of choosing the best suited accelerator within the family (least load, laxity, total estimated runtime, etc.)
+            # If the best PE has an accelerator_family, find the least-loaded instance of that family
+            if best_family:
+                family_pes = common.PETypeManager.get_PEs_of_family(best_family)
+                if len(family_pes) > 1:
+                    # Multiple instances exist - find the one with shortest execution queue
+                    min_queue_len = float('inf')
+                    for pe_id in family_pes:
+
+                        queue_len = len(common.executable.get(pe_id))
+                        if queue_len < min_queue_len:
+                            min_queue_len = queue_len
+                            best_pe_id = pe_id
+
+            
+            # predicted runtime uses MAX bandwidth in order to calculate runtime. TODO - this has little impact on RELIEF's limited evaluation, but could be far more important when there are multiple destinations for a task.
+
+
+
+            # Calculate task laxity: deadline - runtime
+            # Laxity represents slack time before deadline is violated
+            task.PE_ID = best_pe_id
+            task.runtime = min_finish_time
+            task.laxity = task.deadline - task.runtime
+
+            # Insert task into PE sorted by laxity (ascending order)
+            # Smaller laxity = less slack = higher priority
+            insert_index = 0
+            while insert_index < len(fwd_nodes[best_pe_id]) and task.laxity > fwd_nodes[best_pe_id][insert_index].laxity:
+                insert_index += 1
+            fwd_nodes[best_pe_id].insert(insert_index, task)
+            common.executable[task.PE_ID].insert(insert_index, task)
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
+        for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
+            common.ready.remove(task)
+        
+        return

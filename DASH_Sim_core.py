@@ -8,7 +8,6 @@ import common                                                                   
 import DTPM
 import DTPM_policies
 from scheduler import Scheduler
-import RELIEF_Sim_helpers
 from typing import List
 
 # Define the core of the simulation engine
@@ -142,7 +141,7 @@ class SimulationManager:
         for task in remove_from_outstanding_queue:
             common.outstanding.remove(task)
 
-        print([obj.ID for obj in common.outstanding])
+        #print([obj.ID for obj in common.outstanding])
         # At the end of this function:
             # Newly processed $completed_task is added to the completed tasks
             # outstanding tasks with no dependencies are added to the ready queue
@@ -189,7 +188,6 @@ class SimulationManager:
                         continue
                     # end of if ready_task.head == True:
 
-                    print('task %d num predecessors %d' %(ready_task.ID, len(task.predecessors)))
 
                     for predecessor in task.predecessors:
 
@@ -391,13 +389,15 @@ class SimulationManager:
                     self.scheduler.CP(common.ready)
                 elif self.scheduler.name == 'RELIEF_BASE':
                     self.scheduler.RELIEF_BASIC(common.ready)
+                elif self.scheduler.name == 'LL':
+                    self.scheduler.LL(common.ready)
                 else:
                     print('[E] Could not find the requested scheduler')
                     print('[E] Please check "config_file.ini" and enter a proper name')
                     print('[E] or check "scheduler.py" if the scheduler exist')
                     sys.exit()
                 # end of if self.scheduler.name
-                if (self.scheduler.name != 'RELIEF_BASE'):
+                if (self.scheduler.name not in common.new_schedulers):
                     self.update_execution_queue(common.ready)
             # end of if not len(common.ready) == 0:
 
@@ -405,7 +405,7 @@ class SimulationManager:
             # to be removed from the executable queue
             remove_from_executable = {}  # {PE_ID: [tasks_to_remove]}
 
-            if (self.scheduler.name == 'RELIEF_BASE'):
+            if (self.scheduler.name in common.new_schedulers):
                 for pe_id, pe_queue in common.executable.items():
 
                     P = self.PEs[pe_id]
@@ -464,7 +464,7 @@ class SimulationManager:
                         continue # PE is running when locked and not idle
                     else:
                         assert(False) #should be impossible
-            # end of if (self.scheduler.name == 'RELIEF_BASE'):
+            # end of if (self.scheduler.name in common.new_schedulers):
             else:   
                 # Go over each PE's queue from common.executable dictionary
                 for pe_id, pe_queue in common.executable.items():

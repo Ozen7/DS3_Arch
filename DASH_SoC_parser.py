@@ -58,42 +58,60 @@ def resource_parse(resource_matrix, file_name):
 
         if not(found_new_resource):
             if (current_line[0] == 'add_new_resource'):                         # The key word "add_new_resource" implies that the config file defines a new resource
-                
-                if int(current_line[8]) > 1:
-                    capacity = int(current_line[8])
+
+                # Check if accelerator_family and scratchpad_size are present and adjust indices accordingly
+                offset = 0
+                if 'accelerator_family' in current_line:
+                    offset += 2
+                if 'scratchpad_size' in current_line:
+                    offset += 2
+
+                if int(current_line[8 + offset]) > 1:
+                    capacity = int(current_line[8 + offset])
                 else:
                     capacity = 1
-                    
-                new_cluster = clusters.Cluster(current_line[4], int(current_line[6]), current_line[2])
-                cluster_ID = int(current_line[6])
-                
+
+                new_cluster = clusters.Cluster(current_line[4 + offset], int(current_line[6 + offset]), current_line[2])
+                cluster_ID = int(current_line[6 + offset])
+
                 for i in range(capacity):
                     new_resource = common.Resource()
-                    
+
                     # print("Reading a new resource: ", current_line[1])
                     new_resource.type = current_line[2]
-    
+
+                    # Parse optional accelerator_family field
+                    accel_family_offset = 0
+                    if 'accelerator_family' in current_line:
+                        new_resource.accelerator_family = current_line[4]
+                        accel_family_offset = 2
+
+                    # Parse optional scratchpad_size field
+                    if 'scratchpad_size' in current_line:
+                        scratchpad_idx = 4 + accel_family_offset
+                        new_resource.scratchpad_size = int(current_line[scratchpad_idx])
+
                     # print("The name of the new resource: ", current_line[2])
-                    new_resource.name = current_line[4]+'_'+str(i + last_PE_ID)
-                    
+                    new_resource.name = current_line[4 + offset]
+
                     #print("The ID of the new resource: ",i + last_PE_ID)
                     new_resource.ID = i + last_PE_ID
                     new_resource.cluster_ID = cluster_ID
-                    
+
                     new_resource.capacity = 1
 
                     # print("Number of functionalities supported by this resource: ",current_line[5])
-                    new_resource.num_of_functionalities = int(current_line[10])      # Converting the input string to integer
-                    each_PE_functionality = int(current_line[10])
+                    new_resource.num_of_functionalities = int(current_line[10 + offset])      # Converting the input string to integer
+                    each_PE_functionality = int(current_line[10 + offset])
 
                     resource_list.append(last_PE_ID)
                     resource_matrix.list.append(new_resource)
                     new_cluster.PE_list.append(new_resource.ID)
-                
+
                 common.ResourceManager.comm_band = np.ones((len(resource_list),
                                                              len(resource_list))) # Initialize the communication volume matrix
 
-                new_cluster.DVFS = current_line[12]  # Obtain the DVFS mode for the given PE
+                new_cluster.DVFS = current_line[12 + offset]  # Obtain the DVFS mode for the given PE
 
                 found_new_resource = True                                       # Set the flag to indicate that the following lines define the funtionalities
                 last_PE_ID += capacity

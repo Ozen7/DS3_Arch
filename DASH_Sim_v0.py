@@ -151,6 +151,8 @@ def run_simulator(scale_values=common.scale_values_list):
             # Define the PEs (resources) in simpy environment
             new_PE = processing_element.PE(env, resource.type, resource.name,
                                            resource.ID, resource.cluster_ID, resource.capacity) # Generate a new PE with this generic process
+            new_PE.accelerator_family = resource.accelerator_family  # Set accelerator family for multi-instance support
+            new_PE.scratchpad_capacity = resource.scratchpad_size    # Set scratchpad capacity from resource config
             DASH_resources.append(new_PE)
         # end for
 
@@ -158,26 +160,12 @@ def run_simulator(scale_values=common.scale_values_list):
         common.PETypeManager = common.PETypeManager()
         for pe in DASH_resources:
             common.PETypeManager.register_PE(pe.ID, pe.type)
+            common.PETypeManager.register_PE_family(pe.ID, pe.accelerator_family)
 
         # Configure forwarding mode if enabled
         if common.comm_mode == 'forwarding':
             if common.DEBUG_CONFIG:
                 print('[D] Configuring forwarding mode with scratchpad management')
-
-            for pe in DASH_resources:
-                pe.forwarding_enabled = True
-                # Set scratchpad capacity from config
-                if pe.type in common.scratchpad_capacity_per_type:
-                    pe.scratchpad_capacity = common.scratchpad_capacity_per_type[pe.type]
-                    pe.scratchpad_used = 0
-                    if common.DEBUG_CONFIG:
-                        print('[D] PE-%d (%s) scratchpad capacity: %d bytes'
-                              % (pe.ID, pe.type, pe.scratchpad_capacity))
-                else:
-                    # Default to 0 if not specified
-                    pe.scratchpad_capacity = 0
-                    if common.DEBUG_CONFIG:
-                        print('[D] PE-%d (%s) has no scratchpad (capacity = 0)' % (pe.ID, pe.type))
 
         # Construct the scheduler
         DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,
@@ -329,6 +317,9 @@ def run_simulator(scale_values=common.scale_values_list):
                     # Define the PEs (resources) in simpy environment
                     new_PE = processing_element.PE(env, resource.type, resource.name,
                                                    resource.ID, resource.cluster_ID, resource.capacity) # Generate a new PE with this generic process
+                    new_PE.accelerator_family = resource.accelerator_family  # Set accelerator family for multi-instance support
+                    new_PE.scratchpad_capacity = resource.scratchpad_size    # Set scratchpad capacity from resource config
+
                     DASH_resources.append(new_PE)
                 # end for
 
@@ -336,6 +327,7 @@ def run_simulator(scale_values=common.scale_values_list):
                 common.PETypeManager = common.PETypeManager()
                 for pe in DASH_resources:
                     common.PETypeManager.register_PE(pe.ID, pe.type)
+                    common.PETypeManager.register_PE_family(pe.ID, pe.accelerator_family)
 
                 # Construct the scheduler
                 DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,
@@ -362,6 +354,8 @@ def run_simulator(scale_values=common.scale_values_list):
                     print('[I] Number of completed jobs: %d' %(common.results.completed_jobs))
                     print('[I] Number of deadlines met: %d' %(common.results.deadlines_met))
                     print('[I] Number of deadlines missed: %d' %(common.results.deadlines_missed))
+                    print('[I] Data Colocated/Forwarded/Pulled From Memory: %d / %d / % d' %(common.results.colocationData,common.results.forwardData,common.results.memoryData))
+                    print('[I] Number forwards: %d' %(common.results.num_forwards))
                     try:
                         print('[I] Ave latency: %f'
                         %(common.results.cumulative_exe_time/common.results.completed_jobs))

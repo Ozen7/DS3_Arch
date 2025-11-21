@@ -26,6 +26,7 @@ class PE:
         '''
         self.env = env
         self.type = type
+        self.accelerator_family = ''            # Family grouping for multiple instances (set during initialization)
         self.name = name
         self.ID = ID
         self.capacity = capacity                                                # Current capacity of the PE (depends on the number of active cores)
@@ -54,7 +55,7 @@ class PE:
 
         # Scratchpad/buffer management (only used in forwarding mode)
         self.scratchpad = {}                                                    # Dictionary mapping data_id to {'task_id': X, 'size': Y, 'timestamp': Z}
-        self.scratchpad_capacity = 262144                                       # Total scratchpad buffer size in bytes (TODO - implement in parser)
+        self.scratchpad_capacity = 262144                                       # Total scratchpad buffer size in bytes (configured from SoC config file)
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.

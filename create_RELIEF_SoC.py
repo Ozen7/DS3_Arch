@@ -53,6 +53,17 @@ TEMPLATE_DIR = 'config_SoC/templates'
 OUTPUT_DIR = 'config_SoC'
 DEFAULT_BANDWIDTH = 5460  # bytes/microsecond (16 GB/s)
 
+# Scratchpad sizes per accelerator type (in bytes)
+SCRATCHPAD_SIZES = {
+    'isp': 115204,
+    'grayscale': 180244,
+    'conv': 196708,
+    'harris': 196608,
+    'edge': 98432,
+    'canny': 262144,
+    'elem': 262144
+}
+
 
 def print_usage():
     """Print usage information."""
@@ -142,6 +153,9 @@ def generate_accelerators(acc_counts):
         full_name, template_file = ACCELERATOR_TYPES[acc_type]
         template = read_template(template_file)
 
+        # Get scratchpad size for this accelerator type
+        scratchpad_size = SCRATCHPAD_SIZES[acc_type]
+
         for instance in range(count):
             # Generate unique name (e.g., ISP_0, ISP_1, or ISP if count == 1)
             if count == 1:
@@ -152,6 +166,8 @@ def generate_accelerators(acc_counts):
             # Replace placeholders in template
             config = template.replace('{ID}', str(resource_id))
             config = config.replace('{NAME}', acc_name)
+            config = config.replace('{FAMILY}', full_name)  # Use full_name as family
+            config = config.replace('{SCRATCHPAD_SIZE}', str(scratchpad_size))
 
             accelerators.append((resource_id, config))
             resource_id += 1

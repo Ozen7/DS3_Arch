@@ -234,10 +234,16 @@ class PerfStatics:
         self.job_counter_list = []
         self.memory_overhead = 0                    # Indicates time spend on memory transfers
         self.sampling_rate_list = []
+        self.num_forwards = 0
+        self.colocationData = 0
+        self.forwardData = 0
+        self.memoryData = 0
 # end class PerfStatics
 
 # Instantiate the object that will store the performance statistics
-global results
+global results 
+
+results = PerfStatics()
 
 class Validation:
     '''!
@@ -257,6 +263,8 @@ class Resource:
 	'''
     def __init__(self):
         self.type = ''                          # The type of the resource (CPU, FFT_ACC, etc.)
+        self.accelerator_family = ''            # Family grouping for multiple instances (e.g., CONVOLUTION, ISP)
+        self.scratchpad_size = 0                # Scratchpad buffer size in bytes (default: 256KB)
         self.name = ''                          # Name of the resource
         self.ID = -1                            # This is the unique ID of the resource. "-1" means it is not initialized
         self.cluster_ID = -1                    # ID of the cluster this PE belongs to
@@ -296,6 +304,7 @@ class PETypeManager:
     def __init__(self):
         self.by_type = {}                       # Dictionary mapping PE type to list of PE IDs: {'CPU': [0,1,2], 'ACC_JPEG': [3,4], ...}
         self.by_id = {}                         # Dictionary mapping PE ID to PE type: {0: 'CPU', 1: 'CPU', 3: 'ACC_JPEG', ...}
+        self.by_family = {}                     # Dictionary mapping accelerator family to list of PE IDs: {'CONVOLUTION': [6,7,8], ...}
 
     def register_PE(self, pe_id, pe_type):
         '''!
@@ -333,6 +342,24 @@ class PETypeManager:
         @return: List of PE type strings
         '''
         return list(self.by_type.keys())
+
+    def register_PE_family(self, pe_id, family):
+        '''!
+        Register a PE's accelerator family for efficient multi-instance lookup.
+        @param pe_id: The ID of the PE to register
+        @param family: The accelerator family (e.g., 'CONVOLUTION', 'ISP')
+        '''
+        if family not in self.by_family:
+            self.by_family[family] = []
+        self.by_family[family].append(pe_id)
+
+    def get_PEs_of_family(self, family):
+        '''!
+        Get list of all PE IDs belonging to an accelerator family.
+        @param family: The accelerator family name
+        @return: List of PE IDs, or empty list if family not found
+        '''
+        return self.by_family[family]
 # end class PETypeManager
 
 class Tasks:
@@ -415,6 +442,7 @@ wait_ready:List[Tasks] = []                    # List of task waiting for being 
 active_noc_transfers = []                      # List of active NoC transfers
 memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
+new_schedulers = ['RELIEF_BASE', 'LL']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
@@ -443,7 +471,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 
             # end of if ready_task.head == True:
             if canAllocate and DEBUG_SIM:
-                print('task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
+                print('[D] task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
             
             # This tracks the total amount of input data to this task. If we need more data than is covered by the 
             # predecessors, then the assumption is that we need something from memory as well (weights, biases, etc.)
@@ -501,9 +529,13 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                     # If we are colocating, there is no need to allocate more space (self-to-self bandwidth is set at a high number so there is no latency overhead either)
                     if canAllocate and predecessor_PE_ID != PE_ID:
+                        results.forwardData += comm_vol
+                        results.num_forwards += 1
                         target_PE = caller.PEs[executable_task.PE_ID]
                         data_id = f"{predecessor_task.ID}_output"
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                    elif canAllocate:
+                        results.colocationData += comm_vol
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
@@ -518,6 +550,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                         print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
                             %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1]))
                     if canAllocate:
+                        results.memoryData += comm_vol
                         active_noc_transfers.append({
                             'end_time': caller.env.now + from_memory_comm_time,
                             'src_PE': -1,  # memory
@@ -534,7 +567,6 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             if (INFO_SIM) and canAllocate:
                 print('[I] Time %d: Task %d execution ready time(s) due to communication:'
                     %(caller.env.now, executable_task.ID))
-                print('%12s'%(''), wait_times)
 
                 
 
@@ -542,16 +574,15 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             # which will show when a task is ready for execution
 
             if total_data > 0:
-                print("TOTAL DATA: ", total_data)
                 comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
                 remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller))
-                print("TOTAL DATA: ", total_data, comm_band, get_congestion_factor(caller))
 
                 wait_times.append(remaining_comm_time + caller.env.now)
                 if (DEBUG_SIM and canAllocate):
                         print('[D] Time %d: Data from memory for task %d will be sent to PE-%s in %d us'
                             %(caller.env.now, executable_task.ID, PE_ID, wait_times[-1]))
                 if canAllocate:
+                    results.memoryData += total_data
                     active_noc_transfers.append({
                         'end_time': caller.env.now + remaining_comm_time,
                         'src_PE': -1,  # memory
