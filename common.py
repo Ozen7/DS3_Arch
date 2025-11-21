@@ -232,6 +232,7 @@ class PerfStatics:
         self.deadlines_met = 0                      # Shows the number of deadlines met
         self.deadlines_missed = 0                   # Shows the number of deadlines missed
         self.job_counter_list = []
+        self.memory_overhead = 0                    # Indicates time spend on memory transfers
         self.sampling_rate_list = []
 # end class PerfStatics
 
@@ -416,7 +417,7 @@ memory_writeback = {}               # Dictionary of identifiers and timestamps f
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
-def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocate):
+def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
 
     cleanup_completed_transfers(caller) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
 
@@ -443,11 +444,18 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
             # end of if ready_task.head == True:
             if canAllocate and DEBUG_SIM:
                 print('task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
+            
+            # This tracks the total amount of input data to this task. If we need more data than is covered by the 
+            # predecessors, then the assumption is that we need something from memory as well (weights, biases, etc.)
+            total_data = executable_task.input_packet_size
 
             for predecessor in task.predecessors:
 
                 # data required from the predecessor for $ready_task
                 comm_vol = caller.jobs.list[job_ID].comm_vol[predecessor, executable_task.base_ID]
+
+                # subtract it from the data total we need
+                total_data -= comm_vol
 
                 # retrieve the real ID  of the predecessor based on the job ID
                 real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
@@ -477,7 +485,6 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                     comm_band = ResourceManager.comm_band[predecessor_PE_ID, PE_ID]
                     PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
                     wait_times.append(PE_to_PE_comm_time + caller.env.now)
-
                     if canAllocate:
                         active_noc_transfers.append({
                             'end_time': caller.env.now + PE_to_PE_comm_time,
@@ -493,11 +500,10 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                                 executable_task.ID, real_predecessor_ID, wait_times[-1]))
 
                     # If we are colocating, there is no need to allocate more space (self-to-self bandwidth is set at a high number so there is no latency overhead either)
-                    if canAllocate and predecessor_PE_ID == PE_ID:
+                    if canAllocate and predecessor_PE_ID != PE_ID:
                         target_PE = caller.PEs[executable_task.PE_ID]
-                        if target_PE.forwarding_enabled:
-                            data_id = f"{predecessor_task.ID}_output"
-                            target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        data_id = f"{predecessor_task.ID}_output"
+                        target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
@@ -505,8 +511,9 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                     comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
                     from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
                     if f"{predecessor_task.ID}_output" in memory_writeback:
-                        from_memory_comm_time += memory_writeback[f"{predecessor_task.ID}_output"]
-                    wait_times.append(from_memory_comm_time + caller.env.now)
+                        wait_times.append(from_memory_comm_time + memory_writeback[f"{predecessor_task.ID}_output"])
+                    else:
+                        wait_times.append(from_memory_comm_time + caller.env.now)
                     if (DEBUG_SIM and canAllocate):
                         print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
                             %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1]))
@@ -517,6 +524,9 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                             'dst_PE': PE_ID,
                             'task_ID': executable_task.ID
                         })
+                        target_PE = caller.PEs[executable_task.PE_ID]
+                        data_id = f"{predecessor_task.ID}_output"
+                        target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
 
@@ -526,12 +536,40 @@ def calculate_memory_movement_latency(caller, executable_task, PE_ID, canAllocat
                     %(caller.env.now, executable_task.ID))
                 print('%12s'%(''), wait_times)
 
+                
+
             # Populate all ready tasks in executable with a time stamp
             # which will show when a task is ready for execution
 
+            if total_data > 0:
+                print("TOTAL DATA: ", total_data)
+                comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
+                remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller))
+                print("TOTAL DATA: ", total_data, comm_band, get_congestion_factor(caller))
+
+                wait_times.append(remaining_comm_time + caller.env.now)
+                if (DEBUG_SIM and canAllocate):
+                        print('[D] Time %d: Data from memory for task %d will be sent to PE-%s in %d us'
+                            %(caller.env.now, executable_task.ID, PE_ID, wait_times[-1]))
+                if canAllocate:
+                    active_noc_transfers.append({
+                        'end_time': caller.env.now + remaining_comm_time,
+                        'src_PE': -1,  # memory
+                        'dst_PE': PE_ID,
+                        'task_ID': executable_task.ID
+                    })
+                    target_PE = caller.PEs[executable_task.PE_ID]
+                    data_id = f"{executable_task.ID}_input"
+                    target_PE.allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+            elif total_data < 0:
+                assert False
+
             # Set the time stamp for when the task is ready for execution
             if (wait_times):
+                if canAllocate:
+                    results.memory_overhead += max(wait_times) - caller.env.now
                 return max(wait_times)
+                    
             else:
                 return 0
             # end else

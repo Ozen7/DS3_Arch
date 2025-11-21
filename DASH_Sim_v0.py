@@ -369,6 +369,7 @@ def run_simulator(scale_values=common.scale_values_list):
                         print('[I] No completed jobs')
                     print("[I] %-30s : %-20s" % ("Execution time(us)", round(common.results.execution_time - common.warmup_period, 2)))
                     print("[I] %-30s : %-20s" % ("Cumulative Execution time(us)", round(common.results.cumulative_exe_time, 2)))
+                    print("[I] %-30s : %-20s" % ("Time Spent Moving Memory(us)", round(common.results.memory_overhead, 2)))
                     print("[I] %-30s : %-20s" % ("Total energy consumption(J)",
                                                  round(common.results.cumulative_energy_consumption, 6)))
                     print("[I] %-30s : %-20s" % ("EDP",

@@ -294,7 +294,7 @@ class PE:
         '''            
         return data_id in self.scratchpad
 
-    def allocate_scratchpad(self, data_id:str, size:int, task_id:common.Tasks):
+    def allocate_scratchpad(self, data_id:str, size:int, task_id:int):
         '''!
         Allocate scratchpad space for data. Evict oldest data if needed (LRU).
         @param data_id: Identifier for the data

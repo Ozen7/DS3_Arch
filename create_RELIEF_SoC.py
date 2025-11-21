@@ -51,7 +51,7 @@ FILENAME_SHORTCUTS = OrderedDict([
 
 TEMPLATE_DIR = 'config_SoC/templates'
 OUTPUT_DIR = 'config_SoC'
-DEFAULT_BANDWIDTH = 16000  # bytes/microsecond (16 GB/s)
+DEFAULT_BANDWIDTH = 5460  # bytes/microsecond (16 GB/s)
 
 
 def print_usage():
