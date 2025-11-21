@@ -391,6 +391,8 @@ class SimulationManager:
                     self.scheduler.RELIEF_BASIC(common.ready)
                 elif self.scheduler.name == 'LL':
                     self.scheduler.LL(common.ready)
+                elif self.scheduler.name == 'GEDF_D':
+                    self.scheduler.GEDF_D(common.ready)
                 else:
                     print('[E] Could not find the requested scheduler')
                     print('[E] Please check "config_file.ini" and enter a proper name')

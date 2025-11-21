@@ -235,6 +235,9 @@ class PerfStatics:
         self.memory_overhead = 0                    # Indicates time spend on memory transfers
         self.sampling_rate_list = []
         self.num_forwards = 0
+        self.num_RELIEF_forwards = 0
+        self.num_colocations = 0
+
         self.colocationData = 0
         self.forwardData = 0
         self.memoryData = 0
@@ -442,11 +445,11 @@ wait_ready:List[Tasks] = []                    # List of task waiting for being 
 active_noc_transfers = []                      # List of active NoC transfers
 memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
-new_schedulers = ['RELIEF_BASE', 'LL']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
+new_schedulers = ['RELIEF_BASE', 'LL', 'GEDF_D']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
-
+    isColocated = False
     cleanup_completed_transfers(caller) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
 
     # The rest of this is similar to what goes on in update_execution_queue, since we begin pulling data.
@@ -535,7 +538,11 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                         data_id = f"{predecessor_task.ID}_output"
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     elif canAllocate:
+                        results.num_colocations += 1
                         results.colocationData += comm_vol
+                    elif predecessor_PE_ID == PE_ID:
+                        isColocated = True
+
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
@@ -599,7 +606,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             if (wait_times):
                 if canAllocate:
                     results.memory_overhead += max(wait_times) - caller.env.now
-                return max(wait_times)
+                    return max(wait_times) # for use in memory movement
+                return (isColocated, max(wait_times)) # for use in scheduling
                     
             else:
                 return 0

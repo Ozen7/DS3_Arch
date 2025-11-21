@@ -102,8 +102,8 @@ def trace_tasks(task, PE, task_time, total_energy):
         with open(common.TRACE_FILE_TASKS.split(".")[0] + "__" + str(common.trace_file_num) + ".csv", 'a', newline='') as csvfile:
             trace = csv.writer(csvfile, delimiter=',')
             if create_header == True:
-                trace.writerow(['DVFS policy', 'Task ID', 'PE', 'Exec. Time (us)', 'Energy (J)'])
-            trace.writerow([common.ClusterManager.cluster_list[PE.cluster_ID].DVFS, task.ID, common.ClusterManager.cluster_list[PE.cluster_ID].name, task_time, total_energy])
+                trace.writerow(['DVFS policy', 'Job ID', 'Task ID', 'PE', 'Exec. Time (us)', 'deadline', 'runtime', 'Energy (J)'])
+            trace.writerow([common.ClusterManager.cluster_list[PE.cluster_ID].DVFS, task.jobID, task.ID, common.ClusterManager.cluster_list[PE.cluster_ID].name, task_time, task.deadline, task.runtime, total_energy])
 
 def trace_system():
     '''!
@@ -117,7 +117,7 @@ def trace_system():
         with open(common.TRACE_FILE_SYSTEM.split(".")[0] + "__" + str(common.trace_file_num) + ".csv", 'a', newline='') as csvfile:
             trace = csv.writer(csvfile, delimiter=',')
             if create_header == True:
-                trace.writerow(['Job List', 'DVFS mode', 'N_little', 'N_big', 'Exec. Time (us)', 'Cumulative Exec. Time (us)', 'Energy (J)'])
+                trace.writerow(['Job List', 'DVFS mode', 'Exec. Time (us)', 'Cumulative Exec. Time (us)', 'Energy (J)'])
             DVFS_mode_list = []
             for DVFS_config in common.DVFS_cfg_list:
                 if DVFS_config == "performance":
@@ -130,14 +130,14 @@ def trace_system():
                     split = str(DVFS_config).split('-')
                     DVFS_mode_list.append("C" + split[1])
             if common.simulation_mode == "validation":
-                trace.writerow([common.current_job_list, DVFS_mode_list, common.gen_trace_capacity_little, common.gen_trace_capacity_big,
+                trace.writerow([common.current_job_list, DVFS_mode_list,
                                 common.results.execution_time, common.results.execution_time, common.results.energy_consumption])
             elif common.simulation_mode == "performance":
                 if len(common.job_list) == 1:
                     job_list = common.current_job_list
                 else:
                     job_list = common.job_list
-                trace.writerow([job_list, DVFS_mode_list, common.gen_trace_capacity_little, common.gen_trace_capacity_big,
+                trace.writerow([job_list, DVFS_mode_list,
                                 common.results.execution_time - common.warmup_period, common.results.cumulative_exe_time,
                                 common.results.cumulative_energy_consumption])
 

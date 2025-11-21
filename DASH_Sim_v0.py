@@ -355,7 +355,10 @@ def run_simulator(scale_values=common.scale_values_list):
                     print('[I] Number of deadlines met: %d' %(common.results.deadlines_met))
                     print('[I] Number of deadlines missed: %d' %(common.results.deadlines_missed))
                     print('[I] Data Colocated/Forwarded/Pulled From Memory: %d / %d / % d' %(common.results.colocationData,common.results.forwardData,common.results.memoryData))
-                    print('[I] Number forwards: %d' %(common.results.num_forwards))
+                    print('[I] Number of forwards: %d' %(common.results.num_forwards))
+                    print('[I] Number of RELIEF forwards: %d' %(common.results.num_RELIEF_forwards))
+                    print('[I] Number of colocations: %d' %(common.results.num_colocations))
+
                     try:
                         print('[I] Ave latency: %f'
                         %(common.results.cumulative_exe_time/common.results.completed_jobs))

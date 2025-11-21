@@ -750,15 +750,47 @@ class Scheduler:
             
         list_of_ready.sort(key=lambda x: x.order, reverse=False) 
     # def CP_(self, list_of_ready): 
-    """
-    This scheduler is twofold:
 
-    1) Choose which accelerator type to use
-    - find minimum runtime of each task on each PE, while taking into account forwarding (maybe, look into this more. Did sudanshu take into account forwarding/not when calculating laxity?)
-    - find least laxity on each PE type using critical path deadline and runtime
-    - 
-    
-    """
+    def find_best_PE(self, task:Tasks, fwd_nodes):
+        best_pe_id = -1
+        min_finish_time = -1
+        best_family = ""
+
+        # Find the fastest PE type for this task
+        for resource in self.resource_matrix.list:
+            if task.name in resource.supported_functionalities:
+                # Get execution time for this task on this PE
+                func_index = resource.supported_functionalities.index(task.name)
+                isColcoated, latency = common.calculate_memory_movement_latency(self,task,resource.ID, False)
+                finish_time = int(resource.performance[func_index]) + latency
+                
+                # Update if this is the fastest PE found so far - or, if it is colocated 
+                if min_finish_time == -1 or finish_time < min_finish_time or isColcoated:
+                    min_finish_time = finish_time
+                    best_pe_id = resource.ID
+                    best_family = resource.accelerator_family
+
+        # Ensure task can be executed on at least one PE
+        assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
+
+        # TODO - implement multiple ways of choosing the best suited accelerator within the family (least load, laxity, total estimated runtime, etc.)
+        # If the best PE has an accelerator_family, find the least-loaded instance of that family
+        # If we don't do this, it will always select the first one.
+        # If the task is being colocated, we override this family-based assignment to potentially minimize overhead.
+
+        family_pes = common.PETypeManager.get_PEs_of_family(best_family)
+        if len(family_pes) > 1:
+            # Multiple instances exist - find the one with shortest execution queue
+            min_queue_len = float('inf')
+            for pe_id in family_pes:
+                queue_len = len(common.executable[pe_id]) + (len(fwd_nodes[pe_id]) if fwd_nodes != None else 0) + self.PEs[pe_id].lock
+                if queue_len < min_queue_len:
+                    min_queue_len = queue_len
+                    best_pe_id = pe_id
+
+        task.PE_ID = best_pe_id
+        task.runtime = min_finish_time
+        task.laxity = task.deadline - task.runtime
 
     def RELIEF_BASIC(self, list_of_ready: List[Tasks]):
         '''!
@@ -775,96 +807,64 @@ class Scheduler:
         fwd_nodes = [[] for _ in range(len(self.PEs))]
 
         for task in list_of_ready:
-            # Find the PE with minimum execution time for this task (compute + memory movement)
-            best_pe_id = -1
-            min_finish_time = -1
-            best_family = ""
+            self.find_best_PE(task,fwd_nodes)
 
-            # Find the fastest PE type for this task
-            for i, resource in enumerate(self.resource_matrix.list):
-                if task.name in resource.supported_functionalities:
-                    # Get execution time for this task on this PE
-                    func_index = resource.supported_functionalities.index(task.name)
-                    finish_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
-
-                    # Update if this is the fastest PE found so far
-                    if min_finish_time == -1 or finish_time < min_finish_time:
-                        min_finish_time = finish_time
-                        best_pe_id = resource.ID
-                        best_family = resource.accelerator_family
-
-            # Ensure task can be executed on at least one PE
-            assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
-
-            # TODO - implement multiple ways of choosing the best suited accelerator within the family (least load, laxity, total estimated runtime, etc.)
-            # If the best PE has an accelerator_family, find the least-loaded instance of that family
-            if best_family:
-                family_pes = common.PETypeManager.get_PEs_of_family(best_family)
-                if len(family_pes) > 1:
-                    # Multiple instances exist - find the one with shortest execution queue
-                    min_queue_len = float('inf')
-                    for pe_id in family_pes:
-
-                        queue_len = len(common.executable.get(pe_id))
-                        if queue_len < min_queue_len:
-                            min_queue_len = queue_len
-                            best_pe_id = pe_id
-
-            
-            # predicted runtime uses MAX bandwidth in order to calculate runtime. TODO - this has little impact on RELIEF's limited evaluation, but could be far more important when there are multiple destinations for a task.
-
-
-
-            # Calculate task laxity: deadline - runtime
-            # Laxity represents slack time before deadline is violated
-            task.PE_ID = best_pe_id
-            task.runtime = min_finish_time
-            task.laxity = task.deadline - task.runtime
-
-            # Insert task into PE's bucket sorted by laxity (ascending order)
+            # Insert task into PE's bucket sorted by laxity (smallest to largest)
             # Smaller laxity = less slack = higher priority
             insert_index = 0
-            while insert_index < len(fwd_nodes[best_pe_id]) and task.laxity > fwd_nodes[best_pe_id][insert_index].laxity:
+            while insert_index < len(fwd_nodes[task.PE_ID]) and task.laxity >= fwd_nodes[task.PE_ID][insert_index].laxity:
                 insert_index += 1
-            fwd_nodes[best_pe_id].insert(insert_index, task)
+            fwd_nodes[task.PE_ID].insert(insert_index, task)
 
         # Phase 2: Schedule tasks, forwarding to idle PEs when feasible
         for pe_id, PE in enumerate(self.PEs):
             # Check if this PE is idle, not locked (isn't scheduled for anything) and can accept forwarded tasks
-            can_forward = PE.idle and not PE.lock and (common.forwarding_enabled if hasattr(common, 'forwarding_enabled') else False)
-
+            try_forward = PE.idle and not PE.lock and not any(node.isForwarded for node in common.executable[task.PE_ID])
             # Process all tasks assigned to this PE (highest laxity first - pop from end)
             while len(fwd_nodes[pe_id]) > 0:
-                # Get next task to schedule (highest laxity)
-                task = fwd_nodes[pe_id].pop()
-
-                # Set execution readiness timestamp
-                task.time_stamp = self.env.now
-
+                # Get next task to schedule (least laxity)
+                task = fwd_nodes[pe_id].pop(0)
+                print(task.ID)
+                can_forward = try_forward
                 # Find insertion point in this PE's executable queue based on laxity
                 # Insert after tasks with lower or equal laxity
                 insert_index = 0
                 if pe_id in common.executable:
                     for exec_task in common.executable[pe_id]:
-                        if exec_task.laxity <= task.laxity:
+                        if task.laxity >= exec_task.laxity:
                             insert_index += 1
                         else:
                             break
+                
 
-                # Decide: forward to idle PE or schedule normally
-                if can_forward and self.is_feasible(pe_id, task, insert_index):
-                    # Forward task - insert at front of queue for immediate execution
-                    common.executable[task.PE_ID].insert(insert_index, task)
+                if try_forward:
+                    for task_iter in common.executable[task.PE_ID]:
+                        if task_iter.ID == task.ID:
+                            break
 
-                    # Mark task as forwarded for analysis purposes (it will be automatically forwarded as long as the target accelerator still has the output data)
+                        laxity = task_iter.laxity
+
+                        if laxity > 0:
+                            can_forward = laxity >= task.runtime
+                            break
+            
+                # if we are forwarding
+                if can_forward:
+                    index = 0
                     task.isForwarded = True
-                    task.forwarded_to_PE = pe_id
-                    can_forward = False  # Can only forward one task per idle PE per scheduling round
+                    common.results.num_RELIEF_forwards += 1
+                    try_forward = False  # Can only forward one task per idle PE per scheduling round
+                    for task_iter in common.executable[task.PE_ID]:
+                        if task_iter.isForwarded:
+                            assert False
+                        else:
+                            task_iter.laxity -= task.runtime
+                    
+                    insert_index = index
+                
+                # insert into executable queue
+                common.executable[task.PE_ID].insert(insert_index, task)
 
-                else:
-                    # Normal scheduling - insert at calculated position
-                    common.executable[task.PE_ID].insert(insert_index, task)
-                    task.isForwarded = False
         
         # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
         rm = []
@@ -877,50 +877,6 @@ class Scheduler:
 
                         
 
-
-
-    def is_feasible(self, accelerator_id:int, task:Tasks, index:int):
-        '''!
-        Determine if forwarding a task to an idle PE is feasible without violating laxity constraints.
-
-        Forwarding is feasible if adding the task's runtime in front of the queue does not
-        cause any non-forwarded tasks to violate their laxity constraints.
-
-        @param accelerator_id: ID of the PE to which the task is assigned
-        @param task: The task being considered for forwarding
-        @param index: Position where task would be inserted in executable queue
-        @return: True if forwarding is feasible, False otherwise
-        '''
-        can_forward = True
-
-        if accelerator_id not in common.executable:
-            assert(False)
-        # Check if any task already in this PE's queue would be delayed past its laxity
-        for i, executable_task in enumerate(common.executable[accelerator_id]):
-            # Stop checking once we reach the insertion point
-            if i == index:
-                break
-
-            # Calculate current laxity relative to simulation time
-            curr_laxity = executable_task.laxity - self.env.now
-
-            # Check if a non-forwarded task with positive laxity would be violated
-            if not executable_task.isForwarded and curr_laxity > 0:
-                # Forwarding is feasible only if this task's laxity exceeds the forwarded task's runtime
-                can_forward = curr_laxity > task.runtime
-                break
-
-        # If forwarding is feasible, update laxity values for tasks that will be delayed
-        # This accounts for the additional delay caused by the forwarded task executing first
-        if can_forward:
-            for i, executable_task in enumerate(common.executable[accelerator_id]):
-                if i == index:
-                    break
-                # Reduce laxity by the forwarded task's runtime
-                executable_task.laxity -= task.runtime
-
-        return can_forward
-
     def LL(self,list_of_ready):
         '''!
         Least Laxity Scheduler.
@@ -930,61 +886,49 @@ class Scheduler:
         @param list_of_ready: List of tasks ready to be scheduled
         '''
         # Map tasks to PEs and organize by laxity
-        fwd_nodes = [[] for _ in range(len(self.PEs))]
 
         for task in list_of_ready:
-            # Find the PE with minimum execution time for this task (compute + memory movement)
-            best_pe_id = -1
-            min_finish_time = -1
-            best_family = ""
+            self.find_best_PE(task,None)
 
-            # Find the fastest PE type for this task
-            for i, resource in enumerate(self.resource_matrix.list):
-                if task.name in resource.supported_functionalities:
-                    # Get execution time for this task on this PE
-                    func_index = resource.supported_functionalities.index(task.name)
-                    finish_time = int(resource.performance[func_index]) + common.calculate_memory_movement_latency(self,task,resource.ID, False)
-
-                    # Update if this is the fastest PE found so far
-                    if min_finish_time == -1 or finish_time < min_finish_time:
-                        min_finish_time = finish_time
-                        best_pe_id = resource.ID
-                        best_family = resource.accelerator_family
-
-            # Ensure task can be executed on at least one PE
-            assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
-
-            # TODO - implement multiple ways of choosing the best suited accelerator within the family (least load, laxity, total estimated runtime, etc.)
-            # If the best PE has an accelerator_family, find the least-loaded instance of that family
-            if best_family:
-                family_pes = common.PETypeManager.get_PEs_of_family(best_family)
-                if len(family_pes) > 1:
-                    # Multiple instances exist - find the one with shortest execution queue
-                    min_queue_len = float('inf')
-                    for pe_id in family_pes:
-
-                        queue_len = len(common.executable.get(pe_id))
-                        if queue_len < min_queue_len:
-                            min_queue_len = queue_len
-                            best_pe_id = pe_id
-
-            
-            # predicted runtime uses MAX bandwidth in order to calculate runtime. TODO - this has little impact on RELIEF's limited evaluation, but could be far more important when there are multiple destinations for a task.
-
-
-
-            # Calculate task laxity: deadline - runtime
-            # Laxity represents slack time before deadline is violated
-            task.PE_ID = best_pe_id
-            task.runtime = min_finish_time
-            task.laxity = task.deadline - task.runtime
-
-            # Insert task into PE sorted by laxity (ascending order)
+            # Insert task into PE sorted by laxity (smallest to largest)
             # Smaller laxity = less slack = higher priority
             insert_index = 0
-            while insert_index < len(fwd_nodes[best_pe_id]) and task.laxity > fwd_nodes[best_pe_id][insert_index].laxity:
+            while insert_index < len(common.executable[task.PE_ID]) and task.laxity >= common.executable[task.PE_ID][insert_index].laxity:
                 insert_index += 1
-            fwd_nodes[best_pe_id].insert(insert_index, task)
+            common.executable[task.PE_ID].insert(insert_index, task)
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
+        for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
+            common.ready.remove(task)
+        
+        return
+    
+
+    def GEDF_D(self,list_of_ready):
+        '''!
+        Global Earliest Deadline First - Dag
+        
+        Maps each task to its fastest PE and sorts based on DAG deadline
+
+        @param list_of_ready: List of tasks ready to be scheduled
+        '''
+        # Map tasks to PEs and organize by laxity
+
+        for task in list_of_ready:
+            self.find_best_PE(task,None)
+
+            for ii, job in enumerate(self.jobs.list):
+                if job.name == task.jobname:
+                    job_ID = ii
+
+            task.jobDeadline = self.jobs.list[job_ID].deadline
+
+            insert_index = 0
+            while insert_index < len(common.executable[task.PE_ID]) and task.jobDeadline >= common.executable[task.PE_ID][insert_index].jobDeadline:
+                insert_index += 1
             common.executable[task.PE_ID].insert(insert_index, task)
         
         # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
