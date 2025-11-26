@@ -90,7 +90,7 @@ class SimulationManager:
         for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
-                PE.scratchpad[f"{completed_task.ID}_output"]['dependencies'].append(outstanding_task)   # the output of the predecessor will save back to memory when ejected if the outstanding task has not finished computing
+                PE.scratchpad[f"{completed_task.ID}_output"]['dependencies'].append(outstanding_task)   # Dependencies for scratchpad values are handled here
 
                 if (common.shared_memory):
                     # Get the communication time to memory for data from a
@@ -300,18 +300,19 @@ class SimulationManager:
                     del common.completed[i]
     
     # PEs call this to write values ejected from their scratchpads back to memory
-    def writeback_handler(self,data_id, size, PE_ID):
-        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, PE_ID]
+    def writeback_handler(self,data_id, size, PE):
+        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, PE.ID]
         memory_comm_time = int((size/comm_band) * common.get_congestion_factor(self))
         common.memory_writeback[data_id] = self.env.now + memory_comm_time
 
         common.active_noc_transfers.append({
             'end_time': self.env.now + memory_comm_time,
-            'src_PE': PE_ID,
+            'src_PE': PE.ID,
             'dst_PE': -1,  # memory
-            'task_ID': -1
+            'data_ID':data_id
         })
-        
+
+        PE.update_DMA_timer(memory_comm_time, True)
     #
     def run(self):
         '''!
@@ -387,12 +388,18 @@ class SimulationManager:
                     self.scheduler.ETF_LB(common.ready)
                 elif self.scheduler.name == 'CP':
                     self.scheduler.CP(common.ready)
-                elif self.scheduler.name == 'RELIEF_BASE':
-                    self.scheduler.RELIEF_BASIC(common.ready)
+                elif self.scheduler.name == 'RELIEF':
+                    self.scheduler.RELIEF(common.ready)
                 elif self.scheduler.name == 'LL':
                     self.scheduler.LL(common.ready)
                 elif self.scheduler.name == 'GEDF_D':
                     self.scheduler.GEDF_D(common.ready)
+                elif self.scheduler.name == 'GEDF_N':
+                    self.scheduler.GEDF_N(common.ready)
+                elif self.scheduler.name == 'HetSched':
+                    self.scheduler.HetSched(common.ready)
+                elif self.scheduler.name == 'FCFS':
+                    self.scheduler.FCFS(common.ready)
                 else:
                     print('[E] Could not find the requested scheduler')
                     print('[E] Please check "config_file.ini" and enter a proper name')
@@ -428,7 +435,15 @@ class SimulationManager:
                     # 3) P.idle = False, P.lock = True: The PE is running.
                     # For simplicity, each PE can ONLY operate on a single input at a time right now
                     tasks_to_remove = []
-                    executable_task = pe_queue[0]
+
+                    i = 0
+                    #find index position of first non negative task for certain scheduling algorithms
+                    if self.scheduler.name in common.deprioritize_negative_laxity: 
+                        while i < len(pe_queue)-1 and pe_queue[i].laxity < 0:
+                            i += 1
+
+                    executable_task = pe_queue[i]
+
                     if P.idle and P.lock:
                         dynamic_dependencies_met = True
 
@@ -453,6 +468,11 @@ class SimulationManager:
                                 self, executable_task, current_resource, DTPM_module))  # This handle is used by the PE to call the update_ready_queue function
 
                             remove_from_executable[pe_id] = [executable_task]
+
+                             # immediately allocate room in the scratchpad for output - done so that any ejection of data from the scratchpad is
+                             # taken into consideration when calculating memory latency
+                            P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+
                         # end if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment):
                         
                     # end if P.idle and P.lock:

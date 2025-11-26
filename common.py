@@ -445,7 +445,8 @@ wait_ready:List[Tasks] = []                    # List of task waiting for being 
 active_noc_transfers = []                      # List of active NoC transfers
 memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
-new_schedulers = ['RELIEF_BASE', 'LL', 'GEDF_D']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
+new_schedulers = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched', 'FCFS']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
+deprioritize_negative_laxity = ['RELIEF', 'LL','HetSched']
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
@@ -469,8 +470,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     print('task %d is a head task' %(executable_task.ID))
                 # if a task is the leading task of a job
                 # then it can start immediately since it has no predecessor
-                wait_times.append(caller.env.now)
-                wait_times.append(caller.env.now)
+                wait_times.append(0)
+                wait_times.append(0)
                 
             # end of if ready_task.head == True:
             if canAllocate and DEBUG_SIM:
@@ -515,27 +516,22 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
                     comm_band = ResourceManager.comm_band[predecessor_PE_ID, PE_ID]
                     PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
-                    wait_times.append(PE_to_PE_comm_time + caller.env.now)
-                    if canAllocate:
-                        active_noc_transfers.append({
-                            'end_time': caller.env.now + PE_to_PE_comm_time,
-                            'src_PE': predecessor_PE_ID,
-                            'dst_PE': PE_ID,
-                            'task_ID': executable_task.ID
-                        })
+                    
 
-                    if (DEBUG_SIM) and canAllocate:
-                        mode_str = "forwarding" if comm_mode == 'forwarding' else "PE-to-PE"
-                        print('[D] Time %d: Data transfer (%s) from PE-%s to PE-%s for task %d from task %d is completed at %d us'
-                            %(caller.env.now, mode_str, predecessor_PE_ID, PE_ID,
-                                executable_task.ID, real_predecessor_ID, wait_times[-1]))
+                    
+                    target_PE = caller.PEs[executable_task.PE_ID]
 
                     # If we are colocating, there is no need to allocate more space (self-to-self bandwidth is set at a high number so there is no latency overhead either)
                     if canAllocate and predecessor_PE_ID != PE_ID:
                         results.forwardData += comm_vol
                         results.num_forwards += 1
-                        target_PE = caller.PEs[executable_task.PE_ID]
                         data_id = f"{predecessor_task.ID}_output"
+                        active_noc_transfers.append({
+                            'end_time': caller.env.now + PE_to_PE_comm_time,
+                            'src_PE': predecessor_PE_ID,
+                            'dst_PE': PE_ID,
+                            'data_ID': data_id
+                        })
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     elif canAllocate:
                         results.num_colocations += 1
@@ -543,30 +539,39 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     elif predecessor_PE_ID == PE_ID:
                         isColocated = True
 
+                    # the wait time has to go through the PE's DMA timer
+                    wait_times.append(target_PE.update_DMA_timer(PE_to_PE_comm_time,canAllocate))
+                    if (DEBUG_SIM) and canAllocate:
+                        mode_str = "forwarding" if comm_mode == 'forwarding' else "PE-to-PE"
+                        print('[D] Time %d: Data transfer (%s) from PE-%s to PE-%s for task %d from task %d will be completed at %d us'
+                            %(caller.env.now, mode_str, predecessor_PE_ID, PE_ID,
+                                executable_task.ID, real_predecessor_ID, wait_times[-1] + caller.env.now))
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
                     # Use memory communication timing
                     comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
                     from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
-                    if f"{predecessor_task.ID}_output" in memory_writeback:
-                        wait_times.append(from_memory_comm_time + memory_writeback[f"{predecessor_task.ID}_output"])
-                    else:
-                        wait_times.append(from_memory_comm_time + caller.env.now)
-                    if (DEBUG_SIM and canAllocate):
-                        print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
-                            %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1]))
+
+                    target_PE = caller.PEs[executable_task.PE_ID]
+
                     if canAllocate:
                         results.memoryData += comm_vol
+                        data_id = f"{predecessor_task.ID}_output"
                         active_noc_transfers.append({
                             'end_time': caller.env.now + from_memory_comm_time,
                             'src_PE': -1,  # memory
                             'dst_PE': PE_ID,
-                            'task_ID': executable_task.ID
+                            'data_ID': data_id
                         })
-                        target_PE = caller.PEs[executable_task.PE_ID]
-                        data_id = f"{predecessor_task.ID}_output"
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                    if f"{predecessor_task.ID}_output" in memory_writeback:
+                        wait_times.append(target_PE.update_DMA_timer(from_memory_comm_time, canAllocate, memory_writeback[f"{predecessor_task.ID}_output"])) # memory writeback includes env.now
+                    else:
+                        wait_times.append(target_PE.update_DMA_timer(from_memory_comm_time, canAllocate))
+                    if (DEBUG_SIM and canAllocate):
+                        print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
+                            %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1] + caller.env.now))
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
 
@@ -584,29 +589,31 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
                 remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller))
 
-                wait_times.append(remaining_comm_time + caller.env.now)
-                if (DEBUG_SIM and canAllocate):
-                        print('[D] Time %d: Data from memory for task %d will be sent to PE-%s in %d us'
-                            %(caller.env.now, executable_task.ID, PE_ID, wait_times[-1]))
+                target_PE = caller.PEs[executable_task.PE_ID]
+
                 if canAllocate:
                     results.memoryData += total_data
+                    data_id = f"{executable_task.ID}_input"
                     active_noc_transfers.append({
                         'end_time': caller.env.now + remaining_comm_time,
                         'src_PE': -1,  # memory
                         'dst_PE': PE_ID,
-                        'task_ID': executable_task.ID
+                        'data_ID': data_id
                     })
-                    target_PE = caller.PEs[executable_task.PE_ID]
-                    data_id = f"{executable_task.ID}_input"
                     target_PE.allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+                wait_times.append(target_PE.update_DMA_timer(remaining_comm_time, canAllocate))
+                if (DEBUG_SIM and canAllocate):
+                        print('[D] Time %d: Data from memory for task %d will be sent to PE-%s at %d us'
+                            %(caller.env.now, executable_task.ID, PE_ID, wait_times[-1] + caller.env.now))
             elif total_data < 0:
                 assert False
 
             # Set the time stamp for when the task is ready for execution
             if (wait_times):
                 if canAllocate:
-                    results.memory_overhead += max(wait_times) - caller.env.now
-                    return max(wait_times) # for use in memory movement
+                    results.memory_overhead += max(wait_times)
+                    print("WAIT UNTIL", len(wait_times), max(wait_times) + caller.env.now)
+                    return max(wait_times) + caller.env.now # sequential DMA if there is multiple instances of memory movement
                 return (isColocated, max(wait_times)) # for use in scheduling
                     
             else:
@@ -622,7 +629,7 @@ def get_congestion_factor(caller):
     normalized_load = len(active_noc_transfers) / (len(caller.resource_matrix.list) / 2.0)
     
     if normalized_load < 0.5:
-        return 1.0
+        return 1
     elif normalized_load < 1.0:
         return 1.0 + normalized_load
     else:

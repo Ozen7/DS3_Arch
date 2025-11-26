@@ -792,7 +792,7 @@ class Scheduler:
         task.runtime = min_finish_time
         task.laxity = task.deadline - task.runtime
 
-    def RELIEF_BASIC(self, list_of_ready: List[Tasks]):
+    def RELIEF(self, list_of_ready: List[Tasks]):
         '''!
         RELIEF Scheduler.
 
@@ -915,7 +915,7 @@ class Scheduler:
 
         @param list_of_ready: List of tasks ready to be scheduled
         '''
-        # Map tasks to PEs and organize by laxity
+        # Map tasks to PEs and organize by dag deadline
 
         for task in list_of_ready:
             self.find_best_PE(task,None)
@@ -930,6 +930,92 @@ class Scheduler:
             while insert_index < len(common.executable[task.PE_ID]) and task.jobDeadline >= common.executable[task.PE_ID][insert_index].jobDeadline:
                 insert_index += 1
             common.executable[task.PE_ID].insert(insert_index, task)
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
+        for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
+            common.ready.remove(task)
+        
+        return
+    
+    def GEDF_N(self,list_of_ready):
+        '''!
+        Global Earliest Deadline First - Node
+        
+        Maps each task to its fastest PE and sorts based on Node deadline
+
+        @param list_of_ready: List of tasks ready to be scheduled
+        '''
+        # Map tasks to PEs and organize by deadline
+
+        for task in list_of_ready:
+            self.find_best_PE(task,None)
+
+            insert_index = 0
+            while insert_index < len(common.executable[task.PE_ID]) and task.deadline >= common.executable[task.PE_ID][insert_index].deadline:
+                insert_index += 1
+            common.executable[task.PE_ID].insert(insert_index, task)
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
+        for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
+            common.ready.remove(task)
+        
+        return
+    
+    def FCFS(self,list_of_ready):
+        '''!
+        First Come First Served
+        
+        Tasks are ordered based on arrival rate. Simply push a task to the end of the queue.
+
+        @param list_of_ready: List of tasks ready to be scheduled
+        '''
+        # Map tasks to PEs
+
+        for task in list_of_ready:
+            self.find_best_PE(task,None)
+
+            # just add tasks to the end of the queue. 
+            common.executable[task.PE_ID].append(task)
+        
+        # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
+        rm = []
+        for task in list_of_ready:
+            rm.append(task)
+        for task in rm:
+            common.ready.remove(task)
+        
+        return
+    
+
+    def HetSched(self,list_of_ready):
+        '''!
+        HetSched (Quality-of-Mission Aware Scheduling for Autonomous Vehicle SoCs)
+
+        https://doi.org/10.48550/arXiv.2203.13396
+     
+        Maps each task to its fastest PE and sorts based on Node deadline
+
+        @param list_of_ready: List of tasks ready to be scheduled
+        '''
+
+        fwd_nodes = [[] for _ in range(len(self.PEs))]
+
+        for task in list_of_ready:
+            self.find_best_PE(task,fwd_nodes)
+
+            task.laxity = task.sd - task.runtime # use SD to calculate laxity
+            
+            insert_index = 0
+            while insert_index < len(common.executable[task.PE_ID]) and task.laxity >= common.executable[task.PE_ID][insert_index].laxity:
+                insert_index += 1
+            common.executable[task.PE_ID].insert(insert_index, task)
+            
         
         # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
         rm = []

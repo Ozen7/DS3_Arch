@@ -59,6 +59,7 @@ class PE:
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
+        self.DMATimer = 0                                                       # Determines the freedom of the DMA timer
 
         if (common.DEBUG_CONFIG):
             print('[D] Constructed PE-%d with name %s' %(ID,name))
@@ -92,9 +93,7 @@ class PE:
                 common.running.append(task)                     # Since the execution started for the task we should add it to the running queue 
                 task.start_time = self.env.now                                  # When a resource starts executing the task, record it as the start time
 
-                # note: output packet size is the number of packets being output by this task.
-                self.allocate_scratchpad(f"{task.ID}_output",task.output_packet_size*common.packet_size,task.ID)                 # allocate room in the scratchpad for the output of this task.
-
+               
                 # if this is the leading task of this job, increment the injection counter
                 if ((task.head == True) and
                     (self.env.now >= common.warmup_period)):
@@ -286,6 +285,23 @@ class PE:
             print('Expect an interrupt at %s' % (self.env.now))
     # end of def run(self, sim_manager, task, resource):
 
+    # the idea behind this function is to keep track of the next time that the PE's DMA engines will be free, and
+    # schedule a new DMA task taking "time" amount of time.
+    def update_DMA_timer(self, time:int, canAllocate:bool, startTime:int = -1):
+        if startTime != -1:
+            if startTime > self.DMATimer:
+                self.DMATimer = startTime # this could lead to some delays when other tasks could do DMA, but DMA accesses aren't smartly scheduled.
+
+        if self.DMATimer < self.env.now:
+            self.DMATimer = self.env.now
+
+        if canAllocate:
+            self.DMATimer += time
+            return self.DMATimer - self.env.now #overhead
+        else:
+            return self.DMATimer + time - self.env.now
+        
+
     # Scratchpad management methods (only used in forwarding mode)
     def has_data_in_scratchpad(self, data_id:str):
         '''!
@@ -310,7 +326,7 @@ class PE:
         # Check if we have enough capacity
         if size > self.scratchpad_capacity:
             # Data is larger than total capacity - cannot allocate
-            return False
+            assert False
 
         # Evict data using LRU until we have enough space
         while (self.scratchpad_used + size) > self.scratchpad_capacity:
@@ -318,7 +334,7 @@ class PE:
 
             if not self.scratchpad or self.scratchpad[oldest_data_id]['timestamp'] == self.env.now:
                 # No more data to evict but still not enough space
-                return False
+                assert False # need to handle this better if this ever goes off.
 
             # Find oldest entry (minimum timestamp)
             self.free_scratchpad(oldest_data_id)
@@ -348,23 +364,26 @@ class PE:
             # Decide whether or not to evict/write back task output to memory
             writeback = False
             for predecessor in self.scratchpad[data_id]['dependencies']:
-                if predecessor.start_time == -1 and predecessor.finish_time == -1:
+                if predecessor.start_time == -1:
                     writeback = writeback or True
-                elif predecessor.start_time != -1 and predecessor.finish_time == -1:
-                    self.scratchpad[data_id]['timestamp'] = self.env.now 
-                    # we cannot eject this from cache (being used), and have no way of knowing the exact finish time of predecessor. 
-                    # therefore, we set its timestamp to the current time and return. If there is no room in the scratchpad this could lead to an infinite loop - be careful.
-                    return
                 else:
                     writeback = False
 
+                # cannot evict if the data is actively being transferred.
+                for active_transfer in common.active_noc_transfers:
+                    if active_transfer['data_ID'] == data_id:
+                        writeback = False
+                        self.scratchpad[data_id]['timestamp'] = active_transfer['end_time']
+                        return
+                        
             
             size = self.scratchpad[data_id]['size']
             del self.scratchpad[data_id]
             self.scratchpad_used -= size
 
+
             if writeback:
-                self.simManager.writeback_handler(data_id, size, self.ID) #writes values back to memory. TODO - only writes back if it will be used in the future (doesn't really matter rn since we have no memory contention)
+                self.simManager.writeback_handler(data_id, size, self) #writes values back to memory.
 
             if common.DEBUG_SIM:
                 print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
