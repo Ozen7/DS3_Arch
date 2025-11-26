@@ -94,6 +94,9 @@ CONFIG_FILE = 'config_file.ini'
 # SoC configuration directory
 SOC_CONFIG_DIR = 'config_SoC'
 
+# Memory bandwidth of these tests
+bandwidth = int(16000 * (0.33))
+
 # Simulation timeout (seconds)
 SIMULATION_TIMEOUT = 600  # 10 minutes
 
@@ -115,10 +118,10 @@ def generate_soc_config(soc_filename, acc_specs):
     """
     soc_path = os.path.join(SOC_CONFIG_DIR, soc_filename)
 
-    # Skip if file already exists
+    # Delete existing file if it exists
     if os.path.exists(soc_path):
-        print(f"[SoC] {soc_filename} already exists, skipping generation")
-        return True
+        print(f"[SoC] Deleting existing {soc_filename}")
+        os.remove(soc_path)
 
     print(f"[SoC] Generating {soc_filename}...")
 
@@ -321,7 +324,7 @@ def save_results_to_csv(results, output_file):
 
     # Sort fieldnames for consistent output, with metadata columns first
     priority_fields = ['experiment_num', 'timestamp', 'soc_config', 'scheduler',
-                      'workload_name', 'job_list', 'job_probabilities']
+                      'workload_name', 'job_list', 'job_probabilities', 'memory ']
 
     # Separate priority fields and other fields
     other_fields = sorted(list(fieldnames - set(priority_fields)))
@@ -438,6 +441,7 @@ def run_experiments():
                     'experiment_num': experiment_num,
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'soc_config': soc_filename,
+                    'memory_bandwidth': bandwidth,
                     'scheduler': scheduler,
                     'workload_name': workload_config['name'],
                     'job_list': workload_config['job_list'],

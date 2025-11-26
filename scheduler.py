@@ -824,7 +824,6 @@ class Scheduler:
             while len(fwd_nodes[pe_id]) > 0:
                 # Get next task to schedule (least laxity)
                 task = fwd_nodes[pe_id].pop(0)
-                print(task.ID)
                 can_forward = try_forward
                 # Find insertion point in this PE's executable queue based on laxity
                 # Insert after tasks with lower or equal laxity
@@ -856,7 +855,7 @@ class Scheduler:
                     try_forward = False  # Can only forward one task per idle PE per scheduling round
                     for task_iter in common.executable[task.PE_ID]:
                         if task_iter.isForwarded:
-                            assert False
+                            break
                         else:
                             task_iter.laxity -= task.runtime
                     

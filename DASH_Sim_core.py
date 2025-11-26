@@ -180,7 +180,7 @@ class SimulationManager:
             for i, task in enumerate(self.jobs.list[job_ID].task_list):
                 if ready_task.base_ID == task.ID:
                     if ready_task.head == True:
-                        print('task %d is a head task' %(ready_task.ID))
+                        # print('task %d is a head task' %(ready_task.ID))
                         # if a task is the leading task of a job
                         # then it can start immediately since it has no predecessor
                         ready_task.PE_to_PE_wait_time.append(self.env.now)
@@ -301,15 +301,16 @@ class SimulationManager:
     
     # PEs call this to write values ejected from their scratchpads back to memory
     def writeback_handler(self,data_id, size, PE):
-        comm_band = common.ResourceManager.comm_band[self.resource_matrix.list[-1].ID, PE.ID]
-        memory_comm_time = int((size/comm_band) * common.get_congestion_factor(self))
+        comm_band = common.ResourceManager.comm_band[PE.ID, self.resource_matrix.list[-1].ID]
+        memory_comm_time = int((size/comm_band) * common.get_congestion_factor(self,-1, PE.ID))
         common.memory_writeback[data_id] = self.env.now + memory_comm_time
 
         common.active_noc_transfers.append({
             'end_time': self.env.now + memory_comm_time,
-            'src_PE': PE.ID,
+            'src_PE': [PE.ID],
             'dst_PE': -1,  # memory
-            'data_ID':data_id
+            'data_ID': [data_id],
+            'bandwidth': comm_band
         })
 
         PE.update_DMA_timer(memory_comm_time, True)

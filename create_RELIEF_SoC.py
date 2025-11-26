@@ -51,7 +51,7 @@ FILENAME_SHORTCUTS = OrderedDict([
 
 TEMPLATE_DIR = 'config_SoC/templates'
 OUTPUT_DIR = 'config_SoC'
-DEFAULT_BANDWIDTH = 5460  # bytes/microsecond (16 GB/s)
+BANDWIDTH_SATURATION = int((0.33) * 16000)  # bytes/microsecond
 
 # Scratchpad sizes per accelerator type (in bytes)
 SCRATCHPAD_SIZES = {
@@ -194,7 +194,7 @@ def generate_comm_bandwidth_matrix(num_pes):
     # Each PE i has entries from i to num_pes-1 (including itself)
     for i in range(num_pes):
         for j in range(i, num_pes):
-            lines.append("comm_band {} {} {}".format(i, j, DEFAULT_BANDWIDTH))
+            lines.append("comm_band {} {} {}".format(i, j, BANDWIDTH_SATURATION))
         lines.append("")  # Add blank line after each PE's section
 
     return '\n'.join(lines)

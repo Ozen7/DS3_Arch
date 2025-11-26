@@ -371,7 +371,7 @@ class PE:
 
                 # cannot evict if the data is actively being transferred.
                 for active_transfer in common.active_noc_transfers:
-                    if active_transfer['data_ID'] == data_id:
+                    if data_id in active_transfer['data_ID']:
                         writeback = False
                         self.scratchpad[data_id]['timestamp'] = active_transfer['end_time']
                         return

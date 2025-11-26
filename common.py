@@ -466,6 +466,12 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             
             wait_times = []
 
+            bandwidth = 0
+
+            src_list = []
+
+            data_ids = []
+
             if executable_task.head == True:
                 if canAllocate and DEBUG_SIM:
                     print('task %d is a head task' %(executable_task.ID))
@@ -527,13 +533,12 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                         results.forwardData += comm_vol
                         results.num_forwards += 1
                         data_id = f"{predecessor_task.ID}_output"
-                        active_noc_transfers.append({
-                            'end_time': caller.env.now + PE_to_PE_comm_time,
-                            'src_PE': predecessor_PE_ID,
-                            'dst_PE': PE_ID,
-                            'data_ID': data_id,
-                            'bandwidth': comm_band
-                        })
+                        #collect info for the combined SoC transfer (back to back)
+                        src_list.append(predecessor_PE_ID)
+                        data_ids.append(data_id)
+                        if bandwidth < comm_band:
+                            bandwidth = comm_band
+
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     elif canAllocate:
                         results.num_colocations += 1
@@ -560,13 +565,10 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     if canAllocate:
                         results.memoryData += comm_vol
                         data_id = f"{predecessor_task.ID}_output"
-                        active_noc_transfers.append({
-                            'end_time': caller.env.now + from_memory_comm_time,
-                            'src_PE': -1,  # memory
-                            'dst_PE': PE_ID,
-                            'data_ID': data_id,
-                            'bandwidth': comm_band
-                        })
+                        src_list.append(-1)
+                        data_ids.append(data_id)
+                        if bandwidth < comm_band:
+                            bandwidth = comm_band
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     if f"{predecessor_task.ID}_output" in memory_writeback:
                         wait_times.append(target_PE.update_DMA_timer(from_memory_comm_time, canAllocate, memory_writeback[f"{predecessor_task.ID}_output"])) # memory writeback includes env.now
@@ -597,13 +599,10 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 if canAllocate:
                     results.memoryData += total_data
                     data_id = f"{executable_task.ID}_input"
-                    active_noc_transfers.append({
-                        'end_time': caller.env.now + remaining_comm_time,
-                        'src_PE': -1,  # memory
-                        'dst_PE': PE_ID,
-                        'data_ID': data_id,
-                        'bandwidth': comm_band
-                    })
+                    src_list.append(-1)
+                    data_ids.append(data_id)
+                    if bandwidth < comm_band:
+                        bandwidth = comm_band
                     target_PE.allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
                 wait_times.append(target_PE.update_DMA_timer(remaining_comm_time, canAllocate))
                 if (DEBUG_SIM and canAllocate):
@@ -613,12 +612,19 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 assert False
 
             # Set the time stamp for when the task is ready for execution
+            # Use sums since DMA is done back to back
             if (wait_times):
                 if canAllocate:
-                    results.memory_overhead += max(wait_times)
-                    print("WAIT UNTIL", len(wait_times), max(wait_times) + caller.env.now)
-                    return max(wait_times) + caller.env.now # sequential DMA if there is multiple instances of memory movement
-                return (isColocated, max(wait_times)) # for use in scheduling
+                    active_noc_transfers.append({
+                        'end_time': caller.env.now + sum(wait_times),
+                        'src_PE': src_list,
+                        'dst_PE': PE_ID,
+                        'data_ID': data_ids,
+                        'bandwidth': bandwidth
+                    })
+                    results.memory_overhead += sum(wait_times)
+                    return sum(wait_times) + caller.env.now # sequential DMA if there is multiple instances of memory movement
+                return (isColocated, sum(wait_times)) # for use in scheduling
                     
             else:
                 return 0
@@ -650,13 +656,13 @@ def get_congestion_factor(caller, src_PE, dst_PE):
     local_factor = 1.0 + (memory_contention * 0.25) + (pe_contention * 0.1)
     
     # --- Component 2: Global bandwidth saturation ---
-    NOC_TOTAL_BANDWIDTH = 32  # GB/s, system parameter. Full-duplex bus with 16 GB/s in each direction
+    NOC_TOTAL_BANDWIDTH = 16000  # Bytes/us, system parameter. Full-duplex bus with 16 GB/s in each direction
     
     active_bandwidth = sum(t['bandwidth'] for t in active_noc_transfers)
     utilization = active_bandwidth / NOC_TOTAL_BANDWIDTH
     
     # NOTE: need more basis for this. RAMULATOR?
-    if utilization < 0.5:
+    if utilization < 0.7:
         global_factor = 1.0
     elif utilization < 1.0:
         # Quadratic ramp: 1.0 at 50%, ~2.0 at 100%
