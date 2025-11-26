@@ -440,7 +440,7 @@ class SimulationManager:
                     i = 0
                     #find index position of first non negative task for certain scheduling algorithms
                     if self.scheduler.name in common.deprioritize_negative_laxity: 
-                        while i < len(pe_queue)-1 and pe_queue[i].laxity < 0:
+                        while i < len(pe_queue)-1 and pe_queue[i].laxity < 0 and pe_queue[i].isForwarded == False:
                             i += 1
 
                     executable_task = pe_queue[i]

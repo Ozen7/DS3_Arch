@@ -447,7 +447,7 @@ active_noc_transfers = []                      # List of active NoC transfers
 memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 new_schedulers = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched', 'FCFS']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
-deprioritize_negative_laxity = ['RELIEF', 'LL','HetSched']
+deprioritize_negative_laxity = ['RELIEF', 'LL']
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):

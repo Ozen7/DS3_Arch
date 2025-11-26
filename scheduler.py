@@ -828,38 +828,29 @@ class Scheduler:
                 # Find insertion point in this PE's executable queue based on laxity
                 # Insert after tasks with lower or equal laxity
                 insert_index = 0
-                if pe_id in common.executable:
-                    for exec_task in common.executable[pe_id]:
-                        if task.laxity >= exec_task.laxity:
-                            insert_index += 1
-                        else:
-                            break
-                
+                for exec_task in common.executable[pe_id]:
+                    if task.laxity >= exec_task.laxity:
+                        insert_index += 1
+                    else:
+                        break
+
 
                 if try_forward:
-                    for task_iter in common.executable[task.PE_ID]:
-                        if task_iter.ID == task.ID:
-                            break
-
-                        laxity = task_iter.laxity
-
-                        if laxity > 0:
-                            can_forward = laxity >= task.runtime
+                    for task_iter in common.executable[pe_id][:insert_index]:
+                        if task_iter.laxity > 0:
+                            can_forward = task_iter.laxity >= task.runtime
                             break
             
                 # if we are forwarding
                 if can_forward:
-                    index = 0
                     task.isForwarded = True
                     common.results.num_RELIEF_forwards += 1
                     try_forward = False  # Can only forward one task per idle PE per scheduling round
-                    for task_iter in common.executable[task.PE_ID]:
+                    # iterate through the tasks AFTER where the forwarded task will be and BEFORE its original location
+                    for task_iter in common.executable[pe_id][:insert_index]:
+                        task_iter.laxity -= task.runtime
                         if task_iter.isForwarded:
-                            break
-                        else:
-                            task_iter.laxity -= task.runtime
-                    
-                    insert_index = index
+                            assert False
                 
                 # insert into executable queue
                 common.executable[task.PE_ID].insert(insert_index, task)
