@@ -10,30 +10,30 @@ deadline 16667
 add_new_tasks 12
 isp 0
 isp HEAD
-isp earliest_start 0 deadline 13564 input_vol 16900 output_vol 49152
+isp earliest_start 0 deadline 13564 sd 249 input_vol 16900 output_vol 49152
 grayscale 1 0
-grayscale earliest_start 0 deadline 13601 input_vol 49152 output_vol 65536
+grayscale earliest_start 0 deadline 13601 sd 196 input_vol 49152 output_vol 65536
 noise_reduction 2 1
-noise_reduction earliest_start 0 deadline 15177 input_vol 65636 output_vol 65536
+noise_reduction earliest_start 0 deadline 15177 sd 8325 input_vol 65636 output_vol 65536
 sobel_x 3 2
-sobel_x earliest_start 0 deadline 15846 input_vol 65572 output_vol 65536
+sobel_x earliest_start 0 deadline 15846 sd 3546 input_vol 65572 output_vol 65536
 sobel_y 4 2
-sobel_y earliest_start 0 deadline 15846 input_vol 65572 output_vol 65536
+sobel_y earliest_start 0 deadline 15846 sd 3546 input_vol 65572 output_vol 65536
 gradient_xx 5 3
-gradient_xx earliest_start 0 deadline 15885 input_vol 65536 output_vol 65536
+gradient_xx earliest_start 0 deadline 15885 sd 207 input_vol 65536 output_vol 65536
 gradient_theta 6 3 4
-gradient_theta earliest_start 0 deadline 15981 input_vol 131072 output_vol 65536
+gradient_theta earliest_start 0 deadline 15981 sd 207 input_vol 131072 output_vol 65536
 gradient_yy 7 4
-gradient_yy earliest_start 0 deadline 15885 input_vol 65536 output_vol 65536
+gradient_yy earliest_start 0 deadline 15885 sd 207 input_vol 65536 output_vol 65536
 gradient_sum 8 5 7
-gradient_sum earliest_start 0 deadline 15942 input_vol 131072 output_vol 65536
+gradient_sum earliest_start 0 deadline 15942 sd 302 input_vol 131072 output_vol 65536
 gradient_magnitude 9 8
-gradient_magnitude earliest_start 0 deadline 15981 input_vol 65536 output_vol 65536
+gradient_magnitude earliest_start 0 deadline 15981 sd 207 input_vol 65536 output_vol 65536
 canny_non_max 10 9 6
-canny_non_max earliest_start 0 deadline 16427 input_vol 131072 output_vol 65536
+canny_non_max earliest_start 0 deadline 16427 sd 2363 input_vol 131072 output_vol 65536
 edge_tracking 11 10
 edge_tracking TAIL
-edge_tracking earliest_start 0 deadline 16667 input_vol 65536 output_vol 16384
+edge_tracking earliest_start 0 deadline 16667 sd 1272 input_vol 65536 output_vol 16384
 
 
 comm_vol 0 1 49152

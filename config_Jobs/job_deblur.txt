@@ -4,54 +4,54 @@
 # Deadline: 16580 us
 
 job_name DEBLUR
-deadline 16580
+deadline 16667
 add_new_tasks 22
 isp 0
 isp HEAD
-isp earliest_start 0 deadline 295 input_vol 16900 output_vol 49152
+isp earliest_start 0 deadline 295 sd 51 input_vol 16900 output_vol 49152
 grayscale 1 0
-grayscale earliest_start 0 deadline 332 input_vol 49152 output_vol 65536
+grayscale earliest_start 0 deadline 332 sd 38 input_vol 49152 output_vol 65536
 conv_psf_iter0 2 1
-conv_psf_iter0 earliest_start 0 deadline 1821 input_vol 65636 output_vol 65536
+conv_psf_iter0 earliest_start 0 deadline 1821 sd 1600 input_vol 65636 output_vol 65536
 div_iter0 3 1 2
-div_iter0 earliest_start 0 deadline 1878 input_vol 131072 output_vol 65536
+div_iter0 earliest_start 0 deadline 1878 sd 58 input_vol 131072 output_vol 65536
 conv_psf_flip_iter0 4 3
-conv_psf_flip_iter0 earliest_start 0 deadline 3455 input_vol 65636 output_vol 65536
+conv_psf_flip_iter0 earliest_start 0 deadline 3455 sd 1601 input_vol 65636 output_vol 65536
 mult_iter0 5 4
-mult_iter0 earliest_start 0 deadline 3512 input_vol 131072 output_vol 65536
+mult_iter0 earliest_start 0 deadline 3512 sd 58 input_vol 131072 output_vol 65536
 conv_psf_iter1 6 5
-conv_psf_iter1 earliest_start 0 deadline 5088 input_vol 65636 output_vol 65536
+conv_psf_iter1 earliest_start 0 deadline 5088 sd 1600 input_vol 65636 output_vol 65536
 div_iter1 7 1 6
-div_iter1 earliest_start 0 deadline 5145 input_vol 131072 output_vol 65536
+div_iter1 earliest_start 0 deadline 5145 sd 58 input_vol 131072 output_vol 65536
 conv_psf_flip_iter1 8 7
-conv_psf_flip_iter1 earliest_start 0 deadline 6722 input_vol 65636 output_vol 65536
+conv_psf_flip_iter1 earliest_start 0 deadline 6722 sd 1601 input_vol 65636 output_vol 65536
 mult_iter1 9 5 8
-mult_iter1 earliest_start 0 deadline 6779 input_vol 131072 output_vol 65536
+mult_iter1 earliest_start 0 deadline 6779 sd 58 input_vol 131072 output_vol 65536
 conv_psf_iter2 10 9
-conv_psf_iter2 earliest_start 0 deadline 8355 input_vol 65636 output_vol 65536
+conv_psf_iter2 earliest_start 0 deadline 8355 sd 1600 input_vol 65636 output_vol 65536
 div_iter2 11 1 10
-div_iter2 earliest_start 0 deadline 8412 input_vol 131072 output_vol 65536
+div_iter2 earliest_start 0 deadline 8412 sd 58 input_vol 131072 output_vol 65536
 conv_psf_flip_iter2 12 11
-conv_psf_flip_iter2 earliest_start 0 deadline 9989 input_vol 65636 output_vol 65536
+conv_psf_flip_iter2 earliest_start 0 deadline 9989 sd 1601 input_vol 65636 output_vol 65536
 mult_iter2 13 9 12
-mult_iter2 earliest_start 0 deadline 10046 input_vol 131072 output_vol 65536
+mult_iter2 earliest_start 0 deadline 10046 sd 58 input_vol 131072 output_vol 65536
 conv_psf_iter3 14 13
-conv_psf_iter3 earliest_start 0 deadline 11622 input_vol 65636 output_vol 65536
+conv_psf_iter3 earliest_start 0 deadline 11622 sd 1600 input_vol 65636 output_vol 65536
 div_iter3 15 1 14
-div_iter3 earliest_start 0 deadline 11679 input_vol 131072 output_vol 65536
+div_iter3 earliest_start 0 deadline 11679 sd 58 input_vol 131072 output_vol 65536
 conv_psf_flip_iter3 16 15
-conv_psf_flip_iter3 earliest_start 0 deadline 13256 input_vol 65636 output_vol 65536
+conv_psf_flip_iter3 earliest_start 0 deadline 13256 sd 1601 input_vol 65636 output_vol 65536
 mult_iter3 17 13 16
-mult_iter3 earliest_start 0 deadline 13313 input_vol 131072 output_vol 65536
+mult_iter3 earliest_start 0 deadline 13313 sd 58 input_vol 131072 output_vol 65536
 conv_psf_iter4 18 17
-conv_psf_iter4 earliest_start 0 deadline 14889 input_vol 65636 output_vol 65536
+conv_psf_iter4 earliest_start 0 deadline 14889 sd 1600 input_vol 65636 output_vol 65536
 div_iter4 19 1 18
-div_iter4 earliest_start 0 deadline 14946 input_vol 131072 output_vol 65536
+div_iter4 earliest_start 0 deadline 14946 sd 58 input_vol 131072 output_vol 65536
 conv_psf_flip_iter4 20 19
-conv_psf_flip_iter4 earliest_start 0 deadline 16523 input_vol 65636 output_vol 65536
+conv_psf_flip_iter4 earliest_start 0 deadline 16523 sd 1601 input_vol 65636 output_vol 65536
 mult_iter4 21 17 20
 mult_iter4 TAIL
-mult_iter4 earliest_start 0 deadline 16580 input_vol 131072 output_vol 65536
+mult_iter4 earliest_start 0 deadline 16667 sd 58 input_vol 131072 output_vol 65536
 
 
 comm_vol 0 1 49152

@@ -101,8 +101,19 @@ def job_parse(jobs, file_name):
                 ind = new_job.task_list.index(new_job.task_list[-1])                                                     # then take the id of the last added task and
                 new_job.task_list[ind].est = int(current_line[2])                                                             # add earliest start time (est), and
                 new_job.task_list[ind].deadline = int(current_line[4])                                                        # deadline for the task
-                new_job.task_list[ind].input_packet_size = math.ceil(int(current_line[6])/float(common.packet_size))     # input data packet size, and
-                new_job.task_list[ind].output_packet_size = math.ceil(int(current_line[8])/float(common.packet_size))    # output data packet size
+
+                # Parse SD value if present (for jobs with sub-deadlines)
+                if len(current_line) > 5 and current_line[5] == 'sd':
+                    new_job.task_list[ind].sd = int(current_line[6])
+                    input_vol_idx = 8
+                    output_vol_idx = 10
+                else:
+                    # For backward compatibility with jobs without SD
+                    input_vol_idx = 6
+                    output_vol_idx = 8
+
+                new_job.task_list[ind].input_packet_size = math.ceil(int(current_line[input_vol_idx])/float(common.packet_size))     # input data packet size, and
+                new_job.task_list[ind].output_packet_size = math.ceil(int(current_line[output_vol_idx])/float(common.packet_size))    # output data packet size
                 
                 if (num_tasks_read == num_of_total_tasks):
                     found_new_task = False                                      # Reset these variables, since we completed reading the current resource

@@ -376,6 +376,7 @@ class Tasks:
         self.predecessors = []                  # List of all task IDs to identify task dependency
         self.est = -1                           # This variable represents the earliest time that a task can start
         self.deadline = -1                      # This variable represents the deadline for a task
+        self.sd = -1                            # Sub-deadline ratio value in microseconds
         self.runtime = -1                       # Represents the runtime of the task - once a PE has been selected
         self.laxity = -1                        # Indicates the Laxity of the Task, once a PE has been selected 
         self.head = False                       # If head is true, this task is the leading (the first) element in a task graph
@@ -530,7 +531,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                             'end_time': caller.env.now + PE_to_PE_comm_time,
                             'src_PE': predecessor_PE_ID,
                             'dst_PE': PE_ID,
-                            'data_ID': data_id
+                            'data_ID': data_id,
+                            'bandwidth': comm_band
                         })
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     elif canAllocate:
@@ -562,7 +564,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                             'end_time': caller.env.now + from_memory_comm_time,
                             'src_PE': -1,  # memory
                             'dst_PE': PE_ID,
-                            'data_ID': data_id
+                            'data_ID': data_id,
+                            'bandwidth': comm_band
                         })
                         target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     if f"{predecessor_task.ID}_output" in memory_writeback:
@@ -598,7 +601,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                         'end_time': caller.env.now + remaining_comm_time,
                         'src_PE': -1,  # memory
                         'dst_PE': PE_ID,
-                        'data_ID': data_id
+                        'data_ID': data_id,
+                        'bandwidth': comm_band
                     })
                     target_PE.allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
                 wait_times.append(target_PE.update_DMA_timer(remaining_comm_time, canAllocate))
@@ -622,7 +626,47 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
         # end if executable_task.base_ID == task.ID:
     # end  for task in self.jobs.list[job_ID].task_list:
 
-
+# https://github.com/booksim/booksim2
+def get_congestion_factor(caller, src_PE, dst_PE):
+    """
+    Hybrid model combining:
+    1. Local contention at memory/PE ports (discrete)
+    2. Global bandwidth saturation (continuous, with knee)
+    """
+    
+    if len(active_noc_transfers) == 0:
+        return 1.0
+    
+    # --- Component 1: Local port contention ---
+    memory_contention = 0
+    if src_PE == -1:
+        memory_contention = sum(1 for t in active_noc_transfers if t['src_PE'] == -1)
+    if dst_PE == -1:
+        memory_contention += sum(1 for t in active_noc_transfers if t['dst_PE'] == -1)
+    
+    pe_contention = sum(1 for t in active_noc_transfers if t['dst_PE'] == dst_PE)
+    
+    # these numbers need fine-tuning using Ramulator
+    local_factor = 1.0 + (memory_contention * 0.25) + (pe_contention * 0.1)
+    
+    # --- Component 2: Global bandwidth saturation ---
+    NOC_TOTAL_BANDWIDTH = 32  # GB/s, system parameter. Full-duplex bus with 16 GB/s in each direction
+    
+    active_bandwidth = sum(t['bandwidth'] for t in active_noc_transfers)
+    utilization = active_bandwidth / NOC_TOTAL_BANDWIDTH
+    
+    # NOTE: need more basis for this. RAMULATOR?
+    if utilization < 0.5:
+        global_factor = 1.0
+    elif utilization < 1.0:
+        # Quadratic ramp: 1.0 at 50%, ~2.0 at 100%
+        global_factor = 1.0 + (utilization - 0.5) ** 2 * 4
+    else:
+        # Beyond saturation: linear degradation
+        global_factor = 2.0 + (utilization - 1.0) * 2
+    
+    # Combine multiplicatively: local bottlenecks compound with global saturation
+    return local_factor * global_factor
 
 def get_congestion_factor(caller):
     """Calculate NoC congestion scaling factor"""
