@@ -516,7 +516,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 if comm_timing == 'PE_to_PE' or PE_to_PE:
                     # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
                     comm_band = ResourceManager.comm_band[predecessor_PE_ID, PE_ID]
-                    PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
+                    PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller,predecessor_PE_ID, PE_ID))
                     
 
                     
@@ -553,7 +553,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 if comm_timing == 'memory' or shared_memory:
                     # Use memory communication timing
                     comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
-                    from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller))
+                    from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller,-1,PE_ID))
 
                     target_PE = caller.PEs[executable_task.PE_ID]
 
@@ -590,7 +590,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
             if total_data > 0:
                 comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
-                remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller))
+                remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller,-1, PE_ID))
 
                 target_PE = caller.PEs[executable_task.PE_ID]
 
@@ -667,9 +667,9 @@ def get_congestion_factor(caller, src_PE, dst_PE):
     
     # Combine multiplicatively: local bottlenecks compound with global saturation
     return local_factor * global_factor
-
+"""
 def get_congestion_factor(caller):
-    """Calculate NoC congestion scaling factor"""
+  Calculate NoC congestion scaling factor
     normalized_load = len(active_noc_transfers) / (len(caller.resource_matrix.list) / 2.0)
     
     if normalized_load < 0.5:
@@ -677,7 +677,7 @@ def get_congestion_factor(caller):
     elif normalized_load < 1.0:
         return 1.0 + normalized_load
     else:
-        return 2.0 + 3.0 * (normalized_load - 1.0) ** 2
+        return 2.0 + 3.0 * (normalized_load - 1.0) ** 2"""
 
 def cleanup_completed_transfers(caller):
     """Remove transfers that have finished"""
