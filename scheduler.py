@@ -812,7 +812,7 @@ class Scheduler:
             # Insert task into PE's bucket sorted by laxity (smallest to largest)
             # Smaller laxity = less slack = higher priority
             insert_index = 0
-            while insert_index < len(fwd_nodes[task.PE_ID]) and task.laxity >= fwd_nodes[task.PE_ID][insert_index].laxity:
+            while insert_index < len(fwd_nodes[task.PE_ID]) and task.laxity >= (fwd_nodes[task.PE_ID][insert_index].laxity):
                 insert_index += 1
             fwd_nodes[task.PE_ID].insert(insert_index, task)
 
@@ -843,6 +843,7 @@ class Scheduler:
             
                 # if we are forwarding
                 if can_forward:
+                    insert_index = 0
                     task.isForwarded = True
                     common.results.num_RELIEF_forwards += 1
                     try_forward = False  # Can only forward one task per idle PE per scheduling round
@@ -851,8 +852,9 @@ class Scheduler:
                         task_iter.laxity -= task.runtime
                         if task_iter.isForwarded:
                             assert False
-                
-                # insert into executable queue
+
+                print("SCHEDULING", task.PE_ID, insert_index, task.isForwarded, task.ID)
+            
                 common.executable[task.PE_ID].insert(insert_index, task)
 
         
