@@ -1,0 +1,106 @@
+add_new_resource resource_type LTL accelerator_family {FAMILY} scratchpad_size {SCRATCHPAD_SIZE} resource_name {NAME} resource_ID {ID} capacity 1 num_supported_functionalities 94 DVFS_mode performance
+opp 600 1000
+opp 800 1075
+opp 1000 1150
+opp 1200 1250
+opp 1400 1300
+trip_freq -1 1200 600
+DTPM_trip_freq 1200 1000 600
+power_profile 1000 0.19 0.29 0.35 0.40
+PG_profile 1000 0.13 0.23 0.31 0.40
+power_profile 1400 0.39 0.59 0.72 0.81
+PG_profile 1400 0.27 0.46 0.63 0.81
+scrambler_encoder 22
+interleaver_1 10
+qpsk_1 15
+pilot_insertion_1 5
+ifft_1 296
+crc_1 5
+interleaver_2 10
+qpsk_2 15
+pilot_insertion_2 5
+ifft_2 296
+crc_2 5
+interleaver_3 10
+qpsk_3 15
+pilot_insertion_3 5
+ifft_3 296
+crc_3 5
+interleaver_4 10
+qpsk_4 15
+pilot_insertion_4 5
+ifft_4 296
+crc_4 5
+interleaver_5 10
+qpsk_5 15
+pilot_insertion_5 5
+ifft_5 296
+crc_5 5
+end 0
+match_filter 16
+payload_extraction_1 8
+fft_1 289
+pilot_1 6
+qpsk_demodulation_1 191
+deinterleaver_1 16
+format_conversion_1 7
+payload_extraction_2 8
+fft_2 289
+pilot_2 6
+qpsk_demodulation_2 191
+deinterleaver_2 16
+format_conversion_2 7
+payload_extraction_3 8
+fft_3 289
+pilot_3 6
+qpsk_demodulation_3 191
+deinterleaver_3 16
+format_conversion_3 7
+payload_extraction_4 8
+fft_4 289
+pilot_4 6
+qpsk_demodulation_4 191
+deinterleaver_4 16
+format_conversion_4 7
+payload_extraction_5 8
+fft_5 289
+pilot_5 6
+qpsk_demodulation_5 191
+deinterleaver_5 16
+format_conversion_5 7
+viterbi_decoder 1828
+descrambler 3
+message_decode 90
+ST 0
+LFM 90
+xcorr_fft0 150
+xcorr_fft1 150
+xcorr_vector_complex_conj_mul 75
+xcorr_ifft 150
+max_detect 20
+scrambler 6
+viterbi_encoder 31
+viterbi_puncturing 6
+interleaver 10
+qpsk_modulation 27
+crc 5
+upsampling 42
+fir_filter 30
+match_correlation 30
+filter 30
+payload_extraction 14
+qpsk_demodulation 240
+deinterleaver 20
+viterbi_depuncturing 5
+viterbi_decoder 3130
+descrambler 5
+start_task 0
+message_signal 0
+cover_signal 0
+CMM_1 240
+hermitian_opt 23
+CMM_2 240
+matrix_opts 25
+matrix_multiplication 17
+CMM_3 210
+matrix_subtraction 72

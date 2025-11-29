@@ -1,0 +1,8 @@
+add_new_resource resource_type ACC accelerator_family {FAMILY} scratchpad_size {SCRATCHPAD_SIZE} resource_name {NAME} resource_ID {ID} capacity 1 num_supported_functionalities 3 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.05 0.1
+PG_profile 1000 0.05 0.1
+CMM_1 22 22
+CMM_2 22 22
+CMM_3 22 22

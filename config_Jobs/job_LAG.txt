@@ -34,20 +34,20 @@ job_name lag_detection
 add_new_tasks 7
 ST 0
 ST HEAD
-ST earliest_start 0 deadline 100000 input_vol 0 output_vol 0
+ST earliest_start 0 deadline 100000 sd 1 input_vol 0 output_vol 0
 LFM 1 0
-LFM earliest_start 0 deadline 100000 input_vol 192 output_vol 32768
+LFM earliest_start 0 deadline 100000 sd 1 input_vol 24 output_vol 4096
 xcorr_fft0 2 1
-xcorr_fft0 earliest_start 0 deadline 100000 input_vol 16384 output_vol 16384
+xcorr_fft0 earliest_start 0 deadline 100000 sd 1 input_vol 2048 output_vol 2048
 xcorr_fft1 3 0
-xcorr_fft1 earliest_start 0 deadline 100000 input_vol 16384 output_vol 16384
+xcorr_fft1 earliest_start 0 deadline 100000 sd 1 input_vol 2048 output_vol 2048
 xcorr_vector_complex_conj_mul 4 3 2
-xcorr_vector_complex_conj_mul earliest_start 0 deadline 100000 input_vol 32768 output_vol 16384
+xcorr_vector_complex_conj_mul earliest_start 0 deadline 100000 sd 1 input_vol 4096 output_vol 2048
 xcorr_ifft 5 4
-xcorr_ifft earliest_start 0 deadline 100000 input_vol 16384 output_vol 16384
+xcorr_ifft earliest_start 0 deadline 100000 sd 1 input_vol 2048 output_vol 2048
 max_detect 6 5
 max_detect TAIL
-max_detect earliest_start 0 deadline 100000 input_vol 32928 output_vol 64
+max_detect earliest_start 0 deadline 100000 sd 1 input_vol 4116 output_vol 8
 
 
 comm_vol 0 1 1

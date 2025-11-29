@@ -1,0 +1,109 @@
+add_new_resource resource_type BIG accelerator_family {FAMILY} scratchpad_size {SCRATCHPAD_SIZE} resource_name {NAME} resource_ID {ID} capacity 1 num_supported_functionalities 94 DVFS_mode performance
+opp 600 900
+opp 800 950
+opp 1000 1000
+opp 1200 1037
+opp 1400 1100
+opp 1600 1175
+opp 1800 1300
+opp 2000 1362
+trip_freq 1600 1000 600
+DTPM_trip_freq 1200 1000 600
+power_profile 1000 0.85 1.30 1.58 1.78
+PG_profile 1000 0.59 0.96 1.35 1.78
+power_profile 2000 3.32 5.05 6.15 6.91
+PG_profile 2000 2.29 3.73 5.23 6.91
+scrambler_encoder 10
+interleaver_1 4
+qpsk_1 8
+pilot_insertion_1 3
+ifft_1 118
+crc_1 3
+interleaver_2 4
+qpsk_2 8
+pilot_insertion_2 3
+ifft_2 118
+crc_2 3
+interleaver_3 4
+qpsk_3 8
+pilot_insertion_3 3
+ifft_3 118
+crc_3 3
+interleaver_4 4
+qpsk_4 8
+pilot_insertion_4 3
+ifft_4 118
+crc_4 3
+interleaver_5 4
+qpsk_5 8
+pilot_insertion_5 3
+ifft_5 118
+crc_5 3
+end 0
+match_filter 5
+payload_extraction_1 4
+fft_1 114
+pilot_1 4
+qpsk_demodulation_1 95
+deinterleaver_1 9
+format_conversion_1 4
+payload_extraction_2 4
+fft_2 114
+pilot_2 4
+qpsk_demodulation_2 95
+deinterleaver_2 9
+format_conversion_2 4
+payload_extraction_3 4
+fft_3 114
+pilot_3 4
+qpsk_demodulation_3 95
+deinterleaver_3 9
+format_conversion_3 4
+payload_extraction_4 4
+fft_4 114
+pilot_4 4
+qpsk_demodulation_4 95
+deinterleaver_4 9
+format_conversion_4 4
+payload_extraction_5 4
+fft_5 114
+pilot_5 4
+qpsk_demodulation_5 95
+deinterleaver_5 9
+format_conversion_5 4
+viterbi_decoder 739
+descrambler 2
+message_decode 39
+ST 0
+LFM 60
+xcorr_fft0 60
+xcorr_fft1 60
+xcorr_vector_complex_conj_mul 6
+xcorr_ifft 60
+max_detect 20
+scrambler 2
+viterbi_encoder 9
+viterbi_puncturing 3
+interleaver 3
+qpsk_modulation 8
+crc 2
+upsampling 9
+fir_filter 20
+match_correlation 20
+filter 20
+payload_extraction 3
+qpsk_demodulation 96
+deinterleaver 7
+viterbi_depuncturing 3
+viterbi_decoder 987
+descrambler 2
+start_task 0
+message_signal 0
+cover_signal 0
+CMM_1 54
+hermitian_opt 6
+CMM_2 54
+matrix_opts 8
+matrix_multiplication 5
+CMM_3 44
+matrix_subtraction 16

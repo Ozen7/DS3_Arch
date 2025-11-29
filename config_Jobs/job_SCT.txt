@@ -23,33 +23,33 @@
 #          scrambler earliest_start 0 deadline 10 input_vol 1024 output_vol 1024
 #
 # After adding tasks, use keyword comm_vol to add communication volume for
-# the tasks that have dependencies 
+# the tasks that have dependencies
 # The format: comm_vol $source_id (int) $destination_id (int) volume (int)
 # Example: The following line adds communication volume between task 0 (source)
 #          and task 1 (destination)
-#                    
+#
 #          comm_vol 0 1 5
 
 job_name SC-T
 add_new_tasks 8
 scrambler 0
 scrambler HEAD
-scrambler earliest_start 0 deadline 2 input_vol 64 output_vol 144
+scrambler earliest_start 0 deadline 2 sd 1 input_vol 8 output_vol 18
 viterbi_encoder 1 0
-viterbi_encoder earliest_start 0 deadline 3 input_vol 144 output_vol 144
+viterbi_encoder earliest_start 0 deadline 3 sd 1 input_vol 18 output_vol 18
 viterbi_puncturing 2 1
-viterbi_puncturing earliest_start 0 deadline 4 input_vol 144 output_vol 144
+viterbi_puncturing earliest_start 0 deadline 4 sd 1 input_vol 18 output_vol 18
 interleaver 3 2
-interleaver earliest_start 0 deadline 2 input_vol 144 output_vol 144
+interleaver earliest_start 0 deadline 2 sd 1 input_vol 18 output_vol 18
 qpsk_modulation 4 3
-qpsk_modulation earliest_start 0 deadline 3 input_vol 144 output_vol 4096
+qpsk_modulation earliest_start 0 deadline 3 sd 1 input_vol 18 output_vol 512
 crc 5 4
-crc earliest_start 0 deadline 3 input_vol 4096 output_vol 4168
+crc earliest_start 0 deadline 3 sd 1 input_vol 512 output_vol 521
 upsampling 6 5
-upsampling earliest_start 0 deadline 3 input_vol 4936 output_vol 4936
+upsampling earliest_start 0 deadline 3 sd 1 input_vol 617 output_vol 617
 fir_filter 7 6
 fir_filter TAIL
-fir_filter earliest_start 0 deadline 3 input_vol 4936 output_vol 4936
+fir_filter earliest_start 0 deadline 3 sd 1 input_vol 617 output_vol 617
 
 
 comm_vol 0 1 0

@@ -55,7 +55,7 @@ class PE:
 
         # Scratchpad/buffer management (only used in forwarding mode)
         self.scratchpad = {}                                                    # Dictionary mapping data_id to {'task_id': X, 'size': Y, 'timestamp': Z}
-        self.scratchpad_capacity = 262144                                       # Total scratchpad buffer size in bytes (configured from SoC config file)
+        self.scratchpad_capacity = 0                                       # Total scratchpad buffer size in bytes (configured from SoC config file)
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
@@ -326,6 +326,9 @@ class PE:
         # Check if we have enough capacity
         if size > self.scratchpad_capacity:
             # Data is larger than total capacity - cannot allocate
+            print(task_id)
+            print(self.scratchpad_capacity)
+            print(size)
             assert False
 
         # Evict data using LRU until we have enough space

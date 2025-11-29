@@ -451,6 +451,27 @@ Optional trace files for detailed analysis:
 
 Control tracing via `[TRACE]` section in `config_file.ini`.
 
+## Pending Job Configuration Updates
+
+The following job configuration files have been updated with:
+- Volume conversion (bits → bytes) to match bandwidth units
+- Placeholder sub-deadline (sd) values set to 1
+
+**Files updated:**
+- `job_WIFI_5RXM.txt` (includes corrected deadlines from DS3_TIMING_REFERENCE.md)
+- `job_WIFI_5TXM.txt`
+- `job_LAG.txt`
+- `job_SCR.txt`
+- `job_SCT.txt`
+
+**Future work:** User will provide correct sub-deadline (sd) values for tasks in:
+- `job_WIFI_5TXM.txt`
+- `job_LAG.txt`
+- `job_SCR.txt`
+- `job_SCT.txt`
+
+These sd values will be computed based on the specific scheduling algorithm requirements and critical path analysis for each workload. The current placeholder value of 1 allows the simulator to run but does not reflect realistic sub-deadline distributions.
+
 ## Important Notes
 
 - The codebase uses Python 3.6 with legacy package versions
