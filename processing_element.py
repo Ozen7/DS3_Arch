@@ -284,22 +284,6 @@ class PE:
         except simpy.Interrupt:
             print('Expect an interrupt at %s' % (self.env.now))
     # end of def run(self, sim_manager, task, resource):
-
-    # the idea behind this function is to keep track of the next time that the PE's DMA engines will be free, and
-    # schedule a new DMA task taking "time" amount of time.
-    def update_DMA_timer(self, time:int, canAllocate:bool, startTime:int = -1):
-        if startTime != -1:
-            if startTime > self.DMATimer:
-                self.DMATimer = startTime # this could lead to some delays when other tasks could do DMA, but DMA accesses aren't smartly scheduled.
-
-        if self.DMATimer < self.env.now:
-            self.DMATimer = self.env.now
-
-        if canAllocate:
-            self.DMATimer += time
-            return self.DMATimer - self.env.now #overhead
-        else:
-            return self.DMATimer + time - self.env.now
         
 
     # Scratchpad management methods (only used in forwarding mode)
@@ -374,9 +358,9 @@ class PE:
 
                 # cannot evict if the data is actively being transferred.
                 for active_transfer in common.active_noc_transfers:
-                    if data_id in active_transfer['data_ID']:
+                    if data_id in active_transfer['data_IDs']:
                         writeback = False
-                        self.scratchpad[data_id]['timestamp'] = active_transfer['end_time']
+                        self.scratchpad[data_id]['timestamp'] = active_transfer['finish_time']
                         return
                         
             

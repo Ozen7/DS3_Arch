@@ -452,9 +452,8 @@ deprioritize_negative_laxity = ['RELIEF', 'LL']
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
     isColocated = False
-    cleanup_completed_transfers(caller) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
+    cleanup_noc_transfers(caller.env.now) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
 
-    # The rest of this is similar to what goes on in update_execution_queue, since we begin pulling data.
     # Get the Job Name
     for ind, job in enumerate(caller.jobs.list):
         if job.name == executable_task.jobname:
@@ -464,29 +463,26 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
     for task in caller.jobs.list[job_ID].task_list:
         if executable_task.base_ID == task.ID:
             
-            wait_times = []
 
-            bandwidth = 0
+            bandwidth = []
 
             src_list = []
 
             data_ids = []
 
+            data_volumes = []
+
+            total_data = executable_task.input_packet_size
+
+
             if executable_task.head == True:
                 if canAllocate and DEBUG_SIM:
                     print('task %d is a head task' %(executable_task.ID))
-                # if a task is the leading task of a job
-                # then it can start immediately since it has no predecessor
-                wait_times.append(0)
-                wait_times.append(0)
-                
-            # end of if ready_task.head == True:
-            if canAllocate and DEBUG_SIM:
+            elif canAllocate and DEBUG_SIM:
                 print('[D] task %d num predecessors %d' %(executable_task.ID, len(task.predecessors)))
             
             # This tracks the total amount of input data to this task. If we need more data than is covered by the 
             # predecessors, then the assumption is that we need something from memory as well (weights, biases, etc.)
-            total_data = executable_task.input_packet_size
 
             for predecessor in task.predecessors:
 
@@ -511,189 +507,176 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                         predecessor_task = cmp
                         break
 
+                assert predecessor_task is not None
+
                 # Decide communication timing mode (PE_to_PE or memory)
-                if predecessor_task is not None:
-                    comm_timing = decide_comm_timing(caller, executable_task, predecessor_task, predecessor_task.PE_ID, canAllocate)
-                    executable_task.comm_timing_mode = comm_timing
-                else:
-                    # No predecessor found (shouldn't happen, but default to legacy behavior)
-                    assert False
+                comm_timing = decide_comm_timing(caller, executable_task, predecessor_task, predecessor_task.PE_ID)
 
                 if comm_timing == 'PE_to_PE' or PE_to_PE:
                     # Use PE-to-PE communication timing (includes forwarding in forwarding mode)
                     comm_band = ResourceManager.comm_band[predecessor_PE_ID, PE_ID]
-                    PE_to_PE_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller,predecessor_PE_ID, PE_ID))
-                    
+                    data_id = f"{predecessor_task.ID}_output"
 
-                    
-                    target_PE = caller.PEs[executable_task.PE_ID]
+                    # data for combined data transfer
+                    bandwidth.append(comm_band)
+                    data_volumes.append(comm_vol)
+                    src_list.append(predecessor_PE_ID)
+                    data_ids.append(data_id)
 
-                    # If we are colocating, there is no need to allocate more space (self-to-self bandwidth is set at a high number so there is no latency overhead either)
+                    # measurement data and scratchpad allocation
                     if canAllocate and predecessor_PE_ID != PE_ID:
                         results.forwardData += comm_vol
                         results.num_forwards += 1
-                        data_id = f"{predecessor_task.ID}_output"
-                        #collect info for the combined SoC transfer (back to back)
-                        src_list.append(predecessor_PE_ID)
-                        data_ids.append(data_id)
-                        if bandwidth < comm_band:
-                            bandwidth = comm_band
-
-                        target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                     elif canAllocate:
                         results.num_colocations += 1
                         results.colocationData += comm_vol
-                    elif predecessor_PE_ID == PE_ID:
-                        isColocated = True
 
-                    # the wait time has to go through the PE's DMA timer
-                    wait_times.append(target_PE.update_DMA_timer(PE_to_PE_comm_time,canAllocate))
-                    if (DEBUG_SIM) and canAllocate:
-                        mode_str = "forwarding" if comm_mode == 'forwarding' else "PE-to-PE"
-                        print('[D] Time %d: Data transfer (%s) from PE-%s to PE-%s for task %d from task %d will be completed at %d us'
-                            %(caller.env.now, mode_str, predecessor_PE_ID, PE_ID,
-                                executable_task.ID, real_predecessor_ID, wait_times[-1] + caller.env.now))
+                    # handle colocation - data volume set to 0, no scratchpad allocation
+                    if predecessor_PE_ID == PE_ID:
+                        isColocated = True
+                        data_volumes[-1] = 0
                 # end of if comm_timing == 'PE_to_PE':
 
                 if comm_timing == 'memory' or shared_memory:
                     # Use memory communication timing
                     comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
-                    from_memory_comm_time = int((comm_vol/comm_band) * get_congestion_factor(caller,-1,PE_ID))
+                    data_id = f"{predecessor_task.ID}_output"
 
-                    target_PE = caller.PEs[executable_task.PE_ID]
+                    bandwidth.append(comm_band)
+                    data_volumes.append(comm_vol)
+                    src_list.append(-1)
+                    data_ids.append(data_id)
 
                     if canAllocate:
                         results.memoryData += comm_vol
-                        data_id = f"{predecessor_task.ID}_output"
-                        src_list.append(-1)
-                        data_ids.append(data_id)
-                        if bandwidth < comm_band:
-                            bandwidth = comm_band
-                        target_PE.allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
-                    if f"{predecessor_task.ID}_output" in memory_writeback:
-                        wait_times.append(target_PE.update_DMA_timer(from_memory_comm_time, canAllocate, memory_writeback[f"{predecessor_task.ID}_output"])) # memory writeback includes env.now
-                    else:
-                        wait_times.append(target_PE.update_DMA_timer(from_memory_comm_time, canAllocate))
-                    if (DEBUG_SIM and canAllocate):
-                        print('[D] Time %d: Data from memory for task %d from task %d will be sent to PE-%s in %d us'
-                            %(caller.env.now, executable_task.ID, real_predecessor_ID, PE_ID, wait_times[-1] + caller.env.now))
+                        caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
 
 
-            if (INFO_SIM) and canAllocate:
-                print('[I] Time %d: Task %d execution ready time(s) due to communication:'
-                    %(caller.env.now, executable_task.ID))
-
-                
-
-            # Populate all ready tasks in executable with a time stamp
-            # which will show when a task is ready for execution
-
             if total_data > 0:
                 comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
-                remaining_comm_time = int((total_data/comm_band) * get_congestion_factor(caller,-1, PE_ID))
+                data_id = f"{executable_task.ID}_input"
 
-                target_PE = caller.PEs[executable_task.PE_ID]
+                bandwidth.append(comm_band)
+                data_volumes.append(total_data)
+                src_list.append(-1)
+                data_ids.append(data_id)
 
                 if canAllocate:
                     results.memoryData += total_data
-                    data_id = f"{executable_task.ID}_input"
-                    src_list.append(-1)
-                    data_ids.append(data_id)
-                    if bandwidth < comm_band:
-                        bandwidth = comm_band
-                    target_PE.allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
-                wait_times.append(target_PE.update_DMA_timer(remaining_comm_time, canAllocate))
-                if (DEBUG_SIM and canAllocate):
-                        print('[D] Time %d: Data from memory for task %d will be sent to PE-%s at %d us'
-                            %(caller.env.now, executable_task.ID, PE_ID, wait_times[-1] + caller.env.now))
-            elif total_data < 0:
-                assert False
+                    caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+            # end if total_data > 0
+            
+            assert total_data >= 0
+
+            assert len(bandwidth) == len(data_volumes) == len(src_list) == len(data_ids)
 
             # Set the time stamp for when the task is ready for execution
             # Use sums since DMA is done back to back
-            if (wait_times):
-                if canAllocate:
-                    active_noc_transfers.append({
-                        'end_time': caller.env.now + sum(wait_times),
-                        'src_PE': src_list,
-                        'dst_PE': PE_ID,
-                        'data_ID': data_ids,
-                        'bandwidth': bandwidth
-                    })
-                    results.memory_overhead += sum(wait_times)
-                    return sum(wait_times) + caller.env.now # sequential DMA if there is multiple instances of memory movement
-                return (isColocated, sum(wait_times)) # for use in scheduling
-                    
+            if canAllocate:
+                increase_congestion(caller.env.now, data_volumes, src_list, executable_task.PE_ID, data_ids, bandwidth, executable_task, caller.env.now)
             else:
-                return 0
+                return (isColocated, sum(int(x / y) for x, y in zip(data_volumes, bandwidth))) #return ideal numbers for the purposes of scheduling
             # end else
         # end if executable_task.base_ID == task.ID:
     # end  for task in self.jobs.list[job_ID].task_list:
 
 # https://github.com/booksim/booksim2
-def get_congestion_factor(caller, src_PE, dst_PE):
-    """
-    Hybrid model combining:
-    1. Local contention at memory/PE ports (discrete)
-    2. Global bandwidth saturation (continuous, with knee)
-    """
-    
-    if len(active_noc_transfers) == 0:
-        return 1.0
-    
-    # --- Component 1: Local port contention ---
-    memory_contention = 0
-    if src_PE == -1:
-        memory_contention = sum(1 for t in active_noc_transfers if t['src_PE'] == -1)
-    if dst_PE == -1:
-        memory_contention += sum(1 for t in active_noc_transfers if t['dst_PE'] == -1)
-    
-    pe_contention = sum(1 for t in active_noc_transfers if t['dst_PE'] == dst_PE)
-    
-    # these numbers need fine-tuning using Ramulator
-    local_factor = 1.0 + (memory_contention * 0.25) + (pe_contention * 0.1)
-    
-    # --- Component 2: Global bandwidth saturation ---
-    NOC_TOTAL_BANDWIDTH = 16000  # Bytes/us, system parameter. Full-duplex bus with 16 GB/s in each direction
-    
-    active_bandwidth = sum(t['bandwidth'] for t in active_noc_transfers)
-    utilization = active_bandwidth / NOC_TOTAL_BANDWIDTH
-    
-    # NOTE: need more basis for this. RAMULATOR?
-    if utilization < 0.7:
-        global_factor = 1.0
-    elif utilization < 1.0:
-        # Quadratic ramp: 1.0 at 50%, ~2.0 at 100%
-        global_factor = 1.0 + (utilization - 0.5) ** 2 * 4
-    else:
-        # Beyond saturation: linear degradation
-        global_factor = 2.0 + (utilization - 1.0) * 2
-    
-    # Combine multiplicatively: local bottlenecks compound with global saturation
-    return local_factor * global_factor
-"""
-def get_congestion_factor(caller):
-  Calculate NoC congestion scaling factor
-    normalized_load = len(active_noc_transfers) / (len(caller.resource_matrix.list) / 2.0)
-    
-    if normalized_load < 0.5:
-        return 1
-    elif normalized_load < 1.0:
-        return 1.0 + normalized_load
-    else:
-        return 2.0 + 3.0 * (normalized_load - 1.0) ** 2"""
 
-def cleanup_completed_transfers(caller):
-    """Remove transfers that have finished"""
+
+
+def get_congested_bandwidth():
+    global_bandwidth = 16000
+    if len(active_noc_transfers) == 0:
+        return global_bandwidth
+    return global_bandwidth/len(active_noc_transfers) #return the amount of bandwidth that can be dedicated to a task.
+
+
+def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwidths, task = None, start_time = -1):
+
+    active_noc_transfers.append({
+        'current_transfer':0, # tracks which transfer we are currently working on.
+        'total_transfers': len(volumes), # tracks the total number of transfers we need to do before we finish
+        'volume': volumes, # Remaining amount of data to be transferred for each part of the transfer, in bytes
+        'src_PEs': src_PEs, # Sources
+        'dst_PE': dst_PE, # Destination
+        'data_IDs': data_IDs, # current data IDs
+        'max_bandwidths': bandwidths, # Max bandwidth allowed between each set of resources
+        'current_bandwidth': bandwidths[0], # current rate of data transfer
+        'congested_bandwidth': 0, # current cap on bandwidth based on congestion. Will be set in update_noc_transfers
+        'task': task, # pointer to the task associated with the data transfer, to be able to delay / bring forward its wait time.
+        'update_time': current_time, # Time since the late update to congestion - used for calculating the remaining volume of data.
+        'finish_time': 0, # Time to completion - updated as congestion increases and decreases.
+        'start_time': start_time # for potentially deferring starting a transfer if there is contention on a PE. TODO - need to use this when calculating contention, and make sure it follows the same rules as the finish time timestamps
+    })
+
+    update_noc_transfers(current_time)
+
+def cleanup_noc_transfers(current_time):
+
+    before = len(active_noc_transfers)
     active_noc_transfers[:] = [
         t for t in active_noc_transfers 
-        if t['end_time'] > caller.env.now
+        if t['finish_time'] > current_time
     ]
 
+    if len(active_noc_transfers) != before:
+        update_noc_transfers(current_time)
+
+def update_noc_transfers(current_time):
+    c = get_congested_bandwidth()
+
+    # we calculate the amount of work done in hindsight, since the last update.
+    # congested_bandwidth is used (previous c)
+    for t in active_noc_transfers:
+        assert t['current_transfer'] <= t['total_transfers']
+        elapsed = current_time - t['update_time']
+
+        while elapsed > 0:
+            idx = t['current_transfer']
+            effective_bw = min(t['max_bandwidths'][idx],t['congested_bandwidth'])
+
+            time_for_segment = t['volume'][idx] / effective_bw
+
+            if elapsed >= time_for_segment:
+                elapsed -= time_for_segment
+                t['volume'][idx] = 0
+                t['current_transfer'] += 1
+                # cleanup_noc_transfers is always run before increase_congestion. It isn't possible to have a job that has met its deadline be in update_noc_transfers
+                assert t['current_transfer'] < t['total_transfers']
+
+            else:
+                t['volume'][idx] -= elapsed * effective_bw
+                elapsed = 0
+        # end while elapsed > 0
+
+        total_time = 0
+        for i in range(t['current_transfer'], t['total_transfers']):
+            seg_bw = min(t['max_bandwidths'][i], c)
+            total_time += t['volume'][i] / seg_bw
+
+        t['finish_time'] = int(current_time + total_time)
+        t['current_bandwidth'] = min(t['max_bandwidths'][t['current_transfer']], c)
+        t['congested_bandwidth'] = int(c)
+        t['update_time'] = int(current_time)
+
+
+        if t['task'] != None:
+            t['task'].time_stamp = t['finish_time']
+
+
+def calculate_contention(caller, src_PE, dst_PE):
+    # take into account only a single DMA can occur at once. 
+    # values currently in memory_writeback must wait for the write back to finish before beginning to run
+    # memory contention
+    pass
+
+
+
             
-def decide_comm_timing(caller, task:Tasks, predecessor_task, predecessor_PE_ID, canAllocate):
+def decide_comm_timing(caller, task:Tasks, predecessor_task, predecessor_PE_ID):
     '''!
     Decide whether to use PE_to_PE or memory timing for communication.
     This method supports three modes:
