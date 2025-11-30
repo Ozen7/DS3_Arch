@@ -58,8 +58,8 @@ canny_non_max 377.906
 add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX resource_ID 6 capacity 1 num_supported_functionalities 281 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
-power_profile 1000 0.1
-PG_profile 1000 0.1
+power_profile 1000 0.01
+PG_profile 1000 10
 gradient_sum 11
 trace_sum 11
 cell0_rg_add1 11

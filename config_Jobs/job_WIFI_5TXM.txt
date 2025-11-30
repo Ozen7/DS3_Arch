@@ -1,123 +1,122 @@
 # Configuration file of the WiFi Transmitter
-# Lines that start with "#" are comments
-# Start with specifying the job name with keyword: job_name
-# Then, in the next line, add tasks using the keyword: add_new_tasks
-# After that the following three lines must have the attributes below
-# $task_name (string) $task_id (int) $task_predecessors (list)
-# $task_name (string) HEAD (TAIL), if the task is the head or tail of the task graph
-# $task_name (string) $earliest_start (int) $deadline (int) $input_vol (int - bits) $output_vol (int - bits)
-# The format: add_new_tasks $num_of_tasks (int)
-#             $task_name (string) $task_id (int) $task_predecessors (list)
-#             $task_name (string) HEAD (string)
-#             $task_name (string) $earliest_start (int) $deadline (int) $input_vol (int) $output_vol (int)
-# Example: The following lines add a new task with ID=0, and
-#          there is no predecessor for this task
-#          (empty list means there is no dependency)
-#          This task is the head of the task graph
-#          earliest start time and deadline are 0 and 10, respectively
-#          input and output volumes are 1024 bits
+# Deadlines are in microseconds (μs)
+# Based on critical path analysis with worst-case serialization
+# Assumes: 4 FFT accelerators, 2 Viterbi accelerators, 4 A15 cores, 4 A7 cores
+# Worst-case critical path: 78 μs
+# Job deadline: 90 μs (~15% slack)
 #
-#          add_new_tasks 1
-#          scrambler 0
-#          scrambler HEAD
-#          scrambler earliest_start 0 deadline 10 input_vol 1024 output_vol 1024
-#
-# After adding tasks, use keyword comm_vol to add communication volume for
-# the tasks that have dependencies
-# The format: comm_vol $source_id (int) $destination_id (int) volume (int)
-# Example: The following line adds communication volume between task 0 (source)
-#          and task 1 (destination)
-#
-#          comm_vol 0 1 5
+# Data volumes are in bytes, matching 802.11a OFDM structure:
+# - 5 OFDM symbols processed in parallel
+# - Each symbol: 48 data subcarriers, 4 pilots, 64-point IFFT
+# - QPSK modulation: 2 bits/symbol
+# - Rate 1/2 convolutional encoding
+# - 16-sample cyclic prefix
 
 job_name WiFi_Transmitter
-deadline 2000
+deadline 90
 add_new_tasks 27
 scrambler_encoder 0
 scrambler_encoder HEAD
-scrambler_encoder earliest_start 0 deadline 100000 sd 1 input_vol 14 output_vol 28
+scrambler_encoder earliest_start 0 deadline 12 sd 1 input_vol 120 output_vol 240
+
 interleaver_1 1 0
-interleaver_1 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 28
+interleaver_1 earliest_start 0 deadline 21 sd 1 input_vol 48 output_vol 48
 qpsk_1 2 1
-qpsk_1 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 1024
+qpsk_1 earliest_start 0 deadline 39 sd 1 input_vol 48 output_vol 768
 pilot_insertion_1 3 2
-pilot_insertion_1 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+pilot_insertion_1 earliest_start 0 deadline 46 sd 1 input_vol 768 output_vol 1024
 ifft_1 4 3
-ifft_1 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+ifft_1 earliest_start 0 deadline 83 sd 1 input_vol 1024 output_vol 1024
 crc_1 5 4
-crc_1 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1280
+crc_1 earliest_start 0 deadline 90 sd 1 input_vol 1024 output_vol 1280
+
 interleaver_2 6 0
-interleaver_2 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 28
+interleaver_2 earliest_start 0 deadline 21 sd 1 input_vol 48 output_vol 48
 qpsk_2 7 6
-qpsk_2 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 1024
+qpsk_2 earliest_start 0 deadline 39 sd 1 input_vol 48 output_vol 768
 pilot_insertion_2 8 7
-pilot_insertion_2 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+pilot_insertion_2 earliest_start 0 deadline 46 sd 1 input_vol 768 output_vol 1024
 ifft_2 9 8
-ifft_2 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+ifft_2 earliest_start 0 deadline 83 sd 1 input_vol 1024 output_vol 1024
 crc_2 10 9
-crc_2 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1280
+crc_2 earliest_start 0 deadline 90 sd 1 input_vol 1024 output_vol 1280
+
 interleaver_3 11 0
-interleaver_3 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 28
+interleaver_3 earliest_start 0 deadline 21 sd 1 input_vol 48 output_vol 48
 qpsk_3 12 11
-qpsk_3 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 1024
+qpsk_3 earliest_start 0 deadline 39 sd 1 input_vol 48 output_vol 768
 pilot_insertion_3 13 12
-pilot_insertion_3 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+pilot_insertion_3 earliest_start 0 deadline 46 sd 1 input_vol 768 output_vol 1024
 ifft_3 14 13
-ifft_3 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+ifft_3 earliest_start 0 deadline 83 sd 1 input_vol 1024 output_vol 1024
 crc_3 15 14
-crc_3 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1280
+crc_3 earliest_start 0 deadline 90 sd 1 input_vol 1024 output_vol 1280
+
 interleaver_4 16 0
-interleaver_4 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 28
+interleaver_4 earliest_start 0 deadline 21 sd 1 input_vol 48 output_vol 48
 qpsk_4 17 16
-qpsk_4 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 1024
+qpsk_4 earliest_start 0 deadline 39 sd 1 input_vol 48 output_vol 768
 pilot_insertion_4 18 17
-pilot_insertion_4 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+pilot_insertion_4 earliest_start 0 deadline 46 sd 1 input_vol 768 output_vol 1024
 ifft_4 19 18
-ifft_4 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+ifft_4 earliest_start 0 deadline 83 sd 1 input_vol 1024 output_vol 1024
 crc_4 20 19
-crc_4 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1280
+crc_4 earliest_start 0 deadline 90 sd 1 input_vol 1024 output_vol 1280
+
 interleaver_5 21 0
-interleaver_5 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 28
+interleaver_5 earliest_start 0 deadline 21 sd 1 input_vol 48 output_vol 48
 qpsk_5 22 21
-qpsk_5 earliest_start 0 deadline 100000 sd 1 input_vol 28 output_vol 1024
+qpsk_5 earliest_start 0 deadline 39 sd 1 input_vol 48 output_vol 768
 pilot_insertion_5 23 22
-pilot_insertion_5 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+pilot_insertion_5 earliest_start 0 deadline 46 sd 1 input_vol 768 output_vol 1024
 ifft_5 24 23
-ifft_5 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1024
+ifft_5 earliest_start 0 deadline 83 sd 1 input_vol 1024 output_vol 1024
 crc_5 25 24
-crc_5 earliest_start 0 deadline 100000 sd 1 input_vol 1024 output_vol 1280
+crc_5 earliest_start 0 deadline 90 sd 1 input_vol 1024 output_vol 1280
+
 end 26 5 10 15 20 25
 end TAIL
-end earliest_start 0 deadline 100000 sd 1 input_vol 0 output_vol 0
+end earliest_start 0 deadline 90 sd 1 input_vol 6400 output_vol 6400
 
+# Communication volumes (bytes)
+# scrambler_encoder outputs 240 bytes total, split to 5 chains (48 bytes each)
+comm_vol 0 1 48
+comm_vol 0 6 48
+comm_vol 0 11 48
+comm_vol 0 16 48
+comm_vol 0 21 48
 
-comm_vol 0 1 250
-comm_vol 0 6 250
-comm_vol 0 11 250
-comm_vol 0 16 250
-comm_vol 0 21 250
-comm_vol 1 2 375
-comm_vol 2 3 375
-comm_vol 3 4 1
-comm_vol 4 5 10
-comm_vol 5 26 0
-comm_vol 6 7 375
-comm_vol 7 8 375
-comm_vol 8 9 1
-comm_vol 9 10 10
-comm_vol 10 26 0
-comm_vol 11 12 375
-comm_vol 12 13 375
-comm_vol 13 14 1
-comm_vol 14 15 10
-comm_vol 15 26 0
-comm_vol 16 17 375
-comm_vol 17 18 375
-comm_vol 18 19 1
-comm_vol 19 20 10
-comm_vol 20 26 0
-comm_vol 21 22 375
-comm_vol 22 23 375
-comm_vol 23 24 1
-comm_vol 24 25 10
-comm_vol 25 26 3
+# Chain 1: interleaver → qpsk → pilot → ifft → crc → end
+comm_vol 1 2 48
+comm_vol 2 3 768
+comm_vol 3 4 1024
+comm_vol 4 5 1024
+comm_vol 5 26 1280
+
+# Chain 2
+comm_vol 6 7 48
+comm_vol 7 8 768
+comm_vol 8 9 1024
+comm_vol 9 10 1024
+comm_vol 10 26 1280
+
+# Chain 3
+comm_vol 11 12 48
+comm_vol 12 13 768
+comm_vol 13 14 1024
+comm_vol 14 15 1024
+comm_vol 15 26 1280
+
+# Chain 4
+comm_vol 16 17 48
+comm_vol 17 18 768
+comm_vol 18 19 1024
+comm_vol 19 20 1024
+comm_vol 20 26 1280
+
+# Chain 5
+comm_vol 21 22 48
+comm_vol 22 23 768
+comm_vol 23 24 1024
+comm_vol 24 25 1024
+comm_vol 25 26 1280

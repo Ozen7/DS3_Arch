@@ -765,7 +765,7 @@ class Scheduler:
                 finish_time = int(resource.performance[func_index]) + latency
                 
                 # Update if this is the fastest PE found so far - or, if it is colocated 
-                if min_finish_time == -1 or finish_time < min_finish_time or isColcoated:
+                if min_finish_time == -1 or finish_time < min_finish_time or (finish_time == min_finish_time and isColcoated):
                     min_finish_time = finish_time
                     best_pe_id = resource.ID
                     best_family = resource.accelerator_family

@@ -1,82 +1,88 @@
+# Deadlines are in microseconds (μs)
+# Based on critical path analysis with worst-case serialization
+# Assumes: 4 FFT accelerators, 2 Viterbi accelerators, 4 A15 cores, 4 A7 cores
+# Worst-case critical path: 304 μs
+# Job deadline: 350 μs (~15% slack)
+
 job_name WiFi_Receiver
-deadline 250
+deadline 350
 add_new_tasks 34
 match_filter 0
 match_filter HEAD
-match_filter earliest_start 0 deadline 7 sd 1 input_vol 10240 output_vol 5140
+match_filter earliest_start 0 deadline 6 sd 1 input_vol 10240 output_vol 5140
 
 payload_extraction_1 1 0
-payload_extraction_1 earliest_start 0 deadline 13 sd 1 input_vol 1028 output_vol 1024
+payload_extraction_1 earliest_start 0 deadline 15 sd 1 input_vol 1028 output_vol 1024
 fft_1 2 1
-fft_1 earliest_start 0 deadline 30 sd 1 input_vol 1024 output_vol 1024
+fft_1 earliest_start 0 deadline 43 sd 1 input_vol 1024 output_vol 1024
 pilot_1 3 2
-pilot_1 earliest_start 0 deadline 35 sd 1 input_vol 1024 output_vol 768
+pilot_1 earliest_start 0 deadline 52 sd 1 input_vol 1024 output_vol 768
 qpsk_demodulation_1 4 3
-qpsk_demodulation_1 earliest_start 0 deadline 170 sd 1 input_vol 768 output_vol 48
+qpsk_demodulation_1 earliest_start 0 deadline 271 sd 1 input_vol 768 output_vol 48
 deinterleaver_1 5 4
-deinterleaver_1 earliest_start 0 deadline 183 sd 1 input_vol 48 output_vol 48
+deinterleaver_1 earliest_start 0 deadline 291 sd 1 input_vol 48 output_vol 48
 format_conversion_1 6 5
-format_conversion_1 earliest_start 0 deadline 189 sd 1 input_vol 48 output_vol 48
+format_conversion_1 earliest_start 0 deadline 301 sd 1 input_vol 48 output_vol 48
 
 payload_extraction_2 7 0
-payload_extraction_2 earliest_start 0 deadline 13 sd 1 input_vol 1028 output_vol 1024
+payload_extraction_2 earliest_start 0 deadline 15 sd 1 input_vol 1028 output_vol 1024
 fft_2 8 7
-fft_2 earliest_start 0 deadline 30 sd 1 input_vol 1024 output_vol 1024
+fft_2 earliest_start 0 deadline 43 sd 1 input_vol 1024 output_vol 1024
 pilot_2 9 8
-pilot_2 earliest_start 0 deadline 35 sd 1 input_vol 1024 output_vol 768
+pilot_2 earliest_start 0 deadline 52 sd 1 input_vol 1024 output_vol 768
 qpsk_demodulation_2 10 9
-qpsk_demodulation_2 earliest_start 0 deadline 170 sd 1 input_vol 768 output_vol 48
+qpsk_demodulation_2 earliest_start 0 deadline 271 sd 1 input_vol 768 output_vol 48
 deinterleaver_2 11 10
-deinterleaver_2 earliest_start 0 deadline 183 sd 1 input_vol 48 output_vol 48
+deinterleaver_2 earliest_start 0 deadline 291 sd 1 input_vol 48 output_vol 48
 format_conversion_2 12 11
-format_conversion_2 earliest_start 0 deadline 189 sd 1 input_vol 48 output_vol 48
+format_conversion_2 earliest_start 0 deadline 301 sd 1 input_vol 48 output_vol 48
 
 payload_extraction_3 13 0
-payload_extraction_3 earliest_start 0 deadline 13 sd 1 input_vol 1028 output_vol 1024
+payload_extraction_3 earliest_start 0 deadline 15 sd 1 input_vol 1028 output_vol 1024
 fft_3 14 13
-fft_3 earliest_start 0 deadline 30 sd 1 input_vol 1024 output_vol 1024
+fft_3 earliest_start 0 deadline 43 sd 1 input_vol 1024 output_vol 1024
 pilot_3 15 14
-pilot_3 earliest_start 0 deadline 35 sd 1 input_vol 1024 output_vol 768
+pilot_3 earliest_start 0 deadline 52 sd 1 input_vol 1024 output_vol 768
 qpsk_demodulation_3 16 15
-qpsk_demodulation_3 earliest_start 0 deadline 170 sd 1 input_vol 768 output_vol 48
+qpsk_demodulation_3 earliest_start 0 deadline 271 sd 1 input_vol 768 output_vol 48
 deinterleaver_3 17 16
-deinterleaver_3 earliest_start 0 deadline 183 sd 1 input_vol 48 output_vol 48
+deinterleaver_3 earliest_start 0 deadline 291 sd 1 input_vol 48 output_vol 48
 format_conversion_3 18 17
-format_conversion_3 earliest_start 0 deadline 189 sd 1 input_vol 48 output_vol 48
+format_conversion_3 earliest_start 0 deadline 301 sd 1 input_vol 48 output_vol 48
 
 payload_extraction_4 19 0
-payload_extraction_4 earliest_start 0 deadline 13 sd 1 input_vol 1028 output_vol 1024
+payload_extraction_4 earliest_start 0 deadline 15 sd 1 input_vol 1028 output_vol 1024
 fft_4 20 19
-fft_4 earliest_start 0 deadline 30 sd 1 input_vol 1024 output_vol 1024
+fft_4 earliest_start 0 deadline 43 sd 1 input_vol 1024 output_vol 1024
 pilot_4 21 20
-pilot_4 earliest_start 0 deadline 35 sd 1 input_vol 1024 output_vol 768
+pilot_4 earliest_start 0 deadline 52 sd 1 input_vol 1024 output_vol 768
 qpsk_demodulation_4 22 21
-qpsk_demodulation_4 earliest_start 0 deadline 170 sd 1 input_vol 768 output_vol 48
+qpsk_demodulation_4 earliest_start 0 deadline 271 sd 1 input_vol 768 output_vol 48
 deinterleaver_4 23 22
-deinterleaver_4 earliest_start 0 deadline 183 sd 1 input_vol 48 output_vol 48
+deinterleaver_4 earliest_start 0 deadline 291 sd 1 input_vol 48 output_vol 48
 format_conversion_4 24 23
-format_conversion_4 earliest_start 0 deadline 189 sd 1 input_vol 48 output_vol 48
+format_conversion_4 earliest_start 0 deadline 301 sd 1 input_vol 48 output_vol 48
 
 payload_extraction_5 25 0
-payload_extraction_5 earliest_start 0 deadline 13 sd 1 input_vol 1028 output_vol 1024
+payload_extraction_5 earliest_start 0 deadline 15 sd 1 input_vol 1028 output_vol 1024
 fft_5 26 25
-fft_5 earliest_start 0 deadline 30 sd 1 input_vol 1024 output_vol 1024
+fft_5 earliest_start 0 deadline 43 sd 1 input_vol 1024 output_vol 1024
 pilot_5 27 26
-pilot_5 earliest_start 0 deadline 35 sd 1 input_vol 1024 output_vol 768
+pilot_5 earliest_start 0 deadline 52 sd 1 input_vol 1024 output_vol 768
 qpsk_demodulation_5 28 27
-qpsk_demodulation_5 earliest_start 0 deadline 170 sd 1 input_vol 768 output_vol 48
+qpsk_demodulation_5 earliest_start 0 deadline 271 sd 1 input_vol 768 output_vol 48
 deinterleaver_5 29 28
-deinterleaver_5 earliest_start 0 deadline 183 sd 1 input_vol 48 output_vol 48
+deinterleaver_5 earliest_start 0 deadline 291 sd 1 input_vol 48 output_vol 48
 format_conversion_5 30 29
-format_conversion_5 earliest_start 0 deadline 189 sd 1 input_vol 48 output_vol 48
+format_conversion_5 earliest_start 0 deadline 301 sd 1 input_vol 48 output_vol 48
 
 viterbi_decoder 31 6 12 18 24 30
-viterbi_decoder earliest_start 0 deadline 192 sd 1 input_vol 240 output_vol 120
+viterbi_decoder earliest_start 0 deadline 303 sd 1 input_vol 240 output_vol 120
 descrambler 32 31
-descrambler earliest_start 0 deadline 195 sd 1 input_vol 120 output_vol 120
+descrambler earliest_start 0 deadline 305 sd 1 input_vol 120 output_vol 120
 message_decode 33 32
 message_decode TAIL
-message_decode earliest_start 0 deadline 250 sd 1 input_vol 120 output_vol 92
+message_decode earliest_start 0 deadline 350 sd 1 input_vol 120 output_vol 92
 
 comm_vol 0 1 1028
 comm_vol 0 7 1028
