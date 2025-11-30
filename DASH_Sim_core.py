@@ -186,13 +186,15 @@ class SimulationManager:
             DTPM_policies.initialize_frequency(cluster)
 
         while (True):                                                           # Continue till the end of the simulation
-
             if self.env.now % common.sampling_rate == 0:
                 #common.results.job_counter_list.append(common.results.job_counter)
                 #common.results.sampling_rate_list.append(self.env.now)
                 # Evaluate idle PEs, busy PEs will be updated and evaluated from the PE class
                 DTPM_module.evaluate_idle_PEs()
             # end of if self.env.now % common.sampling_rate == 0:
+            if (self.scheduler.name in common.new_schedulers):
+                #runs every cycle
+                common.cleanup_noc_transfers(self.env.now)
 
             if (common.forwarding_enabled):
                 remove_from_writeback = []
@@ -275,7 +277,6 @@ class SimulationManager:
             remove_from_executable = {}  # {PE_ID: [tasks_to_remove]}
 
             if (self.scheduler.name in common.new_schedulers):
-                common.cleanup_noc_transfers(self.env.now)
                 for pe_id, pe_queue in common.executable.items():
 
                     P = self.PEs[pe_id]

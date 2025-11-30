@@ -452,7 +452,6 @@ deprioritize_negative_laxity = ['RELIEF', 'LL']
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
     isColocated = False
-    cleanup_noc_transfers(caller.env.now) # remove completed memory transfers from the list tracking them - allows us to have accurate memory latency info
 
     # Get the Job Name
     for ind, job in enumerate(caller.jobs.list):
@@ -560,7 +559,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 data_id = f"{executable_task.ID}_input"
 
                 bandwidth.append(comm_band)
-                data_volumes.append(total_data)
+                data_volumes.append(total_data * 2)
                 src_list.append(-1)
                 data_ids.append(data_id)
 
@@ -668,6 +667,17 @@ def update_noc_transfers(current_time):
 
 
 def calculate_contention(caller, src_PE, dst_PE):
+    # 1) PE transfers can only happen one at a time - DMA single-channel transfers cannot handle multiple requests at once. use the DMATimer PE field to measure the next availability of the DMA engine
+    #   Should basically be something like task[start time] += PE.DMATimer - current_time | PE.DMATimer += task[transfer time], and then support for task[start time] in update_noc_transfers (doesn't count as overhead if it hasn't started running yet)
+    #   maybe a second list containing tasks that have yet to begin running that get added in during cleanup_noc_transfers if their dependencies are met? 
+    #   !!!!!!! perhaps the best way to do this is to have a condition for the transfer to start (x other task finishes, or PE.DMA = idle, or something). 
+    # 2) Memory transfers are slowed based on bandwidth-latency curve
+    # 3) PE-to-PE transfers of data that are being transferred back to memory must wait for the full write back before running
+
+    # need to basically have a function to call in update_noc_transfers that checks that everything is going as planned, adds random increases to runtime if necessary, etc.
+    # This will operate on a single transfer, adding "final" values of each of its important features. While update_noc_transfers finds an idealized finish time, this makes it slower
+    # NEEDS TO MESH WELL WITH UPDATE_NOC_TRANSFERS AND THE OTHER FUNCTIONS!
+
     # take into account only a single DMA can occur at once. 
     # values currently in memory_writeback must wait for the write back to finish before beginning to run
     # memory contention
