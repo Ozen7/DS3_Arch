@@ -287,6 +287,161 @@ Control simulation tracing via `[TRACE]` section:
 - Forwarding mode: Checks scratchpad for data availability dynamically
 - Returns `'PE_to_PE'` or `'memory'` string
 
+## Network on Chip (NoC) Contention
+
+DS3 models realistic NoC contention through three mechanisms that work together to accurately simulate data transfer delays and resource conflicts.
+
+### 1. Single-Channel DMA per PE
+
+Each PE has one DMA (Direct Memory Access) channel that handles all data transfers sequentially:
+
+**Implementation**:
+- `PE.DMATimer` (processing_element.py:62): Timestamp when DMA becomes available
+- `PE.active_dma_transfer` (processing_element.py:63): Reference to currently active transfer
+- Transfers queue when DMA is busy, executing one at a time
+
+**Behavior**:
+- When a new transfer targets a PE with busy DMA, it enters 'queued' state
+- Queued transfers don't contribute to NoC congestion (optimization)
+- When DMA frees, queued transfers automatically promote to 'active' state
+- Both source and destination PE DMAs must be available for transfer to start
+
+**Configuration**: `MEMORY_DEGRADATION_RATE` and `MEMORY_MIN_FACTOR` in common.py:180-181
+
+### 2. Memory Bandwidth-Latency Curve
+
+Memory transfers experience bandwidth degradation under contention using a tunable linear model:
+
+**Function**: `get_memory_contention_factor()` in common.py:739-767
+
+**Model**: Linear degradation with configurable parameters
+- `MEMORY_DEGRADATION_RATE`: Reduction per additional transfer (default: 0.5 = 50% reduction)
+- `MEMORY_MIN_FACTOR`: Minimum bandwidth multiplier (default: 0.3 = 30% of max bandwidth)
+- Formula: `factor = max(1.0 - DEGRADATION_RATE * (count - 1), MIN_FACTOR)`
+
+**Calculation**:
+```python
+effective_bandwidth = max_bandwidth * contention_factor
+```
+
+**Memory Overhead Parallelism**:
+
+Memory overhead runs **in parallel** with NoC congestion (not additive):
+```python
+total_delay = max(noc_transfer_time, memory_access_time)
+```
+
+This reflects that NoC routing and memory controller contention are independent bottlenecks. The slower of the two determines actual transfer time.
+
+**Tuning**: Users can adjust `MEMORY_DEGRADATION_RATE` and `MEMORY_MIN_FACTOR` to match specific memory controller characteristics (e.g., from Ramulator simulations).
+
+### 3. Writeback Stalling
+
+PE-to-PE transfers must wait for memory writebacks to complete, preventing read-after-write conflicts:
+
+**Check**: `calculate_contention()` in common.py:794-831 checks `memory_writeback` dict
+
+**Behavior**:
+- When source PE has pending writeback (data being evicted to memory), PE-to-PE transfer defers
+- Transfer enters 'queued' state until writeback completes
+- Only affects PE-to-PE transfers (memory reads don't need to wait)
+- Ensures data consistency when scratchpad evictions occur
+
+**Example**:
+```
+1. PE0 evicts data X from scratchpad → writes back to memory (starts at t=100, finishes at t=150)
+2. PE1 requests data X from PE0 at t=120
+3. Transfer queued until t=150 (writeback complete)
+4. Transfer becomes active at t=150
+```
+
+### Transfer States
+
+NoC transfers use a state machine to manage queuing and execution:
+
+**States**:
+- `'queued'`: Waiting for DMA availability or writeback completion
+  - Does NOT contribute to NoC congestion
+  - Does NOT slow down active transfers
+  - Automatically promoted when resources become available
+- `'active'`: Currently transferring data
+  - Contributes to NoC bandwidth sharing
+  - Counted in memory contention calculation
+  - Updates task timestamps when complete
+
+**State Transitions**:
+```
+new transfer → calculate_contention() → 'queued' or 'active'
+                                               ↓
+cleanup_noc_transfers() checks resources → promote to 'active' when ready
+                                               ↓
+                                          transfer completes → removed
+```
+
+### Key Functions
+
+**`calculate_contention(caller, src_PE, dst_PE, data_id, current_time)`** (common.py:794-831)
+- Determines transfer state and earliest start time
+- Checks DMA availability on source and destination PEs
+- Checks for writeback conflicts (PE-to-PE only)
+- Returns: `(state, earliest_start_time)` tuple
+
+**`get_memory_contention_factor()`** (common.py:739-767)
+- Calculates memory bandwidth degradation
+- Counts active memory transfers (excludes queued)
+- Returns multiplicative factor: 1.0 (no contention) to MEMORY_MIN_FACTOR (heavy)
+
+**`calculate_memory_overhead(volumes, bandwidths, src_PEs, dst_PE)`** (common.py:770-791)
+- Calculates memory access latency including contention
+- Returns time in microseconds
+- Used as `max(noc_time, memory_time)` for parallel model
+
+**`get_congested_bandwidth()`** (common.py:593-608)
+- Calculates NoC bandwidth per active transfer
+- Global bandwidth (16 GB/s) divided by number of active transfers
+- Queued transfers excluded from calculation
+
+**`increase_congestion()`** (common.py:611-661)
+- Adds new transfer to active list
+- Calls `calculate_contention()` to determine state
+- Sets DMA ownership if active
+- Triggers `update_noc_transfers()` only for active transfers
+
+**`update_noc_transfers()`** (common.py:719-777)
+- Recalculates finish times for all active transfers
+- Skips queued transfers (recreation correctness)
+- Applies both NoC and memory contention
+- Updates task timestamps
+
+**`cleanup_noc_transfers()`** (common.py:663-717)
+- Removes completed transfers
+- Frees DMA channels
+- Promotes queued → active when resources available
+- Triggers recalculation if state changes
+
+### Performance Impact
+
+**Optimization**: Queued transfers are excluded from congestion calculations, preventing artificial slowdown of active work.
+
+**Expected Behavior**:
+- Execution time increases (more realistic contention modeling)
+- DMA serialization visible in traces
+- Memory bandwidth degrades linearly with utilization
+- No deadlocks (queued transfers always eventually activate)
+
+### Configuration
+
+Contention parameters are tunable in `common.py`:
+```python
+MEMORY_DEGRADATION_RATE = 0.5  # 50% reduction per additional memory transfer
+MEMORY_MIN_FACTOR = 0.3        # Never go below 30% of max bandwidth
+```
+
+Global NoC bandwidth is hardcoded:
+```python
+global_bandwidth = 16000  # bytes/us = 16 GB/s (in get_congested_bandwidth)
+```
+
 ## Scheduling Algorithms
 
 The simulator supports multiple scheduling algorithms selectable via `config_file.ini`:

@@ -60,6 +60,7 @@ class PE:
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
         self.DMATimer = 0                                                       # Determines the freedom of the DMA timer
+        self.active_dma_transfer = None                                         # Reference to the transfer currently using this PE's DMA
 
         if (common.DEBUG_CONFIG):
             print('[D] Constructed PE-%d with name %s' %(ID,name))
@@ -319,7 +320,7 @@ class PE:
         while (self.scratchpad_used + size) > self.scratchpad_capacity:
             oldest_data_id = min(self.scratchpad.keys(), key=lambda k: self.scratchpad[k]['timestamp'])
 
-            if not self.scratchpad or self.scratchpad[oldest_data_id]['timestamp'] == self.env.now:
+            if not self.scratchpad or self.scratchpad[oldest_data_id]['timestamp'] >= self.env.now:
                 # No more data to evict but still not enough space
                 assert False # need to handle this better if this ever goes off.
 
@@ -338,6 +339,9 @@ class PE:
         if common.DEBUG_SIM:
             print('[D] Time %d: PE-%d allocated %d bytes in scratchpad for data %s (used: %d/%d)'
                   % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
+        print("SCRATCHPAD ")
+        for x,y in self.scratchpad.items():
+            print(y['task_id'])
 
         return True
 
@@ -348,7 +352,7 @@ class PE:
         '''
         if data_id in self.scratchpad:
             
-            # Decide whether or not to evict/write back task output to memory
+            # Decide whether or not to write back task output to memory when removing it
             writeback = False
             for predecessor in self.scratchpad[data_id]['dependencies']:
                 if predecessor.start_time == -1:
@@ -361,6 +365,7 @@ class PE:
                     if data_id in active_transfer['data_IDs']:
                         writeback = False
                         self.scratchpad[data_id]['timestamp'] = active_transfer['finish_time']
+                        # we return to avoid evicting
                         return
                         
             

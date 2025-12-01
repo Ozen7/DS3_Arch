@@ -176,6 +176,10 @@ write_time       = -1
 read_time        = -1
 PE_to_Cache      = {}
 
+# Memory contention parameters (tunable)
+MEMORY_DEGRADATION_RATE = 0.5  # Linear degradation coefficient
+MEMORY_MIN_FACTOR = 0.3        # Minimum bandwidth multiplier (30% at full load)
+
 iteration = 0
 
 # The variables used by table-based schedulers
@@ -559,7 +563,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 data_id = f"{executable_task.ID}_input"
 
                 bandwidth.append(comm_band)
-                data_volumes.append(total_data * 2)
+                data_volumes.append(total_data)
                 src_list.append(-1)
                 data_ids.append(data_id)
 
@@ -575,7 +579,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             # Set the time stamp for when the task is ready for execution
             # Use sums since DMA is done back to back
             if canAllocate:
-                increase_congestion(caller.env.now, data_volumes, src_list, executable_task.PE_ID, data_ids, bandwidth, executable_task, caller.env.now)
+                increase_congestion(caller.env.now, data_volumes, src_list, executable_task.PE_ID, data_ids, bandwidth, caller, executable_task)
             else:
                 return (isColocated, sum(int(x / y) for x, y in zip(data_volumes, bandwidth))) #return ideal numbers for the purposes of scheduling
             # end else
@@ -587,55 +591,146 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
 
 def get_congested_bandwidth():
-    global_bandwidth = 16000
-    if len(active_noc_transfers) == 0:
+    '''!
+    Calculate available NoC bandwidth per active transfer.
+    Only counts transfers in 'active' state (queued transfers don't affect congestion).
+
+    @return: Bandwidth in bytes/us available per active transfer
+    '''
+    global_bandwidth = 16000  # bytes/us
+
+    # Only count ACTIVE transfers (queued transfers don't contribute to congestion)
+    active_count = sum(1 for t in active_noc_transfers if t['state'] == 'active')
+
+    if active_count == 0:
         return global_bandwidth
-    return global_bandwidth/len(active_noc_transfers) #return the amount of bandwidth that can be dedicated to a task.
+
+    return global_bandwidth / active_count
 
 
-def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwidths, task = None, start_time = -1):
+def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwidths, caller, task = None, ):
+    '''!
+    Add a new NoC transfer and update congestion state.
+    Determines if transfer can start immediately (active) or must wait (queued).
 
-    active_noc_transfers.append({
-        'current_transfer':0, # tracks which transfer we are currently working on.
+    @param current_time: Current simulation time
+    @param volumes: List of data volumes in bytes
+    @param src_PEs: List of source PE IDs (-1 for memory)
+    @param dst_PE: Destination PE ID
+    @param data_IDs: List of data identifiers
+    @param bandwidths: List of max bandwidths in bytes/us
+    @param task: Associated task (optional)
+    @param start_time: Requested start time (optional, legacy parameter)
+    @param caller: SimulationManager instance (required for contention checking)
+    '''
+    # Determine transfer state using calculate_contention()
+    state = calculate_contention(caller, src_PEs[0], dst_PE, data_IDs[0], current_time)
+
+    transfer_dict = {
+        'current_transfer': 0, # tracks which transfer we are currently working on.
         'total_transfers': len(volumes), # tracks the total number of transfers we need to do before we finish
         'volume': volumes, # Remaining amount of data to be transferred for each part of the transfer, in bytes
         'src_PEs': src_PEs, # Sources
         'dst_PE': dst_PE, # Destination
         'data_IDs': data_IDs, # current data IDs
         'max_bandwidths': bandwidths, # Max bandwidth allowed between each set of resources
-        'current_bandwidth': bandwidths[0], # current rate of data transfer
-        'congested_bandwidth': 0, # current cap on bandwidth based on congestion. Will be set in update_noc_transfers
+        'congested_bandwidth': 0, # current cap on bandwidth based on contention over NoC and memory. Will be set in update_noc_transfers
         'task': task, # pointer to the task associated with the data transfer, to be able to delay / bring forward its wait time.
         'update_time': current_time, # Time since the late update to congestion - used for calculating the remaining volume of data.
-        'finish_time': 0, # Time to completion - updated as congestion increases and decreases.
-        'start_time': start_time # for potentially deferring starting a transfer if there is contention on a PE. TODO - need to use this when calculating contention, and make sure it follows the same rules as the finish time timestamps
-    })
+        'finish_time': current_time, # Time to completion - updated as congestion increases and decreases.
+        'state': state  # Transfer state: 'queued' or 'active'
+    }
 
+    active_noc_transfers.append(transfer_dict)
+
+    # If active, update timers and set DMA ownership
+    if state == 'active':
+        if src_PEs[0] != -1:
+            caller.PEs[src_PEs[0]].active_dma_transfer = transfer_dict
+        if dst_PE != -1:
+            caller.PEs[dst_PE].active_dma_transfer = transfer_dict
+        
     update_noc_transfers(current_time)
+    # print(f"[NOC DEBUG] Added transfer: state={state}, finish_time={transfer_dict['finish_time']}, volume={volumes}, current_time={current_time}")
+def cleanup_noc_transfers(current_time, caller):
+    '''!
+    Remove completed transfers, free DMA channels, and promote queued transfers to active.
 
-def cleanup_noc_transfers(current_time):
-
+    @param current_time: Current simulation time
+    @param caller: SimulationManager instance (required for DMA management)
+    '''
     before = len(active_noc_transfers)
+
+    # Remove completed transfers and free DMA channels
+    completed_transfers = []
+    for t in active_noc_transfers:
+        if t['finish_time'] <= current_time and t['state']== 'active':
+            completed_transfers.append(t)
+
+            # Free DMA channels
+            if t['src_PEs'][0] != -1:
+                caller.PEs[t['src_PEs'][0]].active_dma_transfer = None
+            if t['dst_PE'] != -1:
+                caller.PEs[t['dst_PE']].active_dma_transfer = None
+    
+    # Remove completed from list
     active_noc_transfers[:] = [
-        t for t in active_noc_transfers 
-        if t['finish_time'] > current_time
+        t for t in active_noc_transfers
+        if t not in completed_transfers
     ]
 
-    if len(active_noc_transfers) != before:
+    # Check for newly unblocked transfers (queued → active)
+    recalc_needed = False
+    for t in active_noc_transfers:
+        if t['state'] == 'queued':
+            # Check if transfer can now start
+            current_seg = t['current_transfer']
+            state = calculate_contention(
+                caller, t['src_PEs'][current_seg],
+                t['dst_PE'], t['data_IDs'][current_seg], current_time
+            )
+            if state == 'active':
+                t['state'] = 'active'
+                t['update_time'] = current_time
+
+                # Set DMA ownership
+                if t['src_PEs'][0] != -1:
+                    caller.PEs[t['src_PEs'][0]].active_dma_transfer = t
+                if t['dst_PE'] != -1:
+                    caller.PEs[t['dst_PE']].active_dma_transfer = t
+
+                recalc_needed = True
+
+    # Only recalculate if something changed
+    if len(active_noc_transfers) != before or recalc_needed:
         update_noc_transfers(current_time)
 
 def update_noc_transfers(current_time):
+    '''!
+    Recalculate finish times for all active NoC transfers based on current congestion.
+    Skips queued transfers (they don't contribute to congestion).
+
+    @param current_time: Current simulation time
+    '''
     c = get_congested_bandwidth()
+    memory_factor = get_memory_contention_factor()
 
     # we calculate the amount of work done in hindsight, since the last update.
     # congested_bandwidth is used (previous c)
     for t in active_noc_transfers:
+        # Skip queued transfers - they don't affect congestion yet
+        if t['state'] == 'queued':
+            t['finish_time'] = float('inf') # time_stamp is initialized at 0!
+            if t['task'] != None:
+                t['task'].time_stamp = t['finish_time']
+            continue
+
         assert t['current_transfer'] <= t['total_transfers']
         elapsed = current_time - t['update_time']
 
         while elapsed > 0:
             idx = t['current_transfer']
-            effective_bw = min(t['max_bandwidths'][idx],t['congested_bandwidth'])
+            effective_bw = min(t['max_bandwidths'][idx], t['congested_bandwidth'])
 
             time_for_segment = t['volume'][idx] / effective_bw
 
@@ -651,37 +746,120 @@ def update_noc_transfers(current_time):
                 elapsed = 0
         # end while elapsed > 0
 
-        total_time = 0
+        # Calculate NoC transfer time
+        noc_time = 0
         for i in range(t['current_transfer'], t['total_transfers']):
             seg_bw = min(t['max_bandwidths'][i], c)
-            total_time += t['volume'][i] / seg_bw
+            noc_time += t['volume'][i] / seg_bw
+
+        # Calculate memory overhead time (parallel, not additive)
+        memory_time = 0
+        memory_bw = 0
+        for i in range(t['current_transfer'], t['total_transfers']):
+            # Only count memory transfers
+            if t['src_PEs'][i] == -1 or t['dst_PE'] == -1:
+                memory_bw = t['max_bandwidths'][i] * memory_factor
+                memory_time += t['volume'][i] / memory_bw
+
+        # Use parallel model: max(noc_time, memory_time)
+        total_time = max(noc_time, memory_time)
 
         t['finish_time'] = int(current_time + total_time)
-        t['current_bandwidth'] = min(t['max_bandwidths'][t['current_transfer']], c)
-        t['congested_bandwidth'] = int(c)
-        t['update_time'] = int(current_time)
 
+        if noc_time > memory_time:
+            t['congested_bandwidth'] = int(c) # min of this is the same as max in total_time
+        else:
+            t['congested_bandwidth'] = int(memory_bw) # min of this is the same as max in total_time
+
+        t['update_time'] = int(current_time)
 
         if t['task'] != None:
             t['task'].time_stamp = t['finish_time']
 
 
-def calculate_contention(caller, src_PE, dst_PE):
-    # 1) PE transfers can only happen one at a time - DMA single-channel transfers cannot handle multiple requests at once. use the DMATimer PE field to measure the next availability of the DMA engine
-    #   Should basically be something like task[start time] += PE.DMATimer - current_time | PE.DMATimer += task[transfer time], and then support for task[start time] in update_noc_transfers (doesn't count as overhead if it hasn't started running yet)
-    #   maybe a second list containing tasks that have yet to begin running that get added in during cleanup_noc_transfers if their dependencies are met? 
-    #   !!!!!!! perhaps the best way to do this is to have a condition for the transfer to start (x other task finishes, or PE.DMA = idle, or something). 
-    # 2) Memory transfers are slowed based on bandwidth-latency curve
-    # 3) PE-to-PE transfers of data that are being transferred back to memory must wait for the full write back before running
+def get_memory_contention_factor():
+    '''!
+    Calculate memory bandwidth degradation based on active memory transfers.
+    Uses linear degradation model with tunable parameters.
 
-    # need to basically have a function to call in update_noc_transfers that checks that everything is going as planned, adds random increases to runtime if necessary, etc.
-    # This will operate on a single transfer, adding "final" values of each of its important features. While update_noc_transfers finds an idealized finish time, this makes it slower
-    # NEEDS TO MESH WELL WITH UPDATE_NOC_TRANSFERS AND THE OTHER FUNCTIONS!
+    @return: Multiplicative factor from MEMORY_MIN_FACTOR to 1.0
+             (1.0 = no contention, MEMORY_MIN_FACTOR = heavy contention)
+    '''
+    # Count active memory transfers (src_PE == -1 or dst_PE == -1)
+    memory_transfer_count = 0
+    for t in active_noc_transfers:
+        if t.get('state', 'active') == 'active':
+            current_seg = t['current_transfer']
+            src_pe = t['src_PEs'][current_seg]
+            dst_pe = t['dst_PE']
+            if src_pe == -1 or dst_pe == -1:
+                memory_transfer_count += 1
 
-    # take into account only a single DMA can occur at once. 
-    # values currently in memory_writeback must wait for the write back to finish before beginning to run
-    # memory contention
-    pass
+    if memory_transfer_count == 0:
+        return 1.0
+
+    # Linear degradation: factor = 1 - (degradation_rate * (count - 1))
+    # First transfer has no degradation, subsequent transfers degrade bandwidth
+    factor = 1.0 - (MEMORY_DEGRADATION_RATE * (memory_transfer_count - 1))
+
+    # Clamp to minimum bandwidth factor
+    return max(factor, MEMORY_MIN_FACTOR)
+
+
+def calculate_memory_overhead(volumes, bandwidths, src_PEs, dst_PE):
+    '''!
+    Calculate memory access time including contention.
+    Memory overhead runs in parallel with NoC transfer time.
+
+    @param volumes: List of data volumes in bytes
+    @param bandwidths: List of max bandwidths in bytes/us
+    @param src_PEs: List of source PE IDs (-1 for memory)
+    @param dst_PE: Destination PE ID
+    @return: Memory access time in microseconds (to use as max(noc_time, memory_time))
+    '''
+    memory_factor = get_memory_contention_factor()
+    memory_time = 0
+
+    for i, (vol, bw, src) in enumerate(zip(volumes, bandwidths, src_PEs)):
+        # Only count memory transfers
+        if src == -1 or dst_PE == -1:
+            effective_bw = bw * memory_factor
+            memory_time += vol / effective_bw
+
+    return int(memory_time)
+
+
+def calculate_contention(caller, src_PE, dst_PE, data_id, current_time):
+    '''!
+    Determines earliest start time for a transfer considering:
+    1. DMA availability on source and destination PEs (single-channel)
+    2. Writeback conflicts (PE-to-PE transfers must wait for writebacks)
+
+    @param caller: SimulationManager instance (for accessing PEs)
+    @param src_PE: Source PE ID (-1 for memory)
+    @param dst_PE: Destination PE ID
+    @param data_id: Data identifier for writeback conflict checking
+    @param current_time: Current simulation time
+    @return: Tuple (state, earliest_start_time) where state is 'queued' or 'active'
+    '''
+    # Check DMA availability for source PE (if not memory)
+    if ((src_PE != -1 and caller.PEs[src_PE].active_dma_transfer != None) or
+        (dst_PE != -1 and caller.PEs[dst_PE].active_dma_transfer != None)):
+        return 'queued'
+
+    # Earliest time when both DMAs are available
+
+    # Check writeback conflicts (only for PE-to-PE transfers)
+    if src_PE != -1 or dst_PE != -1:
+        # Check if source PE's data is being written back to memory
+        for wb_data_id, wb_finish_time in memory_writeback.items():
+            # If writeback involves source PE or the same data, wait for completion
+            if data_id == wb_data_id:
+                return 'queued'
+
+    # Determine transfer state
+
+    return 'active'
 
 
 

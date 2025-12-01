@@ -172,7 +172,7 @@ class SimulationManager:
         memory_comm_time = int((size/comm_band))
         common.memory_writeback[data_id] = self.env.now + memory_comm_time
 
-        common.increase_congestion(self.env.now, [size], [PE.ID],-1,data_id,[comm_band])
+        common.increase_congestion(self.env.now, [size], [PE.ID], -1, [data_id], [comm_band], self)
     #
     def run(self):
         '''!
@@ -192,9 +192,7 @@ class SimulationManager:
                 # Evaluate idle PEs, busy PEs will be updated and evaluated from the PE class
                 DTPM_module.evaluate_idle_PEs()
             # end of if self.env.now % common.sampling_rate == 0:
-            if (self.scheduler.name in common.new_schedulers):
-                #runs every cycle
-                common.cleanup_noc_transfers(self.env.now)
+
 
             if (common.forwarding_enabled):
                 remove_from_writeback = []
@@ -207,6 +205,9 @@ class SimulationManager:
                 for id in remove_from_writeback:
                     common.memory_writeback.pop(id)
             
+            if (self.scheduler.name in common.new_schedulers):
+                #runs every cycle
+                common.cleanup_noc_transfers(self.env.now, caller=self)
 
             if (common.shared_memory):
                 # this section is activated only if shared memory is used
@@ -341,7 +342,7 @@ class SimulationManager:
                     elif P.idle and not P.lock:
                         # lock PE, begin pulling value from input
                         P.lock = True
-
+                        print('locked PE, calculating memory movement latency')
                         # this function also sets the task's timestamp
                         common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
                     # end elif P.idle and not P.lock:
