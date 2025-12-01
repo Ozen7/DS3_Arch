@@ -322,7 +322,7 @@ class PE:
 
             if not self.scratchpad or self.scratchpad[oldest_data_id]['timestamp'] >= self.env.now:
                 # No more data to evict but still not enough space
-                assert False # need to handle this better if this ever goes off.
+                return False # handled in common.py using "cancel" variable
 
             # Find oldest entry (minimum timestamp)
             self.free_scratchpad(oldest_data_id)
@@ -339,9 +339,6 @@ class PE:
         if common.DEBUG_SIM:
             print('[D] Time %d: PE-%d allocated %d bytes in scratchpad for data %s (used: %d/%d)'
                   % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
-        print("SCRATCHPAD ")
-        for x,y in self.scratchpad.items():
-            print(y['task_id'])
 
         return True
 

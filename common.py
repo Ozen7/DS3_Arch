@@ -448,7 +448,6 @@ running:List[Tasks] = []                       # List of currently running tasks
 completed:List[Tasks] = []                     # List of completed tasks
 wait_ready:List[Tasks] = []                    # List of task waiting for being pushed into ready queue because of memory communication time
 active_noc_transfers = []                      # List of active NoC transfers
-memory_writeback = {}               # Dictionary of identifiers and timestamps for data being written back to memory
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 new_schedulers = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched', 'FCFS']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
 deprioritize_negative_laxity = ['RELIEF', 'LL']
@@ -476,6 +475,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             data_volumes = []
 
             total_data = executable_task.input_packet_size
+
+            cancel = False
 
 
             if executable_task.head == True:
@@ -530,7 +531,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     if canAllocate and predecessor_PE_ID != PE_ID:
                         results.forwardData += comm_vol
                         results.num_forwards += 1
-                        caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+
                     elif canAllocate:
                         results.num_colocations += 1
                         results.colocationData += comm_vol
@@ -553,7 +555,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                     if canAllocate:
                         results.memoryData += comm_vol
-                        caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
 
@@ -569,12 +571,16 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                 if canAllocate:
                     results.memoryData += total_data
-                    caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+                    cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
             # end if total_data > 0
             
+            # stall if we can't get enough scratchpad space
+            if cancel:
+                return False
             assert total_data >= 0
 
             assert len(bandwidth) == len(data_volumes) == len(src_list) == len(data_ids)
+
 
             # Set the time stamp for when the task is ready for execution
             # Use sums since DMA is done back to back
@@ -651,7 +657,6 @@ def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwi
             caller.PEs[dst_PE].active_dma_transfer = transfer_dict
         
     update_noc_transfers(current_time)
-    # print(f"[NOC DEBUG] Added transfer: state={state}, finish_time={transfer_dict['finish_time']}, volume={volumes}, current_time={current_time}")
 def cleanup_noc_transfers(current_time, caller):
     '''!
     Remove completed transfers, free DMA channels, and promote queued transfers to active.
@@ -668,8 +673,9 @@ def cleanup_noc_transfers(current_time, caller):
             completed_transfers.append(t)
 
             # Free DMA channels
-            if t['src_PEs'][0] != -1:
-                caller.PEs[t['src_PEs'][0]].active_dma_transfer = None
+            for i in range(len(t['src_PEs'])):
+                if t['src_PEs'][i] != -1:
+                    caller.PEs[t['src_PEs'][i]].active_dma_transfer = None
             if t['dst_PE'] != -1:
                 caller.PEs[t['dst_PE']].active_dma_transfer = None
     
@@ -690,13 +696,15 @@ def cleanup_noc_transfers(current_time, caller):
                 t['dst_PE'], t['data_IDs'][current_seg], current_time
             )
             if state == 'active':
+                
                 t['state'] = 'active'
                 t['update_time'] = current_time
 
                 # Set DMA ownership
-                if t['src_PEs'][0] != -1:
-                    caller.PEs[t['src_PEs'][0]].active_dma_transfer = t
+                if t['src_PEs'][current_seg] != -1:
+                    caller.PEs[t['src_PEs'][current_seg]].active_dma_transfer = t
                 if t['dst_PE'] != -1:
+
                     caller.PEs[t['dst_PE']].active_dma_transfer = t
 
                 recalc_needed = True
@@ -846,18 +854,6 @@ def calculate_contention(caller, src_PE, dst_PE, data_id, current_time):
     if ((src_PE != -1 and caller.PEs[src_PE].active_dma_transfer != None) or
         (dst_PE != -1 and caller.PEs[dst_PE].active_dma_transfer != None)):
         return 'queued'
-
-    # Earliest time when both DMAs are available
-
-    # Check writeback conflicts (only for PE-to-PE transfers)
-    if src_PE != -1 or dst_PE != -1:
-        # Check if source PE's data is being written back to memory
-        for wb_data_id, wb_finish_time in memory_writeback.items():
-            # If writeback involves source PE or the same data, wait for completion
-            if data_id == wb_data_id:
-                return 'queued'
-
-    # Determine transfer state
 
     return 'active'
 

@@ -852,8 +852,6 @@ class Scheduler:
                         task_iter.laxity -= task.runtime
                         if task_iter.isForwarded:
                             assert False
-
-                print("SCHEDULING", task.PE_ID, insert_index, task.isForwarded, task.ID)
             
                 common.executable[task.PE_ID].insert(insert_index, task)
 

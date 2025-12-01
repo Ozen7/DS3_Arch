@@ -168,10 +168,7 @@ class SimulationManager:
     
     # PEs call this to write values ejected from their scratchpads back to memory
     def writeback_handler(self,data_id, size, PE):
-        comm_band = common.ResourceManager.comm_band[PE.ID, self.resource_matrix.list[-1].ID]
-        memory_comm_time = int((size/comm_band))
-        common.memory_writeback[data_id] = self.env.now + memory_comm_time
-
+        comm_band = common.ResourceManager.comm_band[PE.ID, self.resource_matrix.list[-1].ID]        
         common.increase_congestion(self.env.now, [size], [PE.ID], -1, [data_id], [comm_band], self)
     #
     def run(self):
@@ -193,17 +190,6 @@ class SimulationManager:
                 DTPM_module.evaluate_idle_PEs()
             # end of if self.env.now % common.sampling_rate == 0:
 
-
-            if (common.forwarding_enabled):
-                remove_from_writeback = []
-                for (identifier, finishTime) in common.memory_writeback.items():
-                    if finishTime <= self.env.now:
-                        remove_from_writeback.append(identifier)
-                        if (common.DEBUG_SIM):
-                            print('[D] Time %d: Data transfer for data %s to memory is completed'
-                                %(self.env.now, identifier))
-                for id in remove_from_writeback:
-                    common.memory_writeback.pop(id)
             
             if (self.scheduler.name in common.new_schedulers):
                 #runs every cycle
@@ -334,7 +320,6 @@ class SimulationManager:
 
                              # immediately allocate room in the scratchpad for output - done so that any ejection of data from the scratchpad is
                              # taken into consideration when calculating memory latency
-                            P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
 
                         # end if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment):
                         
@@ -342,9 +327,13 @@ class SimulationManager:
                     elif P.idle and not P.lock:
                         # lock PE, begin pulling value from input
                         P.lock = True
-                        print('locked PE, calculating memory movement latency')
                         # this function also sets the task's timestamp
-                        common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
+                        P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+
+                        out = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
+
+                        if out == False:
+                            P.lock = False
                     # end elif P.idle and not P.lock:
                     elif not P.idle and P.lock: 
                         continue # PE is running when locked and not idle
