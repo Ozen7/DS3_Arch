@@ -104,7 +104,7 @@ def job_parse(jobs, file_name):
 
                 # Parse SD value if present (for jobs with sub-deadlines)
                 if len(current_line) > 5 and current_line[5] == 'sd':
-                    new_job.task_list[ind].sd = int(current_line[6])
+                    new_job.task_list[ind].sd = int(float(current_line[6]))
                     input_vol_idx = 8
                     output_vol_idx = 10
                 else:
