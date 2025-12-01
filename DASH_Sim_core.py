@@ -61,6 +61,8 @@ class SimulationManager:
 
         # unlock the PE:
         PE = self.PEs[completed_task.PE_ID]
+        PE.task = None # reset PE ID
+        PE.dependencies = [] #reset dependencies
         PE.lock = False
 
         # Remove the completed task from the currently running queue
@@ -90,6 +92,7 @@ class SimulationManager:
         for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
+                print(PE.scratchpad)
                 PE.scratchpad[f"{completed_task.ID}_output"]['dependencies'].append(outstanding_task)   # Dependencies for scratchpad values are handled here
 
                 if (common.shared_memory):
@@ -283,15 +286,35 @@ class SimulationManager:
                     #    Need to check if the first task in its queue has had its data transferred so we can begin execution
                     # 3) P.idle = False, P.lock = True: The PE is running.
                     # For simplicity, each PE can ONLY operate on a single input at a time right now
-                    tasks_to_remove = []
 
-                    i = 0
-                    #find index position of first non negative task for certain scheduling algorithms
-                    if self.scheduler.name in common.deprioritize_negative_laxity: 
-                        while i < len(pe_queue)-1 and pe_queue[i].laxity < 0 and pe_queue[i].isForwarded == False:
-                            i += 1
+                    if P.allocating:
+                        i = 0
+                        
+                        executable_task = P.task
+                        out = P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+                        out2 = False
+                        if out == True:
+                            out2 = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
 
-                    executable_task = pe_queue[i]
+                            
+                        if out == True and out2 == True:
+                            print("allocated", f"{executable_task.ID}_output" )
+                            P.allocating = False
+                        continue
+
+                    executable_task = None
+                    if P.task == None:
+                        i = 0
+                        #find index position of first non negative task for certain scheduling algorithms
+                        if self.scheduler.name in common.deprioritize_negative_laxity: 
+                            while i < len(pe_queue)-1 and pe_queue[i].laxity < 0 and pe_queue[i].isForwarded == False:
+                                i += 1
+
+                        executable_task = pe_queue[i]
+                    else:
+                        executable_task = P.task
+
+                    assert executable_task != None
 
                     if P.idle and P.lock:
                         dynamic_dependencies_met = True
@@ -325,15 +348,24 @@ class SimulationManager:
                         
                     # end if P.idle and P.lock:
                     elif P.idle and not P.lock:
+                        print("XD", f"{executable_task.ID}_output" )
+
                         # lock PE, begin pulling value from input
                         P.lock = True
                         # this function also sets the task's timestamp
-                        P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+                        P.task = executable_task
+                        
+                        out = P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+                        out2 = False
+                        if out == True:
+                            out2 = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
 
-                        out = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
+                            
+                        if out == False or out2 == False:
+                            P.allocating = True
+                            continue
+                        print("allocated", f"{executable_task.ID}_output" )
 
-                        if out == False:
-                            P.lock = False
                     # end elif P.idle and not P.lock:
                     elif not P.idle and P.lock: 
                         continue # PE is running when locked and not idle

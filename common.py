@@ -499,6 +499,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                 # retrieve the real ID  of the predecessor based on the job ID
                 real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
 
+                caller.PEs[executable_task.PE_ID].dependencies.append(real_predecessor_ID) #removed in update ready queue
+
                 # Initialize following two variables which will be used if
                 # PE to PE communication is utilized
                 predecessor_PE_ID = -1
@@ -576,7 +578,9 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             
             # stall if we can't get enough scratchpad space
             if cancel:
+                caller.PEs[executable_task.PE_ID].dependencies = 0
                 return False
+
             assert total_data >= 0
 
             assert len(bandwidth) == len(data_volumes) == len(src_list) == len(data_ids)
@@ -640,7 +644,7 @@ def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwi
         'dst_PE': dst_PE, # Destination
         'data_IDs': data_IDs, # current data IDs
         'max_bandwidths': bandwidths, # Max bandwidth allowed between each set of resources
-        'congested_bandwidth': 0, # current cap on bandwidth based on contention over NoC and memory. Will be set in update_noc_transfers
+        'congested_bandwidths': bandwidths, # current cap on bandwidth based on contention over NoC and memory. Will be set in update_noc_transfers
         'task': task, # pointer to the task associated with the data transfer, to be able to delay / bring forward its wait time.
         'update_time': current_time, # Time since the late update to congestion - used for calculating the remaining volume of data.
         'finish_time': current_time, # Time to completion - updated as congestion increases and decreases.
@@ -655,8 +659,9 @@ def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwi
             caller.PEs[src_PEs[0]].active_dma_transfer = transfer_dict
         if dst_PE != -1:
             caller.PEs[dst_PE].active_dma_transfer = transfer_dict
-        
+    cleanup_noc_transfers(current_time, caller)
     update_noc_transfers(current_time)
+    
 def cleanup_noc_transfers(current_time, caller):
     '''!
     Remove completed transfers, free DMA channels, and promote queued transfers to active.
@@ -738,7 +743,7 @@ def update_noc_transfers(current_time):
 
         while elapsed > 0:
             idx = t['current_transfer']
-            effective_bw = min(t['max_bandwidths'][idx], t['congested_bandwidth'])
+            effective_bw = min(t['max_bandwidths'][idx], t['congested_bandwidths'][idx])
 
             time_for_segment = t['volume'][idx] / effective_bw
 
@@ -755,29 +760,30 @@ def update_noc_transfers(current_time):
         # end while elapsed > 0
 
         # Calculate NoC transfer time
-        noc_time = 0
-        for i in range(t['current_transfer'], t['total_transfers']):
-            seg_bw = min(t['max_bandwidths'][i], c)
-            noc_time += t['volume'][i] / seg_bw
+        total_time = 0
+        for idx in range(t['current_transfer'], t['total_transfers']):
+            # Calculate memory overhead time (parallel, not additive)
+            if t['src_PEs'][idx] == -1 or t['dst_PE'] == -1:
+                # calculate the time if the noc is the limiting factor and if the memory is the limiting factor
+                seg_bw = min(t['max_bandwidths'][idx], c)
+                noc_time = t['volume'][idx] / seg_bw
+                memory_bw = t['max_bandwidths'][idx] * (1/memory_factor) # 1 / memory factor here is the bandwidth we can expect to recieve based on latency slowdown
+                memory_time = t['volume'][idx] / memory_bw # the same as multiplying it into the memory time.
 
-        # Calculate memory overhead time (parallel, not additive)
-        memory_time = 0
-        memory_bw = 0
-        for i in range(t['current_transfer'], t['total_transfers']):
-            # Only count memory transfers
-            if t['src_PEs'][i] == -1 or t['dst_PE'] == -1:
-                memory_bw = t['max_bandwidths'][i] * memory_factor
-                memory_time += t['volume'][i] / memory_bw
+                total_time += max(memory_time, noc_time)
+                if noc_time > memory_time:
+                    t['congested_bandwidths'][idx] = int(c) # min of this is the same as max in total_time
+                else:
+                    t['congested_bandwidths'][idx] = int(memory_bw) # min of this is the same as max in total_time
+            else:
+                seg_bw = min(t['max_bandwidths'][idx], c)
+                total_time += t['volume'][idx] / seg_bw
+                t['congested_bandwidths'][idx] = int(c)
 
-        # Use parallel model: max(noc_time, memory_time)
-        total_time = max(noc_time, memory_time)
 
         t['finish_time'] = int(current_time + total_time)
 
-        if noc_time > memory_time:
-            t['congested_bandwidth'] = int(c) # min of this is the same as max in total_time
-        else:
-            t['congested_bandwidth'] = int(memory_bw) # min of this is the same as max in total_time
+        
 
         t['update_time'] = int(current_time)
 
@@ -786,55 +792,85 @@ def update_noc_transfers(current_time):
 
 
 def get_memory_contention_factor():
-    '''!
-    Calculate memory bandwidth degradation based on active memory transfers.
-    Uses linear degradation model with tunable parameters.
-
-    @return: Multiplicative factor from MEMORY_MIN_FACTOR to 1.0
-             (1.0 = no contention, MEMORY_MIN_FACTOR = heavy contention)
-    '''
-    # Count active memory transfers (src_PE == -1 or dst_PE == -1)
-    memory_transfer_count = 0
+    """
+    Calculate memory latency scaling factor based on bandwidth utilization.
+    Uses queueing-theory model from Mess paper findings.
+    
+    @return: Multiplicative factor >= 1.0
+             (1.0 = no contention, higher = more latency)
+    """
+    peak_bw = 12800  # bytes/us for LPDDR5-6400 (12.8 GB/s)
+    
+    # Calculate current memory bandwidth usage and read/write ratio
+    # Only count ACTIVE transfers that touch memory (src or dst is -1)
+    total_memory_bw = 0
+    read_bw = 0
+    write_bw = 0
+    
     for t in active_noc_transfers:
-        if t.get('state', 'active') == 'active':
-            current_seg = t['current_transfer']
-            src_pe = t['src_PEs'][current_seg]
-            dst_pe = t['dst_PE']
-            if src_pe == -1 or dst_pe == -1:
-                memory_transfer_count += 1
+        if t['state'] != 'active':
+            continue
+            
+        idx = t['current_transfer']
+        if idx >= t['total_transfers']:
+            assert False
+            
+        # Get effective bandwidth for this transfer
+        effective_bw = min(t['max_bandwidths'][idx], t['congested_bandwidths'][idx])
+        
+        src_pe = t['src_PEs'][idx]
+        dst_pe = t['dst_PE']
+        
+        # Check if this transfer involves memory
+        if src_pe == -1:
+            # Reading from memory to accelerator
+            read_bw += effective_bw
+            total_memory_bw += effective_bw
+        elif dst_pe == -1:
+            # Writing from accelerator to memory
+            write_bw += effective_bw
+            total_memory_bw += effective_bw
+        # else: SPAD-to-SPAD transfer, doesn't affect memory contention
 
-    if memory_transfer_count == 0:
+    utilization = total_memory_bw / peak_bw
+
+
+    if total_memory_bw > 0:
+        read_ratio = (read_bw / total_memory_bw) 
+    else:
+        read_ratio = 1.0  # Default to reads when no traffic
+
+    
+    if utilization <= 0:
         return 1.0
-
-    # Linear degradation: factor = 1 - (degradation_rate * (count - 1))
-    # First transfer has no degradation, subsequent transfers degrade bandwidth
-    factor = 1.0 - (MEMORY_DEGRADATION_RATE * (memory_transfer_count - 1))
-
-    # Clamp to minimum bandwidth factor
-    return max(factor, MEMORY_MIN_FACTOR)
-
-
-def calculate_memory_overhead(volumes, bandwidths, src_PEs, dst_PE):
-    '''!
-    Calculate memory access time including contention.
-    Memory overhead runs in parallel with NoC transfer time.
-
-    @param volumes: List of data volumes in bytes
-    @param bandwidths: List of max bandwidths in bytes/us
-    @param src_PEs: List of source PE IDs (-1 for memory)
-    @param dst_PE: Destination PE ID
-    @return: Memory access time in microseconds (to use as max(noc_time, memory_time))
-    '''
-    memory_factor = get_memory_contention_factor()
-    memory_time = 0
-
-    for i, (vol, bw, src) in enumerate(zip(volumes, bandwidths, src_PEs)):
-        # Only count memory transfers
-        if src == -1 or dst_PE == -1:
-            effective_bw = bw * memory_factor
-            memory_time += vol / effective_bw
-
-    return int(memory_time)
+    
+    # Saturation point depends on read/write ratio
+    # 100% reads: saturates at ~85-90% of peak
+    # 50% reads: saturates at ~65-70% of peak
+    # Since we don't need to read for each write, we can achieve 0% reads. Best we can do is continue the trend of saturation
+    sat_point = 0.60 + 0.30 * read_ratio
+    
+    # Knee point: where latency starts increasing noticeably
+    # Paper shows latency is ~flat until ~70-80% of saturation point
+    knee_point = sat_point * 0.75
+    
+    if utilization < knee_point:
+        # Flat region: minimal latency increase
+        return 1.0
+    
+    # Beyond knee: sharp increase toward saturation
+    # Map utilization from [knee, sat] to [0, 1] for the steep region
+    steep_region = (utilization - knee_point) / (sat_point - knee_point)
+    
+    # Steep curve in saturation region
+    # At knee: factor = 1.0
+    # At saturation: factor approaches max_factor
+    # We shouldn't be hitting this at all, if ever
+    max_factor = 3.0  # Paper shows ~2-4x latency increase at saturation
+    
+    factor = 1.0 + (max_factor) * (steep_region ** 2) # approximately quadratic increase
+    
+    return factor
 
 
 def calculate_contention(caller, src_PE, dst_PE, data_id, current_time):

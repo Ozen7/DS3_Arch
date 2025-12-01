@@ -59,8 +59,11 @@ class PE:
         self.scratchpad_used = 0                                                # Current bytes used in scratchpad
         self.forwarding_enabled = False                                         # Set to True when forwarding mode is enabled
         self.lock = False                                                       # Determines whether a PE has decided to take on a task.
+        self.allocating = False                                                 # determines whether a PE is trying to allocate from scratchpad
         self.DMATimer = 0                                                       # Determines the freedom of the DMA timer
         self.active_dma_transfer = None                                         # Reference to the transfer currently using this PE's DMA
+        self.task = None
+        self.dependencies = []
 
         if (common.DEBUG_CONFIG):
             print('[D] Constructed PE-%d with name %s' %(ID,name))
@@ -311,9 +314,6 @@ class PE:
         # Check if we have enough capacity
         if size > self.scratchpad_capacity:
             # Data is larger than total capacity - cannot allocate
-            print(task_id)
-            print(self.scratchpad_capacity)
-            print(size)
             assert False
 
         # Evict data using LRU until we have enough space
@@ -357,13 +357,20 @@ class PE:
                 else:
                     writeback = False
 
-                # cannot evict if the data is actively being transferred.
+                # cannot evict if the data is actively being transferred or it is one of the current values we need as input/output
                 for active_transfer in common.active_noc_transfers:
                     if data_id in active_transfer['data_IDs']:
-                        writeback = False
-                        self.scratchpad[data_id]['timestamp'] = active_transfer['finish_time']
+                        self.scratchpad[data_id]['timestamp'] = self.env.now
                         # we return to avoid evicting
                         return
+            if data_id == f"{self.task.ID}_output" or data_id == f"{self.task.ID}_input":
+                self.scratchpad[data_id]['timestamp'] = self.env.now
+                return
+            
+            for d in self.dependencies:
+                if data_id == f"{d}_output":
+                     self.scratchpad[data_id]['timestamp'] = self.env.now
+
                         
             
             size = self.scratchpad[data_id]['size']
@@ -374,9 +381,9 @@ class PE:
             if writeback:
                 self.simManager.writeback_handler(data_id, size, self) #writes values back to memory.
 
-            if common.DEBUG_SIM:
-                print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
-                      % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
+
+            print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
+                    % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
 
     def get_scratchpad_available(self):
         '''!
