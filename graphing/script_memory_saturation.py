@@ -269,16 +269,13 @@ def create_comparison_graph(scheduler, ds3_data, gem5_data, output_dir='graphs')
     bars4 = ax.bar(x + offset4, gem5_normalized, BAR_WIDTH,
                    label=f'gem5 Baseline ({gem5_policy})', color=COLORS['gem5'])
 
-    # Configure chart elements
-    ax.set_xlabel('Workload', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Normalized Execution Time (gem5 = 1.0)', fontsize=12, fontweight='bold')
-    ax.set_title(f'Memory Saturation Comparison (Normalized) - {scheduler} vs gem5 {gem5_policy}',
-                fontsize=14, fontweight='bold', pad=35)
+    # Configure chart elements - NO title, NO axis labels
     ax.set_xticks(x)
-    ax.set_xticklabels(workload_labels)
+    ax.set_xticklabels(workload_labels, fontsize=14)
+    ax.tick_params(axis='y', labelsize=14)
 
-    # Place legend at top-left, outside the graphed area
-    ax.legend(loc='upper left', bbox_to_anchor=(0, 1.15), ncol=2, fontsize=9, frameon=True)
+    # Place legend at top center (where title was)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=2, fontsize=12, frameon=True)
 
     ax.grid(axis='y', alpha=0.3, linestyle='--')
 

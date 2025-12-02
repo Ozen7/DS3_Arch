@@ -165,16 +165,13 @@ def create_soc_comparison_graph(scheduler, soc_data, output_dir='graphs'):
     bars3 = ax.bar(x + offset3, all3_times, BAR_WIDTH,
                    label='all3 (3x Resources)', color=COLORS['all3'])
 
-    # Configure chart elements
-    ax.set_xlabel('Workload', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Execution Time (μs)', fontsize=12, fontweight='bold')
-    ax.set_title(f'SoC Resource Scaling Comparison - {scheduler}',
-                fontsize=14, fontweight='bold', pad=35)
+    # Configure chart elements - NO title, NO axis labels
     ax.set_xticks(x)
-    ax.set_xticklabels(workload_labels)
+    ax.set_xticklabels(workload_labels, fontsize=14)
+    ax.tick_params(axis='y', labelsize=14)
 
-    # Place legend at top-left, outside the graphed area
-    ax.legend(loc='upper left', bbox_to_anchor=(0, 1.15), ncol=3, fontsize=9, frameon=True)
+    # Place legend at top center (where title was)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=3, fontsize=12, frameon=True)
 
     ax.grid(axis='y', alpha=0.3, linestyle='--')
 
