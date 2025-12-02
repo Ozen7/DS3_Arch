@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Automated Experiment Runner for DS3 (DASH-Sim)
+Automated Experiment Runner for DS3 (DASH-Sim) - Arbitration Type Sweep
 
 This script automates running experiments across multiple:
 - SoC configurations (auto-generated via create_RELIEF_SoC.py)
 - Workload configurations (job_list and job_probabilities)
 - Schedulers (RELIEF, LL, GEDF_D, GEDF_N, HetSched)
+- Arbitration types (min, min_coloc, random, exectime)
 
-It collects all metrics and saves them to a comprehensive CSV file.
+Fixed bandwidth: 5280 bytes/μs
 
 Usage:
-    python3 run_experiment_sweep.py
+    python3 run_arbitration_sweep.py
 """
 
 import subprocess
@@ -21,21 +22,18 @@ import re
 import time
 from datetime import datetime
 import sys
-import argparse
 
-# ========== COMMAND-LINE ARGUMENTS ==========
-
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description='Run DS3 experiments with configurable bandwidth')
-parser.add_argument('--bandwidth', type=int, default=5280,
-                    choices=[5280, 8000, 16000],
-                    help='Memory bandwidth in bytes/microsecond (default: 5280)')
-args = parser.parse_args()
+# Get the directory containing this script and the project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # Parent of scripts/ directory
 
 # ========== EXPERIMENT CONFIGURATION (EDIT HERE) ==========
 
 # Simulation mode: 'performance' or 'validation'
 SIMULATION_MODE = 'performance'
+
+# Fixed bandwidth for arbitration sweep (bytes/microsecond)
+bandwidth = 5280
 
 # SoC configurations to generate and test
 # Format: (filename, accelerator_specs)
@@ -95,20 +93,18 @@ WORKLOAD_CONFIGS = [
     # Add more workload configurations here easily...
 ]
 
-# Output CSV file - includes bandwidth and experiment type in filename
-OUTPUT_CSV = f'results_final/experiment_results_RELIEF_NoCrit_MinList_{args.bandwidth}.csv'
+# Arbitration types to sweep through
+ARBITRATION_TYPES = ['min', 'min_coloc', 'random', 'exectime']
+
+# Paths (relative to PROJECT_ROOT)
+RESULTS_DIR = os.path.join(PROJECT_ROOT, 'results_final')
+CONFIG_FILE = os.path.join(PROJECT_ROOT, 'config_file.ini')
+SOC_CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config_SoC')
+DASH_SIM_SCRIPT = os.path.join(PROJECT_ROOT, 'DASH_Sim_v0.py')
+CREATE_SOC_SCRIPT = os.path.join(SCRIPT_DIR, 'create_RELIEF_SoC.py')
 
 # Ensure results_final directory exists
-os.makedirs('results_final', exist_ok=True)
-
-# Configuration file path
-CONFIG_FILE = 'config_file.ini'
-
-# SoC configuration directory
-SOC_CONFIG_DIR = 'config_SoC'
-
-# Memory bandwidth of these tests (from command-line argument)
-bandwidth = args.bandwidth
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # Simulation timeout (seconds)
 SIMULATION_TIMEOUT = 600  # 10 minutes
@@ -141,7 +137,7 @@ def generate_soc_config(soc_filename, acc_specs, bandwidth):
 
     # Build command-line arguments for create_RELIEF_SoC.py
     # Format: python3 create_RELIEF_SoC.py isp 1 grayscale 1 conv 1 ...
-    cmd_args = ['python3', 'create_RELIEF_SoC.py']
+    cmd_args = ['python3', CREATE_SOC_SCRIPT]
 
     # Add accelerator type and count pairs in the correct order
     # Order from create_RELIEF_SoC.py: isp, grayscale, conv, harris, edge, canny, elem
@@ -162,7 +158,8 @@ def generate_soc_config(soc_filename, acc_specs, bandwidth):
             stderr=subprocess.PIPE,
             universal_newlines=True,
             timeout=30,
-            env=env  # Pass modified environment
+            env=env,  # Pass modified environment
+            cwd=PROJECT_ROOT  # Run from project root
         )
 
         if result.returncode == 0:
@@ -196,7 +193,7 @@ def backup_config_file():
     return None
 
 
-def modify_config(soc_config, scheduler, workload_config):
+def modify_config(soc_config, scheduler, workload_config, arbitration_type):
     """
     Modify the config_file.ini with the specified parameters.
 
@@ -204,6 +201,7 @@ def modify_config(soc_config, scheduler, workload_config):
         soc_config: SoC configuration filename
         scheduler: Scheduler name
         workload_config: Dictionary with 'job_list' and 'job_probabilities'
+        arbitration_type: Arbitration type (min, min_coloc, random, exectime)
     """
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE)
@@ -213,13 +211,14 @@ def modify_config(soc_config, scheduler, workload_config):
     config['DEFAULT']['scheduler'] = scheduler
     config['DEFAULT']['job_list'] = workload_config['job_list']
     config['DEFAULT']['job_probabilities'] = workload_config['job_probabilities']
+    config['DEFAULT']['arbitration_type'] = arbitration_type
     config['SIMULATION MODE']['simulation_mode'] = SIMULATION_MODE
 
     # Write back to the config file
     with open(CONFIG_FILE, 'w') as configfile:
         config.write(configfile)
 
-    print(f"[Config] SoC={soc_config}, Scheduler={scheduler}, Workload={workload_config['name']}")
+    print(f"[Config] SoC={soc_config}, Scheduler={scheduler}, Workload={workload_config['name']}, Arbitration={arbitration_type}")
 
 
 def run_simulation():
@@ -232,11 +231,12 @@ def run_simulation():
     try:
         print("[Run] Starting simulation...")
         result = subprocess.run(
-            ['python3', 'DASH_Sim_v0.py'],
+            ['python3', DASH_SIM_SCRIPT],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
-            timeout=SIMULATION_TIMEOUT
+            timeout=SIMULATION_TIMEOUT,
+            cwd=PROJECT_ROOT  # Run from project root
         )
 
         if result.returncode == 0:
@@ -343,7 +343,8 @@ def save_results_to_csv(results, output_file):
 
     # Sort fieldnames for consistent output, with metadata columns first
     priority_fields = ['experiment_num', 'timestamp', 'soc_config', 'scheduler',
-                      'workload_name', 'job_list', 'job_probabilities', 'memory ']
+                      'workload_name', 'job_list', 'job_probabilities', 'memory_bandwidth',
+                      'arbitration_type']
 
     # Separate priority fields and other fields
     other_fields = sorted(list(fieldnames - set(priority_fields)))
@@ -367,14 +368,18 @@ def run_experiments():
     Main function to run all experiment combinations.
     """
     print("="*70)
-    print("DS3 (DASH-Sim) Automated Experiment Runner")
+    print("DS3 (DASH-Sim) Automated Experiment Runner - Arbitration Type Sweep")
     print("="*70)
     print(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Simulation mode: {SIMULATION_MODE}")
+    print(f"Fixed bandwidth: {bandwidth} bytes/μs")
     print(f"SoC configs: {len(SOC_CONFIGS)}")
     print(f"Schedulers: {len(SCHEDULERS)}")
     print(f"Workloads: {len(WORKLOAD_CONFIGS)}")
-    total_experiments = len(SOC_CONFIGS) * len(SCHEDULERS) * len(WORKLOAD_CONFIGS)
+    print(f"Arbitration types: {len(ARBITRATION_TYPES)}")
+    experiments_per_arbitration = len(SOC_CONFIGS) * len(SCHEDULERS) * len(WORKLOAD_CONFIGS)
+    total_experiments = experiments_per_arbitration * len(ARBITRATION_TYPES)
+    print(f"Experiments per arbitration type: {experiments_per_arbitration}")
     print(f"Total experiments: {total_experiments}")
     print("="*70)
     print()
@@ -410,95 +415,121 @@ def run_experiments():
     print("STEP 3: Running Experiments")
     print("="*70)
 
-    results = []
     failed_experiments = []
     experiment_num = 0
 
-    # Triple nested loop: SoC × Scheduler × Workload
-    for soc_filename, _ in SOC_CONFIGS:
-        for scheduler in SCHEDULERS:
-            for workload_config in WORKLOAD_CONFIGS:
-                experiment_num += 1
+    # OUTER LOOP: Iterate through each arbitration type (4 separate sweeps)
+    for arbitration_type in ARBITRATION_TYPES:
+        # Set OUTPUT_CSV for this arbitration type's sweep
+        OUTPUT_CSV = os.path.join(RESULTS_DIR, f'experiment_results_RELIEF_NoCrit_{arbitration_type}_5280.csv')
 
-                print(f"\n{'='*70}")
-                print(f"Experiment {experiment_num}/{total_experiments}")
-                print(f"{'='*70}")
+        # Results list for THIS arbitration type only
+        results = []
 
-                # Modify configuration
-                try:
-                    modify_config(soc_filename, scheduler, workload_config)
-                except Exception as e:
-                    print(f"[Error] Failed to modify config: {e}")
-                    failed_experiments.append({
+        print(f"\n{'='*70}")
+        print(f"ARBITRATION TYPE SWEEP: {arbitration_type}")
+        print(f"Output file: {OUTPUT_CSV}")
+        print(f"{'='*70}")
+
+        # INNER LOOPS: Workload × SoC × Scheduler (standard sweep within each arbitration type)
+        for soc_filename, _ in SOC_CONFIGS:
+            for scheduler in SCHEDULERS:
+                for workload_config in WORKLOAD_CONFIGS:
+                    experiment_num += 1
+
+                    print(f"\n{'='*70}")
+                    print(f"Experiment {experiment_num}/{total_experiments}")
+                    print(f"Arbitration Type: {arbitration_type}")
+                    print(f"{'='*70}")
+
+                    # Modify configuration
+                    try:
+                        modify_config(soc_filename, scheduler, workload_config, arbitration_type)
+                    except Exception as e:
+                        print(f"[Error] Failed to modify config: {e}")
+                        failed_experiments.append({
+                            'experiment_num': experiment_num,
+                            'soc_config': soc_filename,
+                            'scheduler': scheduler,
+                            'workload': workload_config['name'],
+                            'arbitration_type': arbitration_type,
+                            'error': f'Config modification failed: {e}'
+                        })
+                        continue
+
+                    # Run simulation
+                    success, output, error = run_simulation()
+
+                    if not success:
+                        print(f"[Error] Simulation failed")
+                        failed_experiments.append({
+                            'experiment_num': experiment_num,
+                            'soc_config': soc_filename,
+                            'scheduler': scheduler,
+                            'workload': workload_config['name'],
+                            'arbitration_type': arbitration_type,
+                            'error': error if error else 'Unknown error'
+                        })
+
+                    # Parse results
+                    metrics = parse_simulation_output(output)
+
+                    # Add experiment metadata to results
+                    result = {
                         'experiment_num': experiment_num,
+                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                         'soc_config': soc_filename,
+                        'memory_bandwidth': bandwidth,
                         'scheduler': scheduler,
-                        'workload': workload_config['name'],
-                        'error': f'Config modification failed: {e}'
-                    })
-                    continue
+                        'workload_name': workload_config['name'],
+                        'job_list': workload_config['job_list'],
+                        'job_probabilities': workload_config['job_probabilities'],
+                        'arbitration_type': arbitration_type,
+                    }
 
-                # Run simulation
-                success, output, error = run_simulation()
+                    # Add all metrics
+                    result.update(metrics)
 
-                if not success:
-                    print(f"[Error] Simulation failed")
-                    failed_experiments.append({
-                        'experiment_num': experiment_num,
-                        'soc_config': soc_filename,
-                        'scheduler': scheduler,
-                        'workload': workload_config['name'],
-                        'error': error if error else 'Unknown error'
-                    })
-                    continue
+                    results.append(result)
 
-                # Parse results
-                metrics = parse_simulation_output(output)
+                    # Print key metrics
+                    print(f"\n[Results] Experiment {experiment_num} completed:")
+                    print(f"  Completed Jobs: {metrics.get('completed_jobs', 'N/A')}")
+                    print(f"  Deadlines Met: {metrics.get('deadlines_met', 'N/A')}")
+                    print(f"  Deadlines Missed: {metrics.get('deadlines_missed', 'N/A')}")
+                    print(f"  Execution Time: {metrics.get('execution_time', 'N/A')} us")
+                    print(f"  Energy: {metrics.get('total_energy', 'N/A')} J")
+                    print(f"  EDP: {metrics.get('edp', 'N/A')}")
 
-                # Add experiment metadata to results
-                result = {
-                    'experiment_num': experiment_num,
-                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    'soc_config': soc_filename,
-                    'memory_bandwidth': bandwidth,
-                    'scheduler': scheduler,
-                    'workload_name': workload_config['name'],
-                    'job_list': workload_config['job_list'],
-                    'job_probabilities': workload_config['job_probabilities'],
-                }
+                    # Save intermediate results to THIS arbitration type's CSV
+                    save_results_to_csv(results, OUTPUT_CSV)
 
-                # Add all metrics
-                result.update(metrics)
-
-                results.append(result)
-
-                # Print key metrics
-                print(f"\n[Results] Experiment {experiment_num} completed:")
-                print(f"  Completed Jobs: {metrics.get('completed_jobs', 'N/A')}")
-                print(f"  Deadlines Met: {metrics.get('deadlines_met', 'N/A')}")
-                print(f"  Deadlines Missed: {metrics.get('deadlines_missed', 'N/A')}")
-                print(f"  Execution Time: {metrics.get('execution_time', 'N/A')} us")
-                print(f"  Energy: {metrics.get('total_energy', 'N/A')} J")
-                print(f"  EDP: {metrics.get('edp', 'N/A')}")
-
-                # Save intermediate results after each experiment
-                save_results_to_csv(results, OUTPUT_CSV)
+        # After completing sweep for this arbitration type, save final CSV
+        print(f"\n{'='*70}")
+        print(f"[Complete] Finished sweep for arbitration_type={arbitration_type}")
+        print(f"[Complete] Results saved to: {OUTPUT_CSV}")
+        print(f"[Complete] Experiments for this type: {len(results)}")
+        print(f"{'='*70}")
 
     # Step 4: Final summary
     print("\n" + "="*70)
     print("EXPERIMENT SUMMARY")
     print("="*70)
     print(f"Total experiments planned: {total_experiments}")
-    print(f"Successful: {len(results)}")
+    print(f"Successful: {total_experiments - len(failed_experiments)}")
     print(f"Failed: {len(failed_experiments)}")
     print(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Results saved to: {OUTPUT_CSV}")
+    print(f"\nGenerated {len(ARBITRATION_TYPES)} CSV files:")
+    for arb_type in ARBITRATION_TYPES:
+        csv_path = os.path.join(RESULTS_DIR, f'experiment_results_RELIEF_NoCrit_{arb_type}_5280.csv')
+        print(f"  - {csv_path}")
 
     if failed_experiments:
         print(f"\nFailed experiments ({len(failed_experiments)}):")
         for fail in failed_experiments:
             print(f"  - Experiment {fail['experiment_num']}: SoC={fail['soc_config']}, "
-                  f"Scheduler={fail['scheduler']}, Workload={fail['workload']}")
+                  f"Scheduler={fail['scheduler']}, Workload={fail['workload']}, "
+                  f"Arbitration={fail['arbitration_type']}")
             print(f"    Error: {fail['error']}")
 
     print("="*70)

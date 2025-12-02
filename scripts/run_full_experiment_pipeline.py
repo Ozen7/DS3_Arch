@@ -4,14 +4,16 @@ DS3 Full Experiment Pipeline
 =============================
 
 Automates the complete experimental workflow:
-1. Runs DS3 experiments at three bandwidth levels (5280, 8000, 16000 MHz)
+1. Runs DS3 experiments at three bandwidth levels (5280, 8000, 16000 MHz) OR
+   Runs arbitration type sweep experiments (min, min_coloc, random, exectime)
 2. Generates memory saturation comparison graphs
 3. Generates resource scaling comparison graphs
 
 Usage:
-    python3 run_full_experiment_pipeline.py
+    python3 run_full_experiment_pipeline.py [--sweep-type TYPE]
 
 Options:
+    --sweep-type TYPE     Type of sweep: 'bandwidth' (default), 'arbitration', or 'both'
     --skip-experiments    Skip running experiments, only generate graphs
     --bandwidth <bw>      Run only specific bandwidth (5280, 8000, or 16000)
     --graphs-only         Only generate graphs from existing data
@@ -31,7 +33,8 @@ import argparse
 
 BANDWIDTHS = [5280, 8000, 16000]
 EXPERIMENT_SCRIPT = "run_experiment_sweep.py"
-GRAPHING_DIR = "graphing"
+ARBITRATION_SWEEP_SCRIPT = "run_arbitration_sweep.py"
+GRAPHING_DIR = "../graphing"
 MEMORY_SAT_SCRIPT = "script_memory_saturation.py"
 RESOURCE_SCALE_SCRIPT = "script_resource_scaling.py"
 
@@ -139,7 +142,7 @@ def verify_results_exist(bandwidths):
 
     missing = []
     for bw in bandwidths:
-        filename = f"results_final/experiment_results_RELIEF_NoCrit_MinList_{bw}.csv"
+        filename = f"../results_final/experiment_results_RELIEF_NoCrit_MinList_{bw}.csv"
         if not os.path.exists(filename):
             missing.append(filename)
             print(f"[MISSING] {filename}")
@@ -154,7 +157,7 @@ def verify_results_exist(bandwidths):
         return False
 
     # Check gem5 baseline
-    gem5_file = "results_final/gem5_comb_1_results.csv"
+    gem5_file = "../results_final/gem5_comb_1_results.csv"
     if not os.path.exists(gem5_file):
         print(f"[WARNING] {gem5_file} not found")
         print("[INFO] Memory saturation graphs will not include gem5 baseline")
@@ -189,7 +192,7 @@ def run_bandwidth_experiment(bandwidth):
 
     if success:
         # Verify output file was created
-        output_file = f"results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv"
+        output_file = f"../results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv"
         if os.path.exists(output_file):
             size = os.path.getsize(output_file)
             lines = 0
@@ -242,6 +245,46 @@ def run_all_experiments(bandwidths):
         print(f"  Failed: {', '.join(map(str, failed))} MHz")
 
     return results
+
+
+def run_arbitration_sweep():
+    """
+    Run arbitration type sweep experiments.
+
+    Returns:
+        True if successful, False otherwise
+    """
+    print_header("STEP 1: Running Arbitration Type Sweep")
+    print_section("Running Arbitration Type Sweep Experiment")
+
+    cmd = ["python3", ARBITRATION_SWEEP_SCRIPT]
+    description = "DS3 arbitration type sweep (min, min_coloc, random, exectime) at 5280 MHz"
+
+    # This sweep runs many experiments - allow 60 minute timeout
+    success = run_command(cmd, description, timeout=3600)
+
+    if success:
+        # Verify output files were created
+        arbitration_types = ['min', 'min_coloc', 'random', 'exectime']
+        print_section("Verifying Arbitration Sweep Results")
+
+        all_found = True
+        for arb_type in arbitration_types:
+            output_file = f"../results_final/experiment_results_RELIEF_NoCrit_{arb_type}_5280.csv"
+            if os.path.exists(output_file):
+                size = os.path.getsize(output_file)
+                lines = 0
+                with open(output_file, 'r') as f:
+                    lines = sum(1 for _ in f)
+                print(f"[VERIFY] {arb_type}: {output_file}")
+                print(f"[VERIFY]   File size: {size} bytes, {lines} lines")
+            else:
+                print(f"[ERROR] Expected output file not found: {output_file}")
+                all_found = False
+
+        success = all_found
+
+    return success
 
 
 # ============================================================================
@@ -383,6 +426,13 @@ def main():
         description="Run DS3 experiments and generate comparison graphs"
     )
     parser.add_argument(
+        "--sweep-type",
+        type=str,
+        choices=['bandwidth', 'arbitration', 'both'],
+        default='bandwidth',
+        help="Type of sweep to run: 'bandwidth' (default), 'arbitration', or 'both'"
+    )
+    parser.add_argument(
         "--skip-experiments",
         action="store_true",
         help="Skip running experiments, only generate graphs"
@@ -391,7 +441,7 @@ def main():
         "--bandwidth",
         type=int,
         choices=[5280, 8000, 16000],
-        help="Run only specific bandwidth experiment"
+        help="Run only specific bandwidth experiment (only for sweep-type='bandwidth')"
     )
     parser.add_argument(
         "--graphs-only",
@@ -405,37 +455,63 @@ def main():
     print_header("DS3 Full Experiment Pipeline")
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Working directory: {os.getcwd()}")
+    print(f"Sweep type: {args.sweep_type}")
 
     # Verify required files exist
     if not verify_files_exist():
         print("\n[ABORT] Required files missing. Please check your setup.")
         return 1
 
-    # Determine which bandwidths to run
-    if args.bandwidth:
-        bandwidths = [args.bandwidth]
-        print(f"[MODE] Running single bandwidth: {args.bandwidth} MHz")
-    else:
-        bandwidths = BANDWIDTHS
-        print(f"[MODE] Running all bandwidths: {', '.join(map(str, bandwidths))} MHz")
+    # Determine which experiments to run
+    run_bandwidth_sweep = args.sweep_type in ['bandwidth', 'both']
+    run_arbitration = args.sweep_type in ['arbitration', 'both']
+
+    # Determine which bandwidths to run (if running bandwidth sweep)
+    if run_bandwidth_sweep:
+        if args.bandwidth:
+            bandwidths = [args.bandwidth]
+            print(f"[MODE] Running single bandwidth: {args.bandwidth} MHz")
+        else:
+            bandwidths = BANDWIDTHS
+            print(f"[MODE] Running all bandwidths: {', '.join(map(str, bandwidths))} MHz")
 
     # Run experiments (unless skipped)
     if args.skip_experiments or args.graphs_only:
         print("\n[SKIP] Skipping experiment execution (using existing data)")
-        if not verify_results_exist(BANDWIDTHS):
+        if run_bandwidth_sweep and not verify_results_exist(BANDWIDTHS):
             print("\n[ERROR] Cannot skip experiments - result files missing!")
             return 1
     else:
         print("\n[MODE] Running experiments")
-        exp_results = run_all_experiments(bandwidths)
 
-        # Check if all experiments succeeded
-        if not all(exp_results.values()):
-            print("\n[WARNING] Some experiments failed!")
-            user_input = input("Continue with graph generation? (y/n): ")
-            if user_input.lower() != 'y':
-                print("[ABORT] User aborted pipeline")
-                return 1
+        # Run bandwidth sweep
+        if run_bandwidth_sweep:
+            exp_results = run_all_experiments(bandwidths)
+
+            # Check if all experiments succeeded
+            if not all(exp_results.values()):
+                print("\n[WARNING] Some bandwidth experiments failed!")
+                if run_arbitration:
+                    user_input = input("Continue with arbitration sweep? (y/n): ")
+                    if user_input.lower() != 'y':
+                        print("[ABORT] User aborted pipeline")
+                        return 1
+                else:
+                    user_input = input("Continue with graph generation? (y/n): ")
+                    if user_input.lower() != 'y':
+                        print("[ABORT] User aborted pipeline")
+                        return 1
+
+        # Run arbitration sweep
+        if run_arbitration:
+            arb_success = run_arbitration_sweep()
+
+            if not arb_success:
+                print("\n[WARNING] Arbitration sweep failed!")
+                user_input = input("Continue with graph generation? (y/n): ")
+                if user_input.lower() != 'y':
+                    print("[ABORT] User aborted pipeline")
+                    return 1
 
     # Generate graphs
     graph_success = generate_all_graphs()
@@ -447,8 +523,8 @@ def main():
     if graph_success:
         print("\n[SUCCESS] All tasks completed successfully!")
         print("\nGenerated files:")
-        print("  CSV Results: results_final/experiment_results_RELIEF_NoCrit_MinList_*.csv")
-        print("  Graphs: graphing/graphs/*.pdf")
+        print("  CSV Results: ../results_final/experiment_results_RELIEF_NoCrit_MinList_*.csv")
+        print("  Graphs: ../graphing/graphs/*.pdf")
         return 0
     else:
         print("\n[ERROR] Pipeline completed with errors")

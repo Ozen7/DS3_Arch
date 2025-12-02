@@ -1,6 +1,10 @@
 import shutil
 import os
+import sys
 import matplotlib.pyplot as plt
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Some variable initialization
 color_list = ['b','r']
@@ -8,7 +12,7 @@ markers = ["o", "^"]
 result_list = [[],[]]
 
 # Get a configuration file satisfying the needs of the scheduling study
-shutil.copyfile("config_Files/config_file_scheduling.ini", "config_file.ini")
+shutil.copyfile("../config_Files/config_file_scheduling.ini", "../config_file.ini")
 
 import configparser
 import common
@@ -16,7 +20,7 @@ import DASH_Sim_v0
 
 # read the initial configuration file to make modification on the parameters needed for different simulations
 config = configparser.ConfigParser()
-config.read('config_file.ini')
+config.read('../config_file.ini')
 
 common.simulation_length = 100000
 
@@ -29,7 +33,7 @@ for i, scheduler in enumerate(scheduler_list):
     config['DEFAULT']['scheduler'] = scheduler
     for rate in scale_list:
         config['SIMULATION MODE']['scale_values'] = "["+str(rate)+"]"
-        with open('config_file.ini', 'w') as configfile:
+        with open('../config_file.ini', 'w') as configfile:
             config.write(configfile)
         DASH_Sim_v0.run_simulator()
         # Only average execution time results recored for these simulations
