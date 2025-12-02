@@ -5,7 +5,7 @@ DS3 Full Experiment Pipeline
 
 Automates the complete experimental workflow:
 1. Runs DS3 experiments at three bandwidth levels (5280, 8000, 16000 MHz) OR
-   Runs arbitration type sweep experiments (min, min_coloc, random, exectime)
+   Runs arbitration type sweep experiments (min, min_coloc, random, exectime) for RELIEF or COMM
 2. Generates memory saturation comparison graphs
 3. Generates resource scaling comparison graphs
 
@@ -13,9 +13,9 @@ Usage:
     python3 run_full_experiment_pipeline.py [--sweep-type TYPE]
 
 Options:
-    --sweep-type TYPE     Type of sweep: 'bandwidth' (default), 'arbitration', or 'both'
+    --sweep-type TYPE     Type of sweep: 'bandwidth' (default), 'arbitration', 'comm-arbitration', or 'both'
     --skip-experiments    Skip running experiments, only generate graphs
-    --bandwidth <bw>      Run only specific bandwidth (5280, 8000, or 16000)
+    --bandwidth <bw>      Run only specific bandwidth (5280, 8000, or 16000) for bandwidth sweeps
     --graphs-only         Only generate graphs from existing data
 """
 
@@ -34,6 +34,7 @@ import argparse
 BANDWIDTHS = [5280, 8000, 16000]
 EXPERIMENT_SCRIPT = "run_experiment_sweep.py"
 ARBITRATION_SWEEP_SCRIPT = "run_arbitration_sweep.py"
+COMM_ARBITRATION_SWEEP_SCRIPT = "run_comm_arbitration_sweep.py"
 GRAPHING_DIR = "../graphing"
 MEMORY_SAT_SCRIPT = "script_memory_saturation.py"
 RESOURCE_SCALE_SCRIPT = "script_resource_scaling.py"
@@ -287,6 +288,46 @@ def run_arbitration_sweep():
     return success
 
 
+def run_comm_arbitration_sweep():
+    """
+    Run COMM arbitration type sweep experiments.
+
+    Returns:
+        True if successful, False otherwise
+    """
+    print_header("Running COMM Arbitration Type Sweep")
+    print_section("Running COMM Arbitration Type Sweep Experiment")
+
+    cmd = ["python3", COMM_ARBITRATION_SWEEP_SCRIPT]
+    description = "DS3 COMM arbitration type sweep (min, min_coloc, random, exectime) at 5280 MHz"
+
+    # This sweep runs many experiments - allow 60 minute timeout
+    success = run_command(cmd, description, timeout=3600)
+
+    if success:
+        # Verify output files were created
+        arbitration_types = ['min', 'min_coloc', 'random', 'exectime']
+        print_section("Verifying COMM Arbitration Sweep Results")
+
+        all_found = True
+        for arb_type in arbitration_types:
+            output_file = f"../results_final/experiment_results_COMM_NoCrit_{arb_type}_5280.csv"
+            if os.path.exists(output_file):
+                size = os.path.getsize(output_file)
+                lines = 0
+                with open(output_file, 'r') as f:
+                    lines = sum(1 for _ in f)
+                print(f"[VERIFY] {arb_type}: {output_file}")
+                print(f"[VERIFY]   File size: {size} bytes, {lines} lines")
+            else:
+                print(f"[ERROR] Expected output file not found: {output_file}")
+                all_found = False
+
+        success = all_found
+
+    return success
+
+
 # ============================================================================
 # Graph Generation Functions
 # ============================================================================
@@ -428,9 +469,9 @@ def main():
     parser.add_argument(
         "--sweep-type",
         type=str,
-        choices=['bandwidth', 'arbitration', 'both'],
+        choices=['bandwidth', 'arbitration', 'comm-arbitration', 'both'],
         default='bandwidth',
-        help="Type of sweep to run: 'bandwidth' (default), 'arbitration', or 'both'"
+        help="Type of sweep: 'bandwidth' (default), 'arbitration' (RELIEF), 'comm-arbitration' (COMM), or 'both' (RELIEF+COMM arbitration)"
     )
     parser.add_argument(
         "--skip-experiments",
@@ -463,8 +504,14 @@ def main():
         return 1
 
     # Determine which experiments to run
-    run_bandwidth_sweep = args.sweep_type in ['bandwidth', 'both']
-    run_arbitration = args.sweep_type in ['arbitration', 'both']
+    run_bandwidth_sweep = args.sweep_type == 'bandwidth'
+    run_arbitration = args.sweep_type == 'arbitration'
+    run_comm_arbitration = args.sweep_type == 'comm-arbitration'
+    run_both = args.sweep_type == 'both'
+
+    if run_both:
+        run_arbitration = True
+        run_comm_arbitration = True
 
     # Determine which bandwidths to run (if running bandwidth sweep)
     if run_bandwidth_sweep:
@@ -502,12 +549,29 @@ def main():
                         print("[ABORT] User aborted pipeline")
                         return 1
 
-        # Run arbitration sweep
+        # Run arbitration sweep (RELIEF)
         if run_arbitration:
             arb_success = run_arbitration_sweep()
 
             if not arb_success:
-                print("\n[WARNING] Arbitration sweep failed!")
+                print("\n[WARNING] RELIEF arbitration sweep failed!")
+                if run_comm_arbitration:
+                    user_input = input("Continue with COMM arbitration sweep? (y/n): ")
+                    if user_input.lower() != 'y':
+                        print("[ABORT] User aborted pipeline")
+                        return 1
+                else:
+                    user_input = input("Continue with graph generation? (y/n): ")
+                    if user_input.lower() != 'y':
+                        print("[ABORT] User aborted pipeline")
+                        return 1
+
+        # Run COMM arbitration sweep
+        if run_comm_arbitration:
+            comm_success = run_comm_arbitration_sweep()
+
+            if not comm_success:
+                print("\n[WARNING] COMM arbitration sweep failed!")
                 user_input = input("Continue with graph generation? (y/n): ")
                 if user_input.lower() != 'y':
                     print("[ABORT] User aborted pipeline")
