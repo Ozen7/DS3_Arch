@@ -34,6 +34,7 @@ class Scheduler:
         self.PEs = PE_list
         self.jobs = jobs
         self.assigned = [0] * (len(self.PEs))
+        self.lastUpdate = 0
 
         # At the end of this function, the scheduler class has a copy of the
         # the power/performance characteristics of the resource matrix and
@@ -787,6 +788,10 @@ class Scheduler:
                 if queue_len < min_queue_len:
                     min_queue_len = queue_len
                     best_pe_id = pe_id
+            resource = self.resource_matrix.list[best_pe_id]
+            func_index = resource.supported_functionalities.index(task.name)
+            isColocated, latency = common.calculate_memory_movement_latency(self, task, best_pe_id, False)
+            min_finish_time = int(resource.performance[func_index]) + latency
 
         task.PE_ID = best_pe_id
         task.runtime = min_finish_time

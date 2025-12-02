@@ -21,6 +21,16 @@ import re
 import time
 from datetime import datetime
 import sys
+import argparse
+
+# ========== COMMAND-LINE ARGUMENTS ==========
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Run DS3 experiments with configurable bandwidth')
+parser.add_argument('--bandwidth', type=int, default=5280,
+                    choices=[5280, 8000, 16000],
+                    help='Memory bandwidth in bytes/microsecond (default: 5280)')
+args = parser.parse_args()
 
 # ========== EXPERIMENT CONFIGURATION (EDIT HERE) ==========
 
@@ -85,8 +95,11 @@ WORKLOAD_CONFIGS = [
     # Add more workload configurations here easily...
 ]
 
-# Output CSV file
-OUTPUT_CSV = 'experiment_results.csv'
+# Output CSV file - includes bandwidth and experiment type in filename
+OUTPUT_CSV = f'results_final/experiment_results_RELIEF_NoCrit_MinList_{args.bandwidth}.csv'
+
+# Ensure results_final directory exists
+os.makedirs('results_final', exist_ok=True)
 
 # Configuration file path
 CONFIG_FILE = 'config_file.ini'
@@ -94,8 +107,8 @@ CONFIG_FILE = 'config_file.ini'
 # SoC configuration directory
 SOC_CONFIG_DIR = 'config_SoC'
 
-# Memory bandwidth of these tests
-bandwidth = int(16000 * (0.33))
+# Memory bandwidth of these tests (from command-line argument)
+bandwidth = args.bandwidth
 
 # Simulation timeout (seconds)
 SIMULATION_TIMEOUT = 600  # 10 minutes
@@ -105,13 +118,14 @@ SIMULATION_TIMEOUT = 600  # 10 minutes
 
 # ========== HELPER FUNCTIONS ==========
 
-def generate_soc_config(soc_filename, acc_specs):
+def generate_soc_config(soc_filename, acc_specs, bandwidth):
     """
     Generate SoC configuration file using create_RELIEF_SoC.py.
 
     Args:
         soc_filename: Name of the SoC configuration file
         acc_specs: Dictionary of {accelerator_type: count}
+        bandwidth: Memory bandwidth in bytes/microsecond
 
     Returns:
         True if successful, False otherwise
@@ -137,13 +151,18 @@ def generate_soc_config(soc_filename, acc_specs):
         if acc_type in acc_specs and acc_specs[acc_type] > 0:
             cmd_args.extend([acc_type, str(acc_specs[acc_type])])
 
+    # Set bandwidth via environment variable for create_RELIEF_SoC.py
+    env = os.environ.copy()
+    env['DS3_BANDWIDTH'] = str(bandwidth)
+
     try:
         result = subprocess.run(
             cmd_args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
-            timeout=30
+            timeout=30,
+            env=env  # Pass modified environment
         )
 
         if result.returncode == 0:
@@ -367,7 +386,7 @@ def run_experiments():
     failed_soc_generation = []
 
     for soc_filename, acc_specs in SOC_CONFIGS:
-        success = generate_soc_config(soc_filename, acc_specs)
+        success = generate_soc_config(soc_filename, acc_specs, bandwidth)
         if not success:
             failed_soc_generation.append(soc_filename)
 

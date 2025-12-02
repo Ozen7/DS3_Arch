@@ -533,7 +533,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     if canAllocate and predecessor_PE_ID != PE_ID:
                         results.forwardData += comm_vol
                         results.num_forwards += 1
-                        cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        out = caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        cancel = cancel and out
 
                     elif canAllocate:
                         results.num_colocations += 1
@@ -557,10 +558,10 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                     if canAllocate:
                         results.memoryData += comm_vol
-                        cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        out = caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, comm_vol*packet_size, predecessor_task.ID)
+                        cancel = cancel and out
                 # end of if comm_timing == 'memory'
             # end of for predecessor in task.predecessors:
-
 
             if total_data > 0:
                 comm_band = ResourceManager.comm_band[caller.resource_matrix.list[-1].ID, PE_ID]
@@ -573,7 +574,8 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                 if canAllocate:
                     results.memoryData += total_data
-                    cancel and not caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+                    out = caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
+                    cancel = cancel and out
             # end if total_data > 0
             
             # stall if we can't get enough scratchpad space
@@ -639,12 +641,12 @@ def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwi
     transfer_dict = {
         'current_transfer': 0, # tracks which transfer we are currently working on.
         'total_transfers': len(volumes), # tracks the total number of transfers we need to do before we finish
-        'volume': volumes, # Remaining amount of data to be transferred for each part of the transfer, in bytes
-        'src_PEs': src_PEs, # Sources
-        'dst_PE': dst_PE, # Destination
-        'data_IDs': data_IDs, # current data IDs
-        'max_bandwidths': bandwidths, # Max bandwidth allowed between each set of resources
-        'congested_bandwidths': bandwidths, # current cap on bandwidth based on contention over NoC and memory. Will be set in update_noc_transfers
+        'volume': volumes.copy(),
+        'src_PEs': src_PEs.copy(),
+        'dst_PE': dst_PE,
+        'data_IDs': data_IDs.copy(),
+        'max_bandwidths': bandwidths.copy(),
+        'congested_bandwidths': bandwidths.copy(),
         'task': task, # pointer to the task associated with the data transfer, to be able to delay / bring forward its wait time.
         'update_time': current_time, # Time since the late update to congestion - used for calculating the remaining volume of data.
         'finish_time': current_time, # Time to completion - updated as congestion increases and decreases.
@@ -659,7 +661,6 @@ def increase_congestion(current_time, volumes, src_PEs, dst_PE, data_IDs, bandwi
             caller.PEs[src_PEs[0]].active_dma_transfer = transfer_dict
         if dst_PE != -1:
             caller.PEs[dst_PE].active_dma_transfer = transfer_dict
-    cleanup_noc_transfers(current_time, caller)
     update_noc_transfers(current_time)
     
 def cleanup_noc_transfers(current_time, caller):
@@ -772,13 +773,13 @@ def update_noc_transfers(current_time):
 
                 total_time += max(memory_time, noc_time)
                 if noc_time > memory_time:
-                    t['congested_bandwidths'][idx] = int(c) # min of this is the same as max in total_time
+                    t['congested_bandwidths'][idx] = int(seg_bw) # min of this is the same as max in total_time
                 else:
                     t['congested_bandwidths'][idx] = int(memory_bw) # min of this is the same as max in total_time
             else:
                 seg_bw = min(t['max_bandwidths'][idx], c)
                 total_time += t['volume'][idx] / seg_bw
-                t['congested_bandwidths'][idx] = int(c)
+                t['congested_bandwidths'][idx] = seg_bw
 
 
         t['finish_time'] = int(current_time + total_time)
@@ -806,6 +807,7 @@ def get_memory_contention_factor():
     total_memory_bw = 0
     read_bw = 0
     write_bw = 0
+    count = 0
     
     for t in active_noc_transfers:
         if t['state'] != 'active':
@@ -826,13 +828,19 @@ def get_memory_contention_factor():
             # Reading from memory to accelerator
             read_bw += effective_bw
             total_memory_bw += effective_bw
+            count += 1
         elif dst_pe == -1:
             # Writing from accelerator to memory
             write_bw += effective_bw
             total_memory_bw += effective_bw
+            count += 1
         # else: SPAD-to-SPAD transfer, doesn't affect memory contention
 
+
     utilization = total_memory_bw / peak_bw
+
+    if count == 1:
+        return utilization # no contention - use the entire memory bandwidth
 
 
     if total_memory_bw > 0:

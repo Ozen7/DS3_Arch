@@ -92,7 +92,6 @@ class SimulationManager:
         for i, outstanding_task in enumerate(common.outstanding):                       # Go over each outstanding task
             if (completed_task.ID in outstanding_task.predecessors):                                    # if the completed task is one of the predecessors
                 outstanding_task.predecessors.remove(completed_task.ID)                                 # Clear this predecessor
-                print(PE.scratchpad)
                 PE.scratchpad[f"{completed_task.ID}_output"]['dependencies'].append(outstanding_task)   # Dependencies for scratchpad values are handled here
 
                 if (common.shared_memory):
@@ -171,7 +170,8 @@ class SimulationManager:
     
     # PEs call this to write values ejected from their scratchpads back to memory
     def writeback_handler(self,data_id, size, PE):
-        comm_band = common.ResourceManager.comm_band[PE.ID, self.resource_matrix.list[-1].ID]        
+        comm_band = int(common.ResourceManager.comm_band[PE.ID, self.resource_matrix.list[-1].ID])
+      
         common.increase_congestion(self.env.now, [size], [PE.ID], -1, [data_id], [comm_band], self)
     #
     def run(self):
@@ -298,7 +298,6 @@ class SimulationManager:
 
                             
                         if out == True and out2 == True:
-                            print("allocated", f"{executable_task.ID}_output" )
                             P.allocating = False
                         continue
 
@@ -348,8 +347,6 @@ class SimulationManager:
                         
                     # end if P.idle and P.lock:
                     elif P.idle and not P.lock:
-                        print("XD", f"{executable_task.ID}_output" )
-
                         # lock PE, begin pulling value from input
                         P.lock = True
                         # this function also sets the task's timestamp
@@ -364,7 +361,6 @@ class SimulationManager:
                         if out == False or out2 == False:
                             P.allocating = True
                             continue
-                        print("allocated", f"{executable_task.ID}_output" )
 
                     # end elif P.idle and not P.lock:
                     elif not P.idle and P.lock: 

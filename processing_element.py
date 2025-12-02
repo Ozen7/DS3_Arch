@@ -381,8 +381,8 @@ class PE:
             if writeback:
                 self.simManager.writeback_handler(data_id, size, self) #writes values back to memory.
 
-
-            print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
+            if common.DEBUG_SIM:
+                print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
                     % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
 
     def get_scratchpad_available(self):

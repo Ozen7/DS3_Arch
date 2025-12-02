@@ -51,7 +51,13 @@ FILENAME_SHORTCUTS = OrderedDict([
 
 TEMPLATE_DIR = 'config_SoC/templates'
 OUTPUT_DIR = 'config_SoC'
-BANDWIDTH_SATURATION = int((0.33) * 16000)  # bytes/microsecond
+
+# Allow bandwidth to be configured via environment variable
+_bw_env = os.environ.get('DS3_BANDWIDTH', None)
+if _bw_env:
+    BANDWIDTH_SATURATION = int(_bw_env)
+else:
+    BANDWIDTH_SATURATION = int((0.33) * 16000)  # Default: 5280 bytes/microsecond
 
 # Scratchpad sizes per accelerator type (in bytes)
 SCRATCHPAD_SIZES = {

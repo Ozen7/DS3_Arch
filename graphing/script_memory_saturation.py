@@ -18,13 +18,45 @@ import sys
 # Constants
 # ============================================================================
 
-# File paths
-DS3_FILES = {
-    5280: '../results/experiment_results_5280.csv',
-    8000: '../results/experiment_results_8000.csv',
-    16000: '../results/experiment_results_16000.csv'
-}
-GEM5_FILE = '../results/gem5_comb_1_results.csv'
+# Path resolution functions
+def resolve_ds3_file(bandwidth):
+    """
+    Find DS3 results file for given bandwidth.
+    Checks results_final/ first, then falls back to results/.
+    """
+    # Try results_final with full descriptive name
+    primary = f'../results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv'
+    # Fall back to results directory with simple name
+    secondary = f'../results/experiment_results_{bandwidth}.csv'
+
+    if os.path.exists(primary):
+        return primary
+    elif os.path.exists(secondary):
+        return secondary
+    else:
+        return None
+
+
+def resolve_gem5_file():
+    """Find gem5 baseline file in results_final/ or results_old/."""
+    primary = '../results_final/gem5_comb_1_results.csv'
+    secondary = '../results_old/gem5_comb_1_results.csv'
+    fallback = '../results/gem5_comb_1_results.csv'
+
+    for path in [primary, secondary, fallback]:
+        if os.path.exists(path):
+            return path
+    return None
+
+
+# Build file paths dynamically with fallback resolution
+DS3_FILES = {}
+for bw in [5280, 8000, 16000]:
+    resolved_path = resolve_ds3_file(bw)
+    if resolved_path:
+        DS3_FILES[bw] = resolved_path
+
+GEM5_FILE = resolve_gem5_file()
 
 # Scheduler to gem5 policy mapping
 SCHEDULER_POLICY_MAP = {

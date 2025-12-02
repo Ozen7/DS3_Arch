@@ -18,8 +18,25 @@ import sys
 # Constants
 # ============================================================================
 
-# File path
-DATA_FILE = '../results/experiment_results_5280.csv'
+# Path resolution function
+def resolve_ds3_file(bandwidth):
+    """Find DS3 results file for given bandwidth."""
+    primary = f'../results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv'
+    secondary = f'../results/experiment_results_{bandwidth}.csv'
+
+    if os.path.exists(primary):
+        return primary
+    elif os.path.exists(secondary):
+        return secondary
+    else:
+        return None
+
+
+# Resolve path to 5280 MHz data file
+DATA_FILE = resolve_ds3_file(5280)
+if DATA_FILE is None:
+    print("[ERROR] Could not find experiment_results_5280.csv in results_final/ or results/")
+    sys.exit(1)
 
 # SoC configurations to compare
 SOC_CONFIGS = {
