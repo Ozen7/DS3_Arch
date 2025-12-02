@@ -8,6 +8,7 @@ import networkx as nx
 import numpy as np
 import copy
 import bisect
+import random
 
 import common                                                                   # The common parameters used in DASH-Sim are defined in common_parameters.py
 from common import Tasks, ApplicationManager, ResourceManager
@@ -756,7 +757,8 @@ class Scheduler:
         best_pe_id = -1
         min_finish_time = -1
         best_family = ""
-
+        best_resource = None
+        isColcoated = False
         # Find the fastest PE type for this task
         for resource in self.resource_matrix.list:
             if task.name in resource.supported_functionalities:
@@ -770,6 +772,7 @@ class Scheduler:
                     min_finish_time = finish_time
                     best_pe_id = resource.ID
                     best_family = resource.accelerator_family
+                    best_resource = resource
 
         # Ensure task can be executed on at least one PE
         assert best_pe_id != -1, f"Task {task.name} cannot be executed on any PE"
@@ -778,9 +781,8 @@ class Scheduler:
         # If the best PE has an accelerator_family, find the least-loaded instance of that family
         # If we don't do this, it will always select the first one.
         # If the task is being colocated, we override this family-based assignment to potentially minimize overhead.
-
         family_pes = common.PETypeManager.get_PEs_of_family(best_family)
-        if len(family_pes) > 1:
+        if (common.arbitration_type == "min") and len(family_pes) > 1:
             # Multiple instances exist - find the one with shortest execution queue
             min_queue_len = float('inf')
             for pe_id in family_pes:
@@ -788,10 +790,44 @@ class Scheduler:
                 if queue_len < min_queue_len:
                     min_queue_len = queue_len
                     best_pe_id = pe_id
-            resource = self.resource_matrix.list[best_pe_id]
-            func_index = resource.supported_functionalities.index(task.name)
-            isColocated, latency = common.calculate_memory_movement_latency(self, task, best_pe_id, False)
-            min_finish_time = int(resource.performance[func_index]) + latency
+        if (common.arbitration_type == "min_coloc") and len(family_pes) > 1:
+            # Multiple instances exist - find the one with shortest execution queue unless it's colocated
+            if isColcoated:
+                pass
+            else:
+                min_queue_len = float('inf')
+                for pe_id in family_pes:
+                    queue_len = len(common.executable[pe_id]) + (len(fwd_nodes[pe_id]) if fwd_nodes != None else 0) + self.PEs[pe_id].lock
+                    if queue_len < min_queue_len:
+                        min_queue_len = queue_len
+                        best_pe_id = pe_id
+        elif (common.arbitration_type == "random") and len(family_pes) > 1:
+            # Multiple instances exist - choose randomly
+            random_pe = random.randint(0,len(family_pes)-1)
+            best_pe_id = family_pes[random_pe]
+        elif (common.arbitration_type == "exectime") and len(family_pes) > 1: #unfathomably inefficient
+            # find shortest execution time
+            min_execution_time = float('inf')
+            for pe_id in family_pes:
+                execution_time = 0
+                for exec_task in common.executable[pe_id]:
+                    func_index = best_resource.supported_functionalities.index(exec_task.name)
+                    isColcoated, latency = common.calculate_memory_movement_latency(self,exec_task,best_resource.ID, False)
+                    execution_time += int(best_resource.performance[func_index]) + latency
+                if fwd_nodes != None:
+                    for exec_task in fwd_nodes[pe_id]:
+                        func_index = best_resource.supported_functionalities.index(exec_task.name)
+                        isColcoated, latency = common.calculate_memory_movement_latency(self,exec_task,best_resource.ID, False)
+                        execution_time += int(best_resource.performance[func_index]) + latency
+                if self.PEs[pe_id].lock:
+                    exec_task = self.PEs[pe_id].task
+                    func_index = best_resource.supported_functionalities.index(exec_task.name)
+                    isColcoated, latency = common.calculate_memory_movement_latency(self,exec_task,best_resource.ID, False)
+                    execution_time += int(best_resource.performance[func_index]) + latency
+                
+                if execution_time < min_execution_time:
+                    min_execution_time = execution_time
+                    best_pe_id = pe_id
 
         task.PE_ID = best_pe_id
         task.runtime = min_finish_time

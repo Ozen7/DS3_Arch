@@ -13,7 +13,7 @@ fixed_injection_rate = no
 max_jobs_in_parallel = 16
 random_seed = 1
 standard_deviation = 0.0
-arbitration_type = min_coloc
+
 [TRACE]
 clean_traces = no
 trace_tasks = no

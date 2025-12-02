@@ -51,6 +51,7 @@ INFO_SCH        = config.getboolean('INFO', 'info_sch')                         
 scheduler               = config['DEFAULT']['scheduler']                        # Assign scheduler name variable
 seed                    = int(config['DEFAULT']['random_seed'])                 # Specify a seed value for the random number generator
 simulation_clk          = int(config['DEFAULT']['clock'])                       # The core simulation engine tick with simulation_clk
+arbitration_type        = config['DEFAULT']['arbitration_type']
 simulation_length       = int(config['DEFAULT']['simulation_length'])           # The length of the simulation (in us)
 standard_deviation      = float(config['DEFAULT']['standard_deviation'])        # Standard deviation for randomization of execution time
 job_probabilities       = str_to_list(config['DEFAULT']['job_probabilities'])   # Probability of each app for being selected as the new job
