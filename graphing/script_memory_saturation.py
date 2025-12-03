@@ -25,7 +25,7 @@ def resolve_ds3_file(bandwidth):
     Checks results_final/ first, then falls back to results/.
     """
     # Try results_final with full descriptive name
-    primary = f'../results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv'
+    primary = f'../results_final/experiment_results_RELIEF_NoCrit_min_{bandwidth}.csv'
     # Fall back to results directory with simple name
     secondary = f'../results/experiment_results_{bandwidth}.csv'
 

@@ -21,7 +21,7 @@ import sys
 # Path resolution function
 def resolve_ds3_file(bandwidth):
     """Find DS3 results file for given bandwidth."""
-    primary = f'../results_final/experiment_results_RELIEF_NoCrit_MinList_{bandwidth}.csv'
+    primary = f'../results_final/experiment_results_RELIEF_NoCrit_min_{bandwidth}.csv'
     secondary = f'../results/experiment_results_{bandwidth}.csv'
 
     if os.path.exists(primary):
