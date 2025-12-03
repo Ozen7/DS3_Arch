@@ -1,18 +1,60 @@
-add_new_resource resource_type ACC accelerator_family ISP scratchpad_size 115204 resource_name ISP resource_ID 0 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family ISP scratchpad_size 115204 resource_name ISP_0 resource_ID 0 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
 PG_profile 1000 0.1
 isp 34.761
 
-add_new_resource resource_type ACC accelerator_family GRAYSCALE scratchpad_size 180244 resource_name GRAYSCALE resource_ID 1 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family ISP scratchpad_size 115204 resource_name ISP_1 resource_ID 1 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+isp 34.761
+
+add_new_resource resource_type ACC accelerator_family ISP scratchpad_size 115204 resource_name ISP_2 resource_ID 2 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+isp 34.761
+
+add_new_resource resource_type ACC accelerator_family ISP scratchpad_size 115204 resource_name ISP_3 resource_ID 3 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+isp 34.761
+
+add_new_resource resource_type ACC accelerator_family GRAYSCALE scratchpad_size 180244 resource_name GRAYSCALE_0 resource_ID 4 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
 PG_profile 1000 0.1
 grayscale 6.166
 
-add_new_resource resource_type ACC accelerator_family CONVOLUTION scratchpad_size 196708 resource_name CONVOLUTION resource_ID 2 capacity 1 num_supported_functionalities 16 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family GRAYSCALE scratchpad_size 180244 resource_name GRAYSCALE_1 resource_ID 5 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+grayscale 6.166
+
+add_new_resource resource_type ACC accelerator_family GRAYSCALE scratchpad_size 180244 resource_name GRAYSCALE_2 resource_ID 6 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+grayscale 6.166
+
+add_new_resource resource_type ACC accelerator_family GRAYSCALE scratchpad_size 180244 resource_name GRAYSCALE_3 resource_ID 7 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+grayscale 6.166
+
+add_new_resource resource_type ACC accelerator_family CONVOLUTION scratchpad_size 196708 resource_name CONVOLUTION_0 resource_ID 8 capacity 1 num_supported_functionalities 16 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
@@ -34,28 +76,157 @@ gauss_filter_xx 1545.61
 gauss_filter_xy 1545.61
 gauss_filter_yy 1545.61
 
-add_new_resource resource_type ACC accelerator_family HARRIS_NON_MAX scratchpad_size 196608 resource_name HARRIS_NON_MAX resource_ID 3 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family CONVOLUTION scratchpad_size 196708 resource_name CONVOLUTION_1 resource_ID 9 capacity 1 num_supported_functionalities 16 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+noise_reduction 1545.61
+sobel_x 637.32
+sobel_y 637.32
+conv_psf_iter0 1545.61
+conv_psf_flip_iter0 1545.61
+conv_psf_iter1 1545.61
+conv_psf_flip_iter1 1545.61
+conv_psf_iter2 1545.61
+conv_psf_flip_iter2 1545.61
+conv_psf_iter3 1545.61
+conv_psf_flip_iter3 1545.61
+conv_psf_iter4 1545.61
+conv_psf_flip_iter4 1545.61
+gauss_filter_xx 1545.61
+gauss_filter_xy 1545.61
+gauss_filter_yy 1545.61
+
+add_new_resource resource_type ACC accelerator_family CONVOLUTION scratchpad_size 196708 resource_name CONVOLUTION_2 resource_ID 10 capacity 1 num_supported_functionalities 16 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+noise_reduction 1545.61
+sobel_x 637.32
+sobel_y 637.32
+conv_psf_iter0 1545.61
+conv_psf_flip_iter0 1545.61
+conv_psf_iter1 1545.61
+conv_psf_flip_iter1 1545.61
+conv_psf_iter2 1545.61
+conv_psf_flip_iter2 1545.61
+conv_psf_iter3 1545.61
+conv_psf_flip_iter3 1545.61
+conv_psf_iter4 1545.61
+conv_psf_flip_iter4 1545.61
+gauss_filter_xx 1545.61
+gauss_filter_xy 1545.61
+gauss_filter_yy 1545.61
+
+add_new_resource resource_type ACC accelerator_family CONVOLUTION scratchpad_size 196708 resource_name CONVOLUTION_3 resource_ID 11 capacity 1 num_supported_functionalities 16 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+noise_reduction 1545.61
+sobel_x 637.32
+sobel_y 637.32
+conv_psf_iter0 1545.61
+conv_psf_flip_iter0 1545.61
+conv_psf_iter1 1545.61
+conv_psf_flip_iter1 1545.61
+conv_psf_iter2 1545.61
+conv_psf_flip_iter2 1545.61
+conv_psf_iter3 1545.61
+conv_psf_flip_iter3 1545.61
+conv_psf_iter4 1545.61
+conv_psf_flip_iter4 1545.61
+gauss_filter_xx 1545.61
+gauss_filter_xy 1545.61
+gauss_filter_yy 1545.61
+
+add_new_resource resource_type ACC accelerator_family HARRIS_NON_MAX scratchpad_size 196608 resource_name HARRIS_NON_MAX_0 resource_ID 12 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
 PG_profile 1000 0.1
 harris_non_max 105.01
 
-add_new_resource resource_type ACC accelerator_family EDGE_TRACKING scratchpad_size 98432 resource_name EDGE_TRACKING resource_ID 4 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family HARRIS_NON_MAX scratchpad_size 196608 resource_name HARRIS_NON_MAX_1 resource_ID 13 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+harris_non_max 105.01
+
+add_new_resource resource_type ACC accelerator_family HARRIS_NON_MAX scratchpad_size 196608 resource_name HARRIS_NON_MAX_2 resource_ID 14 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+harris_non_max 105.01
+
+add_new_resource resource_type ACC accelerator_family HARRIS_NON_MAX scratchpad_size 196608 resource_name HARRIS_NON_MAX_3 resource_ID 15 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+harris_non_max 105.01
+
+add_new_resource resource_type ACC accelerator_family EDGE_TRACKING scratchpad_size 98432 resource_name EDGE_TRACKING_0 resource_ID 16 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
 PG_profile 1000 0.1
 edge_tracking 216.928
 
-add_new_resource resource_type ACC accelerator_family CANNY_NON_MAX scratchpad_size 262144 resource_name CANNY_NON_MAX resource_ID 5 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family EDGE_TRACKING scratchpad_size 98432 resource_name EDGE_TRACKING_1 resource_ID 17 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+edge_tracking 216.928
+
+add_new_resource resource_type ACC accelerator_family EDGE_TRACKING scratchpad_size 98432 resource_name EDGE_TRACKING_2 resource_ID 18 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+edge_tracking 216.928
+
+add_new_resource resource_type ACC accelerator_family EDGE_TRACKING scratchpad_size 98432 resource_name EDGE_TRACKING_3 resource_ID 19 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+edge_tracking 216.928
+
+add_new_resource resource_type ACC accelerator_family CANNY_NON_MAX scratchpad_size 262144 resource_name CANNY_NON_MAX_0 resource_ID 20 capacity 1 num_supported_functionalities 1 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
 PG_profile 1000 0.1
 canny_non_max 377.906
 
-add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_0 resource_ID 6 capacity 1 num_supported_functionalities 281 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family CANNY_NON_MAX scratchpad_size 262144 resource_name CANNY_NON_MAX_1 resource_ID 21 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+canny_non_max 377.906
+
+add_new_resource resource_type ACC accelerator_family CANNY_NON_MAX scratchpad_size 262144 resource_name CANNY_NON_MAX_2 resource_ID 22 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+canny_non_max 377.906
+
+add_new_resource resource_type ACC accelerator_family CANNY_NON_MAX scratchpad_size 262144 resource_name CANNY_NON_MAX_3 resource_ID 23 capacity 1 num_supported_functionalities 1 DVFS_mode performance
+opp 1000 900
+trip_freq -1 -1 -1
+power_profile 1000 0.1
+PG_profile 1000 0.1
+canny_non_max 377.906
+
+add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_0 resource_ID 24 capacity 1 num_supported_functionalities 281 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
@@ -342,7 +513,7 @@ cell7_ig_sigmoid 8
 cell7_og_sigmoid 8
 determinant 11
 
-add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_1 resource_ID 7 capacity 1 num_supported_functionalities 281 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_1 resource_ID 25 capacity 1 num_supported_functionalities 281 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
@@ -629,7 +800,7 @@ cell7_ig_sigmoid 8
 cell7_og_sigmoid 8
 determinant 11
 
-add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_2 resource_ID 8 capacity 1 num_supported_functionalities 281 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_2 resource_ID 26 capacity 1 num_supported_functionalities 281 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
@@ -916,7 +1087,7 @@ cell7_ig_sigmoid 8
 cell7_og_sigmoid 8
 determinant 11
 
-add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_3 resource_ID 9 capacity 1 num_supported_functionalities 281 DVFS_mode performance
+add_new_resource resource_type ACC accelerator_family ELEM_MATRIX scratchpad_size 262144 resource_name ELEM_MATRIX_3 resource_ID 27 capacity 1 num_supported_functionalities 281 DVFS_mode performance
 opp 1000 900
 trip_freq -1 -1 -1
 power_profile 1000 0.1
@@ -1203,86 +1374,466 @@ cell7_ig_sigmoid 8
 cell7_og_sigmoid 8
 determinant 11
 
-add_new_resource resource_type MEM resource_name MEMORY resource_ID 10 capacity 1 num_supported_functionalities 1 DVFS_mode none
+add_new_resource resource_type MEM resource_name MEMORY resource_ID 28 capacity 1 num_supported_functionalities 1 DVFS_mode none
 None 0
 # comm_band when the source and destination are the same PE
 comm_band_self 1000000
+comm_band 0 0 16000
+comm_band 0 1 16000
+comm_band 0 2 16000
+comm_band 0 3 16000
+comm_band 0 4 16000
+comm_band 0 5 16000
+comm_band 0 6 16000
+comm_band 0 7 16000
+comm_band 0 8 16000
+comm_band 0 9 16000
+comm_band 0 10 16000
+comm_band 0 11 16000
+comm_band 0 12 16000
+comm_band 0 13 16000
+comm_band 0 14 16000
+comm_band 0 15 16000
+comm_band 0 16 16000
+comm_band 0 17 16000
+comm_band 0 18 16000
+comm_band 0 19 16000
+comm_band 0 20 16000
+comm_band 0 21 16000
+comm_band 0 22 16000
+comm_band 0 23 16000
+comm_band 0 24 16000
+comm_band 0 25 16000
+comm_band 0 26 16000
+comm_band 0 27 16000
+comm_band 0 28 16000
+comm_band 1 1 16000
+comm_band 1 2 16000
+comm_band 1 3 16000
+comm_band 1 4 16000
+comm_band 1 5 16000
+comm_band 1 6 16000
+comm_band 1 7 16000
+comm_band 1 8 16000
+comm_band 1 9 16000
+comm_band 1 10 16000
+comm_band 1 11 16000
+comm_band 1 12 16000
+comm_band 1 13 16000
+comm_band 1 14 16000
+comm_band 1 15 16000
+comm_band 1 16 16000
+comm_band 1 17 16000
+comm_band 1 18 16000
+comm_band 1 19 16000
+comm_band 1 20 16000
+comm_band 1 21 16000
+comm_band 1 22 16000
+comm_band 1 23 16000
+comm_band 1 24 16000
+comm_band 1 25 16000
+comm_band 1 26 16000
+comm_band 1 27 16000
+comm_band 1 28 16000
+comm_band 2 2 16000
+comm_band 2 3 16000
+comm_band 2 4 16000
+comm_band 2 5 16000
+comm_band 2 6 16000
+comm_band 2 7 16000
+comm_band 2 8 16000
+comm_band 2 9 16000
+comm_band 2 10 16000
+comm_band 2 11 16000
+comm_band 2 12 16000
+comm_band 2 13 16000
+comm_band 2 14 16000
+comm_band 2 15 16000
+comm_band 2 16 16000
+comm_band 2 17 16000
+comm_band 2 18 16000
+comm_band 2 19 16000
+comm_band 2 20 16000
+comm_band 2 21 16000
+comm_band 2 22 16000
+comm_band 2 23 16000
+comm_band 2 24 16000
+comm_band 2 25 16000
+comm_band 2 26 16000
+comm_band 2 27 16000
+comm_band 2 28 16000
+comm_band 3 3 16000
+comm_band 3 4 16000
+comm_band 3 5 16000
+comm_band 3 6 16000
+comm_band 3 7 16000
+comm_band 3 8 16000
+comm_band 3 9 16000
+comm_band 3 10 16000
+comm_band 3 11 16000
+comm_band 3 12 16000
+comm_band 3 13 16000
+comm_band 3 14 16000
+comm_band 3 15 16000
+comm_band 3 16 16000
+comm_band 3 17 16000
+comm_band 3 18 16000
+comm_band 3 19 16000
+comm_band 3 20 16000
+comm_band 3 21 16000
+comm_band 3 22 16000
+comm_band 3 23 16000
+comm_band 3 24 16000
+comm_band 3 25 16000
+comm_band 3 26 16000
+comm_band 3 27 16000
+comm_band 3 28 16000
+comm_band 4 4 16000
+comm_band 4 5 16000
+comm_band 4 6 16000
+comm_band 4 7 16000
+comm_band 4 8 16000
+comm_band 4 9 16000
+comm_band 4 10 16000
+comm_band 4 11 16000
+comm_band 4 12 16000
+comm_band 4 13 16000
+comm_band 4 14 16000
+comm_band 4 15 16000
+comm_band 4 16 16000
+comm_band 4 17 16000
+comm_band 4 18 16000
+comm_band 4 19 16000
+comm_band 4 20 16000
+comm_band 4 21 16000
+comm_band 4 22 16000
+comm_band 4 23 16000
+comm_band 4 24 16000
+comm_band 4 25 16000
+comm_band 4 26 16000
+comm_band 4 27 16000
+comm_band 4 28 16000
+comm_band 5 5 16000
+comm_band 5 6 16000
+comm_band 5 7 16000
+comm_band 5 8 16000
+comm_band 5 9 16000
+comm_band 5 10 16000
+comm_band 5 11 16000
+comm_band 5 12 16000
+comm_band 5 13 16000
+comm_band 5 14 16000
+comm_band 5 15 16000
+comm_band 5 16 16000
+comm_band 5 17 16000
+comm_band 5 18 16000
+comm_band 5 19 16000
+comm_band 5 20 16000
+comm_band 5 21 16000
+comm_band 5 22 16000
+comm_band 5 23 16000
+comm_band 5 24 16000
+comm_band 5 25 16000
+comm_band 5 26 16000
+comm_band 5 27 16000
+comm_band 5 28 16000
+comm_band 6 6 16000
+comm_band 6 7 16000
+comm_band 6 8 16000
+comm_band 6 9 16000
+comm_band 6 10 16000
+comm_band 6 11 16000
+comm_band 6 12 16000
+comm_band 6 13 16000
+comm_band 6 14 16000
+comm_band 6 15 16000
+comm_band 6 16 16000
+comm_band 6 17 16000
+comm_band 6 18 16000
+comm_band 6 19 16000
+comm_band 6 20 16000
+comm_band 6 21 16000
+comm_band 6 22 16000
+comm_band 6 23 16000
+comm_band 6 24 16000
+comm_band 6 25 16000
+comm_band 6 26 16000
+comm_band 6 27 16000
+comm_band 6 28 16000
+comm_band 7 7 16000
+comm_band 7 8 16000
+comm_band 7 9 16000
+comm_band 7 10 16000
+comm_band 7 11 16000
+comm_band 7 12 16000
+comm_band 7 13 16000
+comm_band 7 14 16000
+comm_band 7 15 16000
+comm_band 7 16 16000
+comm_band 7 17 16000
+comm_band 7 18 16000
+comm_band 7 19 16000
+comm_band 7 20 16000
+comm_band 7 21 16000
+comm_band 7 22 16000
+comm_band 7 23 16000
+comm_band 7 24 16000
+comm_band 7 25 16000
+comm_band 7 26 16000
+comm_band 7 27 16000
+comm_band 7 28 16000
+comm_band 8 8 16000
+comm_band 8 9 16000
+comm_band 8 10 16000
+comm_band 8 11 16000
+comm_band 8 12 16000
+comm_band 8 13 16000
+comm_band 8 14 16000
+comm_band 8 15 16000
+comm_band 8 16 16000
+comm_band 8 17 16000
+comm_band 8 18 16000
+comm_band 8 19 16000
+comm_band 8 20 16000
+comm_band 8 21 16000
+comm_band 8 22 16000
+comm_band 8 23 16000
+comm_band 8 24 16000
+comm_band 8 25 16000
+comm_band 8 26 16000
+comm_band 8 27 16000
+comm_band 8 28 16000
+comm_band 9 9 16000
+comm_band 9 10 16000
+comm_band 9 11 16000
+comm_band 9 12 16000
+comm_band 9 13 16000
+comm_band 9 14 16000
+comm_band 9 15 16000
+comm_band 9 16 16000
+comm_band 9 17 16000
+comm_band 9 18 16000
+comm_band 9 19 16000
+comm_band 9 20 16000
+comm_band 9 21 16000
+comm_band 9 22 16000
+comm_band 9 23 16000
+comm_band 9 24 16000
+comm_band 9 25 16000
+comm_band 9 26 16000
+comm_band 9 27 16000
+comm_band 9 28 16000
+comm_band 10 10 16000
+comm_band 10 11 16000
+comm_band 10 12 16000
+comm_band 10 13 16000
+comm_band 10 14 16000
+comm_band 10 15 16000
+comm_band 10 16 16000
+comm_band 10 17 16000
+comm_band 10 18 16000
+comm_band 10 19 16000
+comm_band 10 20 16000
+comm_band 10 21 16000
+comm_band 10 22 16000
+comm_band 10 23 16000
+comm_band 10 24 16000
+comm_band 10 25 16000
+comm_band 10 26 16000
+comm_band 10 27 16000
+comm_band 10 28 16000
+comm_band 11 11 16000
+comm_band 11 12 16000
+comm_band 11 13 16000
+comm_band 11 14 16000
+comm_band 11 15 16000
+comm_band 11 16 16000
+comm_band 11 17 16000
+comm_band 11 18 16000
+comm_band 11 19 16000
+comm_band 11 20 16000
+comm_band 11 21 16000
+comm_band 11 22 16000
+comm_band 11 23 16000
+comm_band 11 24 16000
+comm_band 11 25 16000
+comm_band 11 26 16000
+comm_band 11 27 16000
+comm_band 11 28 16000
+comm_band 12 12 16000
+comm_band 12 13 16000
+comm_band 12 14 16000
+comm_band 12 15 16000
+comm_band 12 16 16000
+comm_band 12 17 16000
+comm_band 12 18 16000
+comm_band 12 19 16000
+comm_band 12 20 16000
+comm_band 12 21 16000
+comm_band 12 22 16000
+comm_band 12 23 16000
+comm_band 12 24 16000
+comm_band 12 25 16000
+comm_band 12 26 16000
+comm_band 12 27 16000
+comm_band 12 28 16000
+comm_band 13 13 16000
+comm_band 13 14 16000
+comm_band 13 15 16000
+comm_band 13 16 16000
+comm_band 13 17 16000
+comm_band 13 18 16000
+comm_band 13 19 16000
+comm_band 13 20 16000
+comm_band 13 21 16000
+comm_band 13 22 16000
+comm_band 13 23 16000
+comm_band 13 24 16000
+comm_band 13 25 16000
+comm_band 13 26 16000
+comm_band 13 27 16000
+comm_band 13 28 16000
+comm_band 14 14 16000
+comm_band 14 15 16000
+comm_band 14 16 16000
+comm_band 14 17 16000
+comm_band 14 18 16000
+comm_band 14 19 16000
+comm_band 14 20 16000
+comm_band 14 21 16000
+comm_band 14 22 16000
+comm_band 14 23 16000
+comm_band 14 24 16000
+comm_band 14 25 16000
+comm_band 14 26 16000
+comm_band 14 27 16000
+comm_band 14 28 16000
+comm_band 15 15 16000
+comm_band 15 16 16000
+comm_band 15 17 16000
+comm_band 15 18 16000
+comm_band 15 19 16000
+comm_band 15 20 16000
+comm_band 15 21 16000
+comm_band 15 22 16000
+comm_band 15 23 16000
+comm_band 15 24 16000
+comm_band 15 25 16000
+comm_band 15 26 16000
+comm_band 15 27 16000
+comm_band 15 28 16000
+comm_band 16 16 16000
+comm_band 16 17 16000
+comm_band 16 18 16000
+comm_band 16 19 16000
+comm_band 16 20 16000
+comm_band 16 21 16000
+comm_band 16 22 16000
+comm_band 16 23 16000
+comm_band 16 24 16000
+comm_band 16 25 16000
+comm_band 16 26 16000
+comm_band 16 27 16000
+comm_band 16 28 16000
+comm_band 17 17 16000
+comm_band 17 18 16000
+comm_band 17 19 16000
+comm_band 17 20 16000
+comm_band 17 21 16000
+comm_band 17 22 16000
+comm_band 17 23 16000
+comm_band 17 24 16000
+comm_band 17 25 16000
+comm_band 17 26 16000
+comm_band 17 27 16000
+comm_band 17 28 16000
+comm_band 18 18 16000
+comm_band 18 19 16000
+comm_band 18 20 16000
+comm_band 18 21 16000
+comm_band 18 22 16000
+comm_band 18 23 16000
+comm_band 18 24 16000
+comm_band 18 25 16000
+comm_band 18 26 16000
+comm_band 18 27 16000
+comm_band 18 28 16000
+comm_band 19 19 16000
+comm_band 19 20 16000
+comm_band 19 21 16000
+comm_band 19 22 16000
+comm_band 19 23 16000
+comm_band 19 24 16000
+comm_band 19 25 16000
+comm_band 19 26 16000
+comm_band 19 27 16000
+comm_band 19 28 16000
+comm_band 20 20 16000
+comm_band 20 21 16000
+comm_band 20 22 16000
+comm_band 20 23 16000
+comm_band 20 24 16000
+comm_band 20 25 16000
+comm_band 20 26 16000
+comm_band 20 27 16000
+comm_band 20 28 16000
+comm_band 21 21 16000
+comm_band 21 22 16000
+comm_band 21 23 16000
+comm_band 21 24 16000
+comm_band 21 25 16000
+comm_band 21 26 16000
+comm_band 21 27 16000
+comm_band 21 28 16000
+comm_band 22 22 16000
+comm_band 22 23 16000
+comm_band 22 24 16000
+comm_band 22 25 16000
+comm_band 22 26 16000
+comm_band 22 27 16000
+comm_band 22 28 16000
+comm_band 23 23 16000
+comm_band 23 24 16000
+comm_band 23 25 16000
+comm_band 23 26 16000
+comm_band 23 27 16000
+comm_band 23 28 16000
+comm_band 24 24 16000
+comm_band 24 25 16000
+comm_band 24 26 16000
+comm_band 24 27 16000
+comm_band 24 28 16000
+comm_band 25 25 16000
+comm_band 25 26 16000
+comm_band 25 27 16000
+comm_band 25 28 16000
+comm_band 26 26 16000
+comm_band 26 27 16000
+comm_band 26 28 16000
+comm_band 27 27 16000
+comm_band 27 28 16000
+comm_band 28 28 16000
 # comm_band for all accelerators and memory
 # bandwidth is in terms of bytes/microsecond (to match up with the DAGs)
 # 16 GB/s
-comm_band 0 0 5280
-comm_band 0 1 5280
-comm_band 0 2 5280
-comm_band 0 3 5280
-comm_band 0 4 5280
-comm_band 0 5 5280
-comm_band 0 6 5280
-comm_band 0 7 5280
-comm_band 0 8 5280
-comm_band 0 9 5280
-comm_band 0 10 5280
 
-comm_band 1 1 5280
-comm_band 1 2 5280
-comm_band 1 3 5280
-comm_band 1 4 5280
-comm_band 1 5 5280
-comm_band 1 6 5280
-comm_band 1 7 5280
-comm_band 1 8 5280
-comm_band 1 9 5280
-comm_band 1 10 5280
 
-comm_band 2 2 5280
-comm_band 2 3 5280
-comm_band 2 4 5280
-comm_band 2 5 5280
-comm_band 2 6 5280
-comm_band 2 7 5280
-comm_band 2 8 5280
-comm_band 2 9 5280
-comm_band 2 10 5280
 
-comm_band 3 3 5280
-comm_band 3 4 5280
-comm_band 3 5 5280
-comm_band 3 6 5280
-comm_band 3 7 5280
-comm_band 3 8 5280
-comm_band 3 9 5280
-comm_band 3 10 5280
 
-comm_band 4 4 5280
-comm_band 4 5 5280
-comm_band 4 6 5280
-comm_band 4 7 5280
-comm_band 4 8 5280
-comm_band 4 9 5280
-comm_band 4 10 5280
 
-comm_band 5 5 5280
-comm_band 5 6 5280
-comm_band 5 7 5280
-comm_band 5 8 5280
-comm_band 5 9 5280
-comm_band 5 10 5280
 
-comm_band 6 6 5280
-comm_band 6 7 5280
-comm_band 6 8 5280
-comm_band 6 9 5280
-comm_band 6 10 5280
 
-comm_band 7 7 5280
-comm_band 7 8 5280
-comm_band 7 9 5280
-comm_band 7 10 5280
 
-comm_band 8 8 5280
-comm_band 8 9 5280
-comm_band 8 10 5280
 
-comm_band 9 9 5280
-comm_band 9 10 5280
 
-comm_band 10 10 5280
+
+
+
+
+
+
+
+
+
+
+

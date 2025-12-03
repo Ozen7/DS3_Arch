@@ -49,7 +49,7 @@ SOC_CONFIGS = {
 WORKLOADS = ['canny', 'deblur', 'gru', 'harris', 'lstm']
 
 # Schedulers to process
-SCHEDULERS = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched']
+SCHEDULERS = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched', 'FCFS']
 
 # Graph configuration
 COLORS = {
@@ -159,21 +159,22 @@ def create_soc_comparison_graph(scheduler, soc_data, output_dir='graphs'):
 
     # Create bars
     bars1 = ax.bar(x + offset1, all1_times, BAR_WIDTH,
-                   label='all1 (1x Resources)', color=COLORS['all1'])
+                   label='Baseline (1x)', color=COLORS['all1'])
     bars2 = ax.bar(x + offset2, all2_times, BAR_WIDTH,
-                   label='all2 (2x Resources)', color=COLORS['all2'])
+                   label='Doubled (2x)', color=COLORS['all2'])
     bars3 = ax.bar(x + offset3, all3_times, BAR_WIDTH,
-                   label='all3 (3x Resources)', color=COLORS['all3'])
+                   label='Tripled (3x)', color=COLORS['all3'])
 
     # Configure chart elements - NO title, NO axis labels
     ax.set_xticks(x)
-    ax.set_xticklabels(workload_labels, fontsize=14)
-    ax.tick_params(axis='y', labelsize=14)
+    ax.set_xticklabels(workload_labels, fontsize=30)
+    ax.tick_params(axis='y', labelsize=30)
 
     # Place legend at top center (where title was)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=3, fontsize=12, frameon=True)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=3, fontsize=20, frameon=True)
 
     ax.grid(axis='y', alpha=0.3, linestyle='--')
+
 
     # Adjust layout to prevent label cutoff
     plt.tight_layout()

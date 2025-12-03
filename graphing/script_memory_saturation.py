@@ -270,6 +270,8 @@ def create_comparison_graph(scheduler, ds3_data, gem5_data, output_dir='graphs')
     bars4 = ax.bar(x + offset4, gem5_normalized, BAR_WIDTH,
                    label=f'gem5 Baseline ({gem5_policy})', color=COLORS['gem5'])
 
+    ax.set_ylim(0,1.3)
+
     # Configure chart elements - NO title, NO axis labels
     ax.set_xticks(x)
     ax.set_xticklabels(workload_labels, fontsize=30)
