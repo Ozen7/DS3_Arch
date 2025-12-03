@@ -64,7 +64,8 @@ SCHEDULER_POLICY_MAP = {
     'LL': 'LAX',
     'GEDF_D': 'GEDF_D',
     'GEDF_N': 'GEDF_N',
-    'HetSched': 'HetSched'
+    'HetSched': 'HetSched',
+    'FCFS': 'FCFS'
 }
 
 # Workload list (alphabetical order)
@@ -271,11 +272,11 @@ def create_comparison_graph(scheduler, ds3_data, gem5_data, output_dir='graphs')
 
     # Configure chart elements - NO title, NO axis labels
     ax.set_xticks(x)
-    ax.set_xticklabels(workload_labels, fontsize=14)
-    ax.tick_params(axis='y', labelsize=14)
+    ax.set_xticklabels(workload_labels, fontsize=30)
+    ax.tick_params(axis='y', labelsize=30)
 
     # Place legend at top center (where title was)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=2, fontsize=12, frameon=True)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), ncol=2, fontsize=20, frameon=True)
 
     ax.grid(axis='y', alpha=0.3, linestyle='--')
 

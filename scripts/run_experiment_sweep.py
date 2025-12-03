@@ -80,6 +80,7 @@ SCHEDULERS = [
     'GEDF_D',
     'GEDF_N',
     'HetSched',
+    'FCFS'
 ]
 
 # Workload configurations (easily extensible)
@@ -111,7 +112,7 @@ CREATE_SOC_SCRIPT = os.path.join(SCRIPT_DIR, 'create_RELIEF_SoC.py')
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # Output CSV file - includes bandwidth and experiment type in filename
-OUTPUT_CSV = os.path.join(RESULTS_DIR, f'experiment_results_RELIEF_NoCrit_MinList_{args.bandwidth}.csv')
+OUTPUT_CSV = os.path.join(RESULTS_DIR, f'experiment_results_RELIEF_NoCrit_min_{args.bandwidth}.csv')
 
 # Memory bandwidth of these tests (from command-line argument)
 bandwidth = args.bandwidth

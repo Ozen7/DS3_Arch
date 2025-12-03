@@ -37,6 +37,7 @@ SCHEDULER_MAPPING = {
     'GEDF_D': 'GEDF_D',
     'GEDF_N': 'GEDF_N',
     'HetSched': 'HetSched',
+    'FCFS': 'FCFS'
 }
 
 
@@ -153,21 +154,23 @@ def main():
     num_apps = avg_errors.index.tolist()
     avg_error_pct = avg_errors.values.tolist()
 
-    # Create bars with blue color scheme (matching other graphs)
-    bars = ax.bar(num_apps, avg_error_pct, color='#4A90A4', edgecolor='black', alpha=0.8)
+    # Create bars with vibrant blue color scheme
+    bars = ax.bar(num_apps, avg_error_pct, color='#1E88E5')
 
     # Customize appearance - NO title, NO axis labels
     ax.set_xticks(num_apps)
     ax.set_xticklabels([int(x) for x in num_apps], fontsize=16)
     ax.tick_params(axis='y', labelsize=16)
-    ax.grid(axis='y', alpha=0.3, linestyle='--')
 
-    # Add value labels on top of bars
+    # Make y-axis ticks less frequent
+    ax.locator_params(axis='y', nbins=5)
+
+    # Add value labels on top of bars (bigger font)
     for bar in bars:
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width()/2., height,
                 f'{height:.1f}%',
-                ha='center', va='bottom', fontsize=14, fontweight='bold')
+                ha='center', va='bottom', fontsize=18, fontweight='bold')
 
     # Add experiment count annotations
     for num_app in num_apps:

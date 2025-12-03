@@ -867,6 +867,9 @@ def get_memory_contention_factor():
         # Flat region: minimal latency increase
         return 1.0
     
+    if utilization > sat_point:
+        utilization = 1.0
+    
     # Beyond knee: sharp increase toward saturation
     # Map utilization from [knee, sat] to [0, 1] for the steep region
     steep_region = (utilization - knee_point) / (sat_point - knee_point)

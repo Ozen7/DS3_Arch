@@ -32,6 +32,7 @@ SCHEDULER_MAPPING = {
     'GEDF_D': 'GEDF_D',
     'GEDF_N': 'GEDF_N',
     'HetSched': 'HetSched',
+    'FCFS': 'FCFS'
 }
 
 # Paths
