@@ -97,6 +97,7 @@ class Scheduler:
             while insert_index < len(fwd_nodes[task.PE_Family]) and task.laxity > (fwd_nodes[task.PE_Family][insert_index].laxity):
                 insert_index += 1
             fwd_nodes[task.PE_Family].insert(insert_index, task)
+        print("LAXITY", task.laxity)
 
         # Phase 2: Schedule tasks, forwarding to idle PEs when feasible
         for family in common.TypeManager.get_all_families():
@@ -287,10 +288,14 @@ class Scheduler:
             self.find_best_PE(task,fwd_nodes)
 
             task.laxity = task.sd - task.runtime # use SD to calculate laxity
-            
+            print("1) TASK LAXITY", task.ID,  task.laxity)
+
             insert_index = 0
             while insert_index < len(common.executable[task.PE_Family]) and task.laxity >= common.executable[task.PE_Family][insert_index].laxity:
                 insert_index += 1
+            print("INSERT AT", insert_index)
+            for x in common.executable[task.PE_Family]:
+                print("TASK LAX", x.ID, x.laxity)
             common.executable[task.PE_Family].insert(insert_index, task)
             
         
