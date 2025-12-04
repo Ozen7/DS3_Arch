@@ -213,16 +213,17 @@ class PE:
                     if (self.env.now >= common.warmup_period):
                         common.results.execution_time = self.env.now
                         common.results.completed_jobs += 1
-
                         # tail task's deadline is set based on DAG deadline
                         if (self.env.now < task.deadline):
                             common.results.deadlines_met += 1
                         else:
                             common.results.deadlines_missed += 1
+                            common.results.amount_deadlines_overrun.append(self.env.now - task.deadline)
+
 
                         # Interrupts the timeout of job generator if the inject_jobs_ASAP flag is active
-                        if sim_manager.job_gen.generate_job and common.inject_jobs_ASAP:
-                            sim_manager.job_gen.action.interrupt()
+                        #if sim_manager.job_gen.generate_job and common.inject_jobs_ASAP:
+                        #    sim_manager.job_gen.action.interrupt()
 
                         for completed in common.completed:
                             if ((completed.head == True) and 
@@ -310,7 +311,7 @@ class PE:
         # If data already exists, don't allocate again
         if data_id in self.scratchpad:
             return True
-
+    
         # Check if we have enough capacity
         if size > self.scratchpad_capacity:
             # Data is larger than total capacity - cannot allocate

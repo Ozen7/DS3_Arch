@@ -3,7 +3,8 @@
 gem5 vs DS3 Results Comparison and Graphing
 
 This script compares gem5 and DS3 execution times, calculates percentage
-errors, and generates a bar graph showing average error by number of jobs.
+errors and statistical measures (mean, median, variance, std dev, min, max),
+and generates a box and whisker plot showing error distribution by number of jobs.
 
 Usage:
     python3 graphing/compare_gem5_ds3_results.py
@@ -133,53 +134,217 @@ def main():
     print(f"  Min error: {merged_df['abs_percentage_error'].min():.2f}%")
     print(f"  Max error: {merged_df['abs_percentage_error'].max():.2f}%")
 
+    # Identify highest error cases
+    print(f"\n{'='*80}")
+    print(f"[INFO] HIGHEST ERROR CASES - Top 10")
+    print(f"{'='*80}")
+
+    # Sort by error descending and get top 10
+    top_errors = merged_df.nlargest(10, 'abs_percentage_error')
+
+    for idx, (_, row) in enumerate(top_errors.iterrows(), 1):
+        print(f"\n{'─'*80}")
+        print(f"RANK #{idx} - Error: {row['abs_percentage_error']:.2f}%")
+        print(f"{'─'*80}")
+        print(f"  Scheduler (gem5): {row['policy']}")
+        print(f"  Scheduler (DS3):  {row['ds3_scheduler']}")
+        print(f"  Number of Apps:   {int(row['num_apps'])}")
+        print(f"  App Mix:          {row['app_mix_list_str']}")
+        print(f"  gem5 Time:        {row['gem5_execution_time_us']:,.2f} μs")
+        print(f"  DS3 Time:         {row['ds3_execution_time_us']:,.2f} μs")
+        print(f"  Difference:       {abs(row['gem5_execution_time_us'] - row['ds3_execution_time_us']):,.2f} μs")
+
+    # Analyze patterns in high-error cases
+    print(f"\n{'='*80}")
+    print(f"[INFO] HIGH ERROR PATTERN ANALYSIS (Top 20% of errors)")
+    print(f"{'='*80}")
+
+    # Define high error threshold (top 20%)
+    error_threshold = merged_df['abs_percentage_error'].quantile(0.80)
+    high_error_df = merged_df[merged_df['abs_percentage_error'] >= error_threshold]
+
+    print(f"\nThreshold for high error: {error_threshold:.2f}%")
+    print(f"Number of high-error cases: {len(high_error_df)} out of {len(merged_df)}")
+
+    # Analyze by scheduler
+    print(f"\n[ANALYSIS] High-Error Cases by Scheduler:")
+    scheduler_counts = high_error_df.groupby('ds3_scheduler').size().sort_values(ascending=False)
+    for scheduler, count in scheduler_counts.items():
+        pct = (count / len(high_error_df)) * 100
+        print(f"  {scheduler:12s}: {count:3d} cases ({pct:5.1f}%)")
+
+    # Analyze by number of apps
+    print(f"\n[ANALYSIS] High-Error Cases by Number of Apps:")
+    app_counts = high_error_df.groupby('num_apps').size().sort_values(ascending=False)
+    for num_apps, count in app_counts.items():
+        pct = (count / len(high_error_df)) * 100
+        print(f"  {int(num_apps):2d} apps: {count:3d} cases ({pct:5.1f}%)")
+
+    # Analyze by app mix
+    print(f"\n[ANALYSIS] Most Common App Mixes in High-Error Cases (Top 5):")
+    mix_counts = high_error_df.groupby('app_mix_list_str').size().sort_values(ascending=False).head(5)
+    for idx, (mix, count) in enumerate(mix_counts.items(), 1):
+        avg_error = high_error_df[high_error_df['app_mix_list_str'] == mix]['abs_percentage_error'].mean()
+        print(f"  #{idx} Mix: {mix}")
+        print(f"      Count: {count}, Avg Error: {avg_error:.2f}%")
+
     # Save detailed comparison
-    print(f"\n[INFO] Saving detailed comparison to: {DETAILED_COMPARISON_CSV}")
+    print(f"\n{'='*80}")
+    print(f"[INFO] Saving detailed comparison to: {DETAILED_COMPARISON_CSV}")
+    print(f"{'='*80}")
     merged_df.to_csv(DETAILED_COMPARISON_CSV, index=False)
 
-    # Group by num_apps and calculate average error
-    print(f"\n[INFO] Calculating average error by number of jobs...")
-    avg_errors = merged_df.groupby('num_apps')['abs_percentage_error'].mean().sort_index()
+    # Print ALL comparisons for verification
+    print(f"\n{'='*80}")
+    print(f"[INFO] COMPLETE COMPARISON DATA - All {len(merged_df)} Experiments")
+    print(f"{'='*80}")
 
-    print(f"\n[INFO] Average Error by Number of Jobs:")
-    for num_apps, avg_error in avg_errors.items():
-        count = len(merged_df[merged_df['num_apps'] == num_apps])
-        print(f"  {int(num_apps)} jobs: {avg_error:.2f}% (n={count})")
+    # Sort by scheduler, then num_apps, then error for organized output
+    sorted_df = merged_df.sort_values(['ds3_scheduler', 'num_apps', 'abs_percentage_error'],
+                                       ascending=[True, True, False])
 
-    # Generate bar graph
-    print(f"\n[INFO] Generating bar graph...")
+    current_scheduler = None
+    for _, row in sorted_df.iterrows():
+        # Print header when scheduler changes
+        if row['ds3_scheduler'] != current_scheduler:
+            current_scheduler = row['ds3_scheduler']
+            print(f"\n{'='*80}")
+            print(f"SCHEDULER: {current_scheduler}")
+            print(f"{'='*80}")
+
+        print(f"\n  Apps: {int(row['num_apps']):2d} | Error: {row['abs_percentage_error']:6.2f}% | Mix: {row['app_mix_list_str']}")
+        print(f"    gem5: {row['gem5_execution_time_us']:12,.2f} μs | DS3: {row['ds3_execution_time_us']:12,.2f} μs | Diff: {abs(row['gem5_execution_time_us'] - row['ds3_execution_time_us']):10,.2f} μs")
+
+    # Group by num_apps and calculate statistics
+    print(f"\n{'='*80}")
+    print(f"[INFO] STATISTICAL SUMMARY BY NUMBER OF JOBS")
+    print(f"{'='*80}")
+
+    # Group errors by num_apps
+    grouped_errors = merged_df.groupby('num_apps')['abs_percentage_error']
+
+    # Calculate comprehensive statistics
+    stats = grouped_errors.agg(['mean', 'median', 'std', 'var', 'min', 'max', 'count'])
+
+    print(f"\n{stats.to_string()}")
+    print(f"\nStatistics shown: mean, median, std (standard deviation), var (variance), min, max, count")
+
+    # Prepare data for box plot
+    error_data_by_jobs = [merged_df[merged_df['num_apps'] == n]['abs_percentage_error'].values
+                          for n in sorted(merged_df['num_apps'].unique())]
+    num_apps_labels = sorted(merged_df['num_apps'].unique())
+
+    # Generate box and whisker plot
+    print(f"\n[INFO] Generating box and whisker plot...")
+
+    # Set up publication-quality styling
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Arial', 'Helvetica', 'DejaVu Sans']
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    num_apps = avg_errors.index.tolist()
-    avg_error_pct = avg_errors.values.tolist()
+    # Set background color to white for clean appearance
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
 
-    # Create bars with vibrant blue color scheme
-    bars = ax.bar(num_apps, avg_error_pct, color='#1E88E5')
+    # Create box plot with softer, publication-quality colors
+    bp = ax.boxplot(error_data_by_jobs,
+                    labels=[int(x) for x in num_apps_labels],
+                    patch_artist=True,
+                    showmeans=True,
+                    meanprops=dict(marker='D',
+                                 markerfacecolor='#E57373',  # Soft red
+                                 markersize=7,
+                                 markeredgecolor='#C62828',
+                                 markeredgewidth=1),
+                    medianprops=dict(color='#37474F',  # Dark blue-gray
+                                   linewidth=2),
+                    boxprops=dict(facecolor='#90CAF9',  # Soft blue
+                                edgecolor='#1565C0',  # Darker blue border
+                                linewidth=1.5,
+                                alpha=0.8),
+                    whiskerprops=dict(linewidth=1.5,
+                                    color='#424242',  # Dark gray
+                                    linestyle='-'),
+                    capprops=dict(linewidth=1.5,
+                                color='#424242'),  # Dark gray
+                    flierprops=dict(marker='o',
+                                  markerfacecolor='#BDBDBD',  # Light gray
+                                  markersize=5,
+                                  markeredgecolor='#757575',
+                                  markeredgewidth=0.5,
+                                  alpha=0.6))
 
-    # Customize appearance - NO title, NO axis labels
-    ax.set_xticks(num_apps)
-    ax.set_xticklabels([int(x) for x in num_apps], fontsize=16)
-    ax.tick_params(axis='y', labelsize=16)
+    # Clean up spines for publication quality
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_linewidth(1.5)
+    ax.spines['left'].set_color('#424242')
+    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['bottom'].set_color('#424242')
+
+    # Customize tick appearance
+    ax.tick_params(axis='x', labelsize=18, length=6, width=1.5, color='#424242', pad=8)
+    ax.tick_params(axis='y', labelsize=18, length=6, width=1.5, color='#424242')
 
     # Make y-axis ticks less frequent
-    ax.locator_params(axis='y', nbins=5)
+    ax.locator_params(axis='y', nbins=6)
 
-    # Add value labels on top of bars (bigger font)
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:.1f}%',
-                ha='center', va='bottom', fontsize=18, fontweight='bold')
+    # Add subtle grid for easier reading
+    ax.grid(axis='y', alpha=0.2, linestyle='--', linewidth=1, color='#BDBDBD')
+    ax.set_axisbelow(True)
 
-    # Add experiment count annotations
-    for num_app in num_apps:
+    # Add variance and experiment count annotations
+    # Adjust the y-position to be above/below the box plots without overlap
+    y_min, y_max = ax.get_ylim()
+    y_range = y_max - y_min
+
+    # Add variance labels above each box plot and n= labels below
+    for i, num_app in enumerate(num_apps_labels, 1):
         count = len(merged_df[merged_df['num_apps'] == num_app])
-        ax.text(num_app, -max(avg_error_pct)*0.05,
-                f'n={count}',
-                ha='center', va='top', fontsize=12, style='italic')
+        data = merged_df[merged_df['num_apps'] == num_app]['abs_percentage_error']
 
+        # Calculate standard deviation
+        variance = data.var()
+        sd = variance ** 0.5
+
+        # Calculate standard deviation excluding outliers (using 1.5*IQR rule)
+        q1 = data.quantile(0.25)
+        q3 = data.quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+
+        # Filter out outliers
+        data_no_outliers = data[(data >= lower_bound) & (data <= upper_bound)]
+        sd_no_outliers = data_no_outliers.std()
+
+        # Standard deviation label (top line)
+        ax.text(i, y_max + y_range * 0.08,
+                f'σ={sd:.2f}',
+                ha='center', va='bottom', fontsize=20, style='italic',
+                color='#616161')
+
+        # Standard deviation without outliers (second line)
+        ax.text(i, y_max + y_range * 0.02,
+                f'σ*={sd_no_outliers:.2f}',
+                ha='center', va='bottom', fontsize=20, style='italic',
+                color='#757575')
+
+        # n= label below the x-axis
+        ax.text(i, y_min - y_range * 0.08,
+                f'n={count}',
+                ha='center', va='top', fontsize=20, style='italic',
+                color='#616161')
+
+    # Extend y-axis to accommodate both variance and n= labels
+    ax.set_ylim(y_min - y_range * 0.15, y_max + y_range * 0.14)
+
+    # Ensure tight layout with extra padding at bottom for n= labels
     plt.tight_layout()
+    plt.subplots_adjust(bottom=0.12)
+
+    # Save with high quality
     plt.savefig(COMPARISON_GRAPH, format='pdf', dpi=300, bbox_inches='tight')
     print(f"[INFO] Graph saved to: {COMPARISON_GRAPH}")
 
@@ -190,7 +355,7 @@ def main():
     print(f"[SUCCESS] Comparison complete!")
     print(f"\n[INFO] Output files:")
     print(f"  Detailed comparison: {DETAILED_COMPARISON_CSV}")
-    print(f"  Bar graph: {COMPARISON_GRAPH}")
+    print(f"  Box and whisker plot: {COMPARISON_GRAPH}")
 
     return 0
 

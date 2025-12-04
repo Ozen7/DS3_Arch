@@ -35,7 +35,6 @@ class SimulationManager:
         self.PEs = PE_list
         self.jobs = jobs
         self.resource_matrix = resource_matrix
-
         self.action = env.process(self.run())  # starts the run() method as a SimPy process
 
 
@@ -266,11 +265,11 @@ class SimulationManager:
             # to be removed from the executable queue
             remove_from_executable = {}  # {PE_ID: [tasks_to_remove]}
 
-            if (self.scheduler.name in common.new_schedulers):
-                for pe_id, pe_queue in common.executable.items():
-
+            for family in common.TypeManager.get_all_families():
+                for pe_id in common.TypeManager.get_PEs_of_family(family):
                     P = self.PEs[pe_id]
-                    if len(pe_queue) == 0:
+                    pe_queue = common.executable[family]
+                    if len(pe_queue) == 0 and not P.lock:
                         continue
 
                     if self.env.now >= common.warmup_period:
@@ -312,7 +311,6 @@ class SimulationManager:
                         executable_task = pe_queue[i]
                     else:
                         executable_task = P.task
-
                     assert executable_task != None
 
                     if P.idle and P.lock:
@@ -340,8 +338,8 @@ class SimulationManager:
 
                             remove_from_executable[pe_id] = [executable_task]
 
-                             # immediately allocate room in the scratchpad for output - done so that any ejection of data from the scratchpad is
-                             # taken into consideration when calculating memory latency
+                                # immediately allocate room in the scratchpad for output - done so that any ejection of data from the scratchpad is
+                                # taken into consideration when calculating memory latency
 
                         # end if (executable_task.time_stamp <= self.env.now and dynamic_dependencies_met and task_has_assignment):
                         
@@ -351,6 +349,9 @@ class SimulationManager:
                         P.lock = True
                         # this function also sets the task's timestamp
                         P.task = executable_task
+                        executable_task.PE_ID = P.ID
+                        # remove it from the executable queue
+                        common.executable[family].remove(executable_task)
                         
                         out = P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
                         out2 = False
@@ -362,73 +363,15 @@ class SimulationManager:
                             P.allocating = True
                             continue
 
+
+
                     # end elif P.idle and not P.lock:
                     elif not P.idle and P.lock: 
                         continue # PE is running when locked and not idle
                     else:
                         assert(False) #should be impossible
-            # end of if (self.scheduler.name in common.new_schedulers):
-            else:   
-                # Go over each PE's queue from common.executable dictionary
-                for pe_id, pe_queue in common.executable.items():
-                    if len(pe_queue) == 0:
-                        continue
-
-                    PE = self.PEs[pe_id]
-
-                    # for PE blocking data collection
-                    if self.env.now >= common.warmup_period:
-                        if not PE.idle:
-                            ready_tasks_count = sum(1 for task in pe_queue if task.time_stamp <= self.env.now)
-                            if ready_tasks_count > 0:
-                                PE.blocking += 1
-
-                    # Process tasks in this PE's queue
-                    tasks_to_remove = []
-                    for executable_task in pe_queue:
-                        is_time_to_execute = (executable_task.time_stamp <= self.env.now)
-                        PE_has_capacity = (len(PE.queue) < PE.capacity)  # capacity is the number of jobs a PE can have waiting?
-                        task_has_assignment = (executable_task.PE_ID == pe_id)  # Should always be true by design
-
-                        dynamic_dependencies_met = True
-
-                        dependencies_completed = []
-                        for dynamic_dependency in executable_task.dynamic_dependencies:
-                            dependencies_completed = dependencies_completed + list(filter(lambda completed_task: completed_task.ID == dynamic_dependency, common.completed))
-                        if len(dependencies_completed) != len(executable_task.dynamic_dependencies):
-                            dynamic_dependencies_met = False
-
-                        if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met and task_has_assignment:
-                            PE.queue.append(executable_task)
-
-                            if (common.INFO_SIM):
-                                print('[I] Time %s: Task %s is ready for execution by PE-%s'
-                                    % (self.env.now, executable_task.ID, pe_id))
-
-                            current_resource = self.resource_matrix.list[pe_id]
-                            self.env.process(PE.run(  # Send the current task and a handle for this simulation manager (self)
-                                self, executable_task, current_resource, DTPM_module))  # This handle is used by the PE to call the update_ready_queue function
-
-                            tasks_to_remove.append(executable_task)
-                        # end of if is_time_to_execute and PE_has_capacity and dynamic_dependencies_met
-
-                    # Remove executed tasks from this PE's queue
-                    if tasks_to_remove:
-                        remove_from_executable[pe_id] = tasks_to_remove
-                # end of for pe_id, pe_queue in common.executable.items():
-
-            # Remove the tasks from executable queue that have been executed by a resource
-            for pe_id, tasks in remove_from_executable.items():
-                for task in tasks:
-                    common.executable[pe_id].remove(task)
-
-            # If DRL scheduler is active, tasks waiting in the executable queue will be redirected to the ready queue
-            if (self.scheduler.name == 'DRL'):
-                # Pop tasks from all PE queues and move to ready
-                for pe_id in list(common.executable.keys()):
-                    while len(common.executable[pe_id]) > 0:
-                        task = common.executable[pe_id].pop(-1)
-                        common.ready.append(task)
+                # end for pe_id in common.TypeManager.get_PEs_of_family(family):
+            # end for family in common.TypeManager.get_all_types():
                         
             # The simulation tick is completed. Wait till the next interval
             yield self.env.timeout(common.simulation_clk)

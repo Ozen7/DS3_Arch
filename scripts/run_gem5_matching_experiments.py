@@ -27,7 +27,6 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 # Scheduler mapping: gem5 → DS3
 SCHEDULER_MAPPING = {
     'LAX': 'LL',
-    'ELFD': 'RELIEF',
     'ELF': 'RELIEF',  # Fallback if ELFD not available
     'GEDF_D': 'GEDF_D',
     'GEDF_N': 'GEDF_N',

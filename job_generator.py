@@ -49,7 +49,9 @@ class JobGenerator:
 
         # Initially none of the tasks are executable
         # Initialize as dictionary with PE_ID keys for all schedulers
-        common.executable = {pe.ID: [] for pe in self.PEs}
+        for pe in self.PEs:
+            if (pe.accelerator_family not in common.executable):
+                common.executable[pe.accelerator_family] = []
         
         self.generate_job = True                                                # Initially $generate_job is True so that as soon as run function is called
                                                                                 #   it will start generating jobs
@@ -144,14 +146,6 @@ class JobGenerator:
                 self.offset += len(self.generated_job_list[i].task_list)
                 # end of for ii in range(len(self.generated_job_list[i].list))
 
-                if 'CP' in self.scheduler.name:
-                    # Pop tasks from all PE queues and move to ready
-                    for pe_id in list(common.executable.keys()):
-                        while len(common.executable[pe_id]) > 0:
-                            task = common.executable[pe_id].pop(-1)
-                            common.ready.append(task)
-                    
-                    CP_models.CP(self.env.now, self.PEs, self.resource_matrix, self.jobs, self.generated_job_list)
 
                 # Update the job ID
                 i += 1

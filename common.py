@@ -236,6 +236,7 @@ class PerfStatics:
         self.average_job_number = 0                 # Shows the average number of jobs in the system for a workload
         self.deadlines_met = 0                      # Shows the number of deadlines met
         self.deadlines_missed = 0                   # Shows the number of deadlines missed
+        self.amount_deadlines_overrun = []           # shows the amount that deadlines were deferred before finishing
         self.job_counter_list = []
         self.memory_overhead = 0                    # Indicates time spend on memory transfers
         self.sampling_rate_list = []
@@ -321,6 +322,7 @@ class PETypeManager:
         @param pe_type: The type of the PE (e.g., 'CPU', 'ACC_JPEG', etc.)
         '''
         # Add to by_id mapping
+
         self.by_id[pe_id] = pe_type
 
         # Add to by_type mapping
@@ -351,6 +353,13 @@ class PETypeManager:
         '''
         return list(self.by_type.keys())
 
+    def get_all_families(self):
+        '''!
+        Get list of all PE types registered.
+        @return: List of PE type strings
+        '''
+        return list(self.by_family.keys())
+    
     def register_PE_family(self, pe_id, family):
         '''!
         Register a PE's accelerator family for efficient multi-instance lookup.
@@ -369,6 +378,8 @@ class PETypeManager:
         '''
         return self.by_family[family]
 # end class PETypeManager
+
+TypeManager = PETypeManager()
 
 class Tasks:
     '''!
@@ -390,6 +401,7 @@ class Tasks:
         self.jobDeadline = -1                   # The deadline of the overarching Job - TODO implement in job_generator
         self.jobname = ''                       # This task belongs to job with this name
         self.base_ID = -1                       # This ID will be used to calculate the data volume from one task to another
+        self.PE_Family = ""                     # Holds the name of the PE Family that the task is bound to
         self.PE_ID = -1                         # Holds the PE ID on which the task will be executed
         self.start_time = -1                    # Execution start time of a task
         self.finish_time = -1                   # Execution finish time of a task

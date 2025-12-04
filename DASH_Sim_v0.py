@@ -12,6 +12,8 @@ import networkx as nx
 import pickle
 import csv
 import warnings
+import statistics
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 
@@ -157,10 +159,12 @@ def run_simulator(scale_values=common.scale_values_list):
         # end for
 
         # Initialize PE Type Manager and register all PEs
-        common.PETypeManager = common.PETypeManager()
+        
+        common.TypeManager = common.TypeManager()
         for pe in DASH_resources:
-            common.PETypeManager.register_PE(pe.ID, pe.type)
-            common.PETypeManager.register_PE_family(pe.ID, pe.accelerator_family)
+            print(pe.type)
+            common.TypeManager.register_PE(pe.ID, pe.type)
+            common.TypeManager.register_PE_family(pe.ID, pe.accelerator_family)
 
         # Configure forwarding mode if enabled
         if common.comm_mode == 'forwarding':
@@ -324,10 +328,11 @@ def run_simulator(scale_values=common.scale_values_list):
                 # end for
 
                 # Initialize PE Type Manager and register all PEs
-                common.PETypeManager = common.PETypeManager()
                 for pe in DASH_resources:
-                    common.PETypeManager.register_PE(pe.ID, pe.type)
-                    common.PETypeManager.register_PE_family(pe.ID, pe.accelerator_family)
+                    if pe.type == "MEM":
+                        continue
+                    common.TypeManager.register_PE(pe.ID, pe.type)
+                    common.TypeManager.register_PE_family(pe.ID, pe.accelerator_family)
 
                 # Construct the scheduler
                 DASH_scheduler = scheduler.Scheduler(env, resource_matrix, common.scheduler,
@@ -338,7 +343,7 @@ def run_simulator(scale_values=common.scale_values_list):
 
                 job_gen = job_generator.JobGenerator(env, resource_matrix, jobs, DASH_scheduler, DASH_resources)
 
-                sim_core = DASH_Sim_core.SimulationManager(env, sim_done, job_gen, DASH_scheduler, DASH_resources,
+                sim_core = DASH_Sim_core.SimulationManager(env, sim_done, job_gen, DASH_scheduler, DASH_resources, 
                                                            jobs, resource_matrix)
 
                 if common.inject_fixed_num_jobs is False:
@@ -354,6 +359,7 @@ def run_simulator(scale_values=common.scale_values_list):
                     print('[I] Number of completed jobs: %d' %(common.results.completed_jobs))
                     print('[I] Number of deadlines met: %d' %(common.results.deadlines_met))
                     print('[I] Number of deadlines missed: %d' %(common.results.deadlines_missed))
+                    print('[I] Total deadline overrun variance: %d' %(statistics.variance(common.results.amount_deadlines_overrun)))
                     print('[I] Data Colocated/Forwarded/Pulled From Memory: %d / %d / % d' %(common.results.colocationData,common.results.forwardData,common.results.memoryData))
                     print('[I] Number of forwards: %d' %(common.results.num_forwards))
                     print('[I] Number of RELIEF forwards: %d' %(common.results.num_RELIEF_forwards))

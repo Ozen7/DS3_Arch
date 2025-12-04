@@ -1,19 +1,19 @@
 [DEFAULT]
-resource_file = SoC.i1_g1_cv1_h1_e1_c1_el1.txt
+resource_file = SoC.i1_g1_cv1_h1_e1_c1_el4.txt
 job_file = job_canny.txt,job_deblur.txt,job_gru.txt,job_harris.txt,job_lstm.txt
 job_probabilities = []
-job_list = [[0,0,1,0,0]]
+job_list = [[0,0,2,0,2]]
 inject_fixed_num_jobs = yes
 max_jobs = 1
 simulation_length = 100000
 clock = 1
-scheduler = GEDF_D
+scheduler = HetSched
 inject_jobs_asap = no
 fixed_injection_rate = no
 max_jobs_in_parallel = 16
 random_seed = 1
 standard_deviation = 0.0
-arbitration_type = min
+arbitration_type = exectime
 
 [TRACE]
 clean_traces = no
@@ -61,8 +61,8 @@ packet_size = 1
 communication_mode = forwarding
 
 [DEBUG]
-debug_config = no
-debug_sim = no
+debug_config = yes
+debug_sim = yes
 debug_job = no
 debug_sch = no
 
