@@ -359,7 +359,8 @@ def run_simulator(scale_values=common.scale_values_list):
                     print('[I] Number of completed jobs: %d' %(common.results.completed_jobs))
                     print('[I] Number of deadlines met: %d' %(common.results.deadlines_met))
                     print('[I] Number of deadlines missed: %d' %(common.results.deadlines_missed))
-                    print('[I] Total deadline overrun variance: %d' %(statistics.variance(common.results.amount_deadlines_overrun)))
+                    if (common.results.injected_jobs > 1):
+                        print('[I] Task Runtime Variance: %d' %(statistics.variance(common.results.amount_deadlines_overrun)))
                     print('[I] Data Colocated/Forwarded/Pulled From Memory: %d / %d / % d' %(common.results.colocationData,common.results.forwardData,common.results.memoryData))
                     print('[I] Number of forwards: %d' %(common.results.num_forwards))
                     print('[I] Number of RELIEF forwards: %d' %(common.results.num_RELIEF_forwards))

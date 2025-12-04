@@ -138,6 +138,26 @@ class JobGenerator:
                                   % (next_task.ID), next_task.predecessors)
                     else:
                         common.ready.append(next_task)          # Add the task to the ready queue since it has no predecessors
+                        #  Schedule it
+                        if self.scheduler.name == 'RELIEF':
+                            self.scheduler.RELIEF(common.ready)
+                        elif self.scheduler.name == 'LL':
+                            self.scheduler.LL(common.ready)
+                        elif self.scheduler.name == 'GEDF_D':
+                            self.scheduler.GEDF_D(common.ready)
+                        elif self.scheduler.name == 'GEDF_N':
+                            self.scheduler.GEDF_N(common.ready)
+                        elif self.scheduler.name == 'HetSched':
+                            self.scheduler.HetSched(common.ready)
+                        elif self.scheduler.name == 'FCFS':
+                            self.scheduler.FCFS(common.ready)
+                        else:
+                            print('[E] Could not find the requested scheduler')
+                            print('[E] Please check "config_file.ini" and enter a proper name')
+                            print('[E] or check "scheduler.py" if the scheduler exist')
+                            sys.exit()
+                        # end of if self.scheduler.name
+
                         if (common.DEBUG_SIM):
                             print('[D] Time %s: Task %s is pushed to the ready queue list'
                                   % (self.env.now, next_task.ID), end='')

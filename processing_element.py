@@ -218,7 +218,6 @@ class PE:
                             common.results.deadlines_met += 1
                         else:
                             common.results.deadlines_missed += 1
-                            common.results.amount_deadlines_overrun.append(self.env.now - task.deadline)
 
 
                         # Interrupts the timeout of job generator if the inject_jobs_ASAP flag is active
@@ -229,6 +228,7 @@ class PE:
                             if ((completed.head == True) and 
                                 (completed.jobID == task.jobID)):
                                 common.results.cumulative_exe_time += (self.env.now - completed.job_start)
+                                common.results.amount_deadlines_overrun.append(self.env.now)
 
                                 if (common.DEBUG_JOB):
                                     print('[D] Time %d: Job %d is completed' %(self.env.now, task.jobID+1))

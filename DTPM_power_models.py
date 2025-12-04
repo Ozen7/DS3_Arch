@@ -7,6 +7,7 @@ from math import exp
 import numpy as np
 import sys
 import copy
+import random
 
 import DASH_Sim_utils
 import common
@@ -147,14 +148,14 @@ def get_execution_time_max_frequency(task, resource):
     task_ind = resource.supported_functionalities.index(task.name)                  # Retrieve the index of the task
     execution_time = resource.performance[task_ind]                                 # Retrieve the mean execution time of a task
     if(resource.performance[task_ind]):
-        # Randomize the execution time based on a gaussian distribution
-        #randomized_execution_time = max(round(
-        #       random.gauss(execution_time,common.standard_deviation * execution_time)), 1)
+        #Randomize the execution time based on a gaussian distribution
+        randomized_execution_time = max(round(
+                random.gauss(execution_time,common.standard_deviation * execution_time)), 1)
         
-        # randomized_execution_time = max(round(
-        #         np.random.normal(execution_time,common.standard_deviation * execution_time)), 1)
+        randomized_execution_time = max(round(
+                np.random.normal(execution_time,common.standard_deviation * execution_time)), 1)
 
-        randomized_execution_time = execution_time
+        #randomized_execution_time = execution_time
 
         if (common.DEBUG_SIM):
             print('Randomized execution time is %s, the original was %s' 

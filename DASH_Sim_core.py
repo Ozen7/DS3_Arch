@@ -138,6 +138,33 @@ class SimulationManager:
                 remove_from_outstanding_queue.append(outstanding_task)
         # end of for i, outstanding_task in...
 
+        #schedule
+        if (self.scheduler.name in common.new_schedulers):
+            #runs every cycle
+            common.cleanup_noc_transfers(self.env.now, caller=self)
+
+        if (not len(common.ready) == 0):
+            # give all tasks in ready_list to the chosen scheduler
+            # and scheduler will assign the tasks to a PE
+            if self.scheduler.name == 'RELIEF':
+                self.scheduler.RELIEF(common.ready)
+            elif self.scheduler.name == 'LL':
+                self.scheduler.LL(common.ready)
+            elif self.scheduler.name == 'GEDF_D':
+                self.scheduler.GEDF_D(common.ready)
+            elif self.scheduler.name == 'GEDF_N':
+                self.scheduler.GEDF_N(common.ready)
+            elif self.scheduler.name == 'HetSched':
+                self.scheduler.HetSched(common.ready)
+            elif self.scheduler.name == 'FCFS':
+                self.scheduler.FCFS(common.ready)
+            else:
+                print('[E] Could not find the requested scheduler')
+                print('[E] Please check "config_file.ini" and enter a proper name')
+                print('[E] or check "scheduler.py" if the scheduler exist')
+                sys.exit()
+        # end of if not len(common.ready) == 0:
+
         # Remove the tasks from outstanding queue that have been moved to ready queue
         for task in remove_from_outstanding_queue:
             common.outstanding.remove(task)
@@ -184,7 +211,7 @@ class SimulationManager:
         for cluster in common.ClusterManager.cluster_list:
             DTPM_policies.initialize_frequency(cluster)
 
-        while (True):                                                           # Continue till the end of the simulation
+        while (True):  
             if self.env.now % common.sampling_rate == 0:
                 #common.results.job_counter_list.append(common.results.job_counter)
                 #common.results.sampling_rate_list.append(self.env.now)
@@ -221,45 +248,6 @@ class SimulationManager:
             if (common.INFO_SIM) and len(common.ready) > 0:
                 print('[I] Time %s: DASH-Sim ticks with %d task ready for being assigned to a PE'
                       % (self.env.now, len(common.ready)))
-
-            if (not len(common.ready) == 0):
-                # give all tasks in ready_list to the chosen scheduler
-                # and scheduler will assign the tasks to a PE
-                if self.scheduler.name == 'CPU_only':
-                    self.scheduler.CPU_only(common.ready)
-                elif self.scheduler.name == 'MET':
-                    self.scheduler.MET(common.ready)
-                elif self.scheduler.name == 'EFT':
-                    self.scheduler.EFT(common.ready)
-                elif self.scheduler.name == 'STF':
-                    self.scheduler.STF(common.ready)
-                elif self.scheduler.name == 'ETF':
-                    self.scheduler.ETF(common.ready)
-                elif self.scheduler.name == 'ETF_LB':
-                    self.scheduler.ETF_LB(common.ready)
-                elif self.scheduler.name == 'CP':
-                    self.scheduler.CP(common.ready)
-                elif self.scheduler.name == 'RELIEF':
-                    self.scheduler.RELIEF(common.ready)
-                elif self.scheduler.name == 'LL':
-                    self.scheduler.LL(common.ready)
-                elif self.scheduler.name == 'GEDF_D':
-                    self.scheduler.GEDF_D(common.ready)
-                elif self.scheduler.name == 'GEDF_N':
-                    self.scheduler.GEDF_N(common.ready)
-                elif self.scheduler.name == 'HetSched':
-                    self.scheduler.HetSched(common.ready)
-                elif self.scheduler.name == 'FCFS':
-                    self.scheduler.FCFS(common.ready)
-                else:
-                    print('[E] Could not find the requested scheduler')
-                    print('[E] Please check "config_file.ini" and enter a proper name')
-                    print('[E] or check "scheduler.py" if the scheduler exist')
-                    sys.exit()
-                # end of if self.scheduler.name
-                if (self.scheduler.name not in common.new_schedulers):
-                    self.update_execution_queue(common.ready)
-            # end of if not len(common.ready) == 0:
 
             # Initialize $remove_from_executable which will populate tasks
             # to be removed from the executable queue
