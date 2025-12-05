@@ -463,7 +463,7 @@ wait_ready:List[Tasks] = []                    # List of task waiting for being 
 active_noc_transfers = []                      # List of active NoC transfers
 executable = {}                    # Dictionary of per-PE executable queues: {PE_ID: [task_list]} 
 new_schedulers = ['RELIEF', 'LL', 'GEDF_D', 'GEDF_N', 'HetSched', 'FCFS']         # List of schedulers introduced to take advantage of my reeimplementation of DS3
-deprioritize_negative_laxity = ['RELIEF_LL','LL']
+deprioritize_negative_laxity = ['RELIEF', 'LL']
 
 # no actual self, but we need access to the jobs and env variables from wherever it is being called from (scheduler or dash sim core)
 def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canAllocate):
@@ -489,7 +489,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
             total_data = executable_task.input_packet_size
 
-            cancel = False
+            cancel = canAllocate # only cancel if we can allocate
 
 
             if executable_task.head == True:
@@ -501,6 +501,13 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             # This tracks the total amount of input data to this task. If we need more data than is covered by the 
             # predecessors, then the assumption is that we need something from memory as well (weights, biases, etc.)
 
+            #add predecessors for allocating output scratchpad
+            if canAllocate:
+                for predecessor in task.predecessors:
+                    real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
+                    caller.PEs[executable_task.PE_ID].dependencies.append(real_predecessor_ID) #removed in update ready queue 
+                out = caller.PEs[executable_task.PE_ID].allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
+                cancel = out and cancel
             for predecessor in task.predecessors:
 
                 # data required from the predecessor for $ready_task
@@ -511,8 +518,6 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
 
                 # retrieve the real ID  of the predecessor based on the job ID
                 real_predecessor_ID = predecessor + executable_task.ID - executable_task.base_ID
-
-                caller.PEs[executable_task.PE_ID].dependencies.append(real_predecessor_ID) #removed in update ready queue
 
                 # Initialize following two variables which will be used if
                 # PE to PE communication is utilized
@@ -590,12 +595,11 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
                     out = caller.PEs[executable_task.PE_ID].allocate_scratchpad(data_id, total_data*packet_size, executable_task.ID)
                     cancel = cancel and out
             # end if total_data > 0
-            
-            # stall if we can't get enough scratchpad space
-            if cancel:
-                caller.PEs[executable_task.PE_ID].dependencies = 0
-                return False
 
+            # stall if we can't get enough scratchpad space
+            if not cancel and canAllocate:
+                caller.PEs[executable_task.PE_ID].dependencies = []
+                return False
             assert total_data >= 0
 
             assert len(bandwidth) == len(data_volumes) == len(src_list) == len(data_ids)
@@ -605,6 +609,7 @@ def calculate_memory_movement_latency(caller, executable_task:Tasks, PE_ID, canA
             # Use sums since DMA is done back to back
             if canAllocate:
                 increase_congestion(caller.env.now, data_volumes, src_list, executable_task.PE_ID, data_ids, bandwidth, caller, executable_task)
+                return True
             else:
                 return (isColocated, sum(int(x / y) for x, y in zip(data_volumes, bandwidth))) #return ideal numbers for the purposes of scheduling
             # end else

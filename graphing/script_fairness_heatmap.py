@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Execution Time Across Complexity Levels - Grouped Heatmap
+Task Runtime Fairness Across Complexity Levels - Grouped Heatmap
 
-This script generates a dense 4D visualization showing execution times across:
+This script generates a dense 4D visualization showing task runtime fairness across:
 1. Workload complexity (rows)
 2. Scheduler algorithms (column groups)
 3. SoC resource complexity (sub-columns within each scheduler)
-4. Execution time (color + annotation)
+4. Task runtime standard deviation (color + annotation)
+
+Lower standard deviation = better fairness (lighter purple)
+Higher standard deviation = worse fairness (darker purple)
 
 Author: Generated for DS3 Architecture Research
 """
@@ -66,17 +69,20 @@ WORKLOADS = ['mixed_balanced', 'mixed_vision_heavy', 'mixed_ml_heavy']
 # Schedulers to process (order matters for visualization)
 SCHEDULERS = ['FCFS', 'GEDF_D', 'GEDF_N', 'HetSched', 'LL', 'RELIEF']
 
-# Colormap for heatmap (white to dark red - darker = slower/worse)
-CMAP = 'Reds'
+# Colormap for heatmap (white to dark purple - darker = worse fairness)
+CMAP = 'Purples'
 
 
 # ============================================================================
 # Data Loading Function
 # ============================================================================
 
-def load_execution_time_data(file_path, soc_configs, schedulers, workloads):
+def load_fairness_data(file_path, soc_configs, schedulers, workloads):
     """
-    Load execution time data from CSV file.
+    Load task runtime fairness data from CSV file.
+
+    Fairness is measured as the standard deviation of task runtime
+    (square root of task_runtime_variance).
 
     Args:
         file_path: Path to experiment results CSV
@@ -85,7 +91,7 @@ def load_execution_time_data(file_path, soc_configs, schedulers, workloads):
         workloads: List of workload names
 
     Returns:
-        Dictionary structure: {(workload, scheduler, soc_label): execution_time}
+        Dictionary structure: {(workload, scheduler, soc_label): std_dev}
     """
     if not os.path.exists(file_path):
         print(f"[ERROR] Data file not found: {file_path}")
@@ -94,7 +100,7 @@ def load_execution_time_data(file_path, soc_configs, schedulers, workloads):
     print(f"[INFO] Loading data from {file_path}")
     df = pd.read_csv(file_path)
 
-    execution_data = {}
+    fairness_data = {}
 
     # Filter for mixed-workload runs
     for soc_label, soc_config in soc_configs.items():
@@ -111,20 +117,22 @@ def load_execution_time_data(file_path, soc_configs, schedulers, workloads):
             if scheduler not in schedulers or workload not in workloads:
                 continue
 
-            execution_time = row['execution_time']
+            # Get variance and calculate standard deviation
+            variance = row['task_runtime_variance']
+            std_dev = np.sqrt(variance) if variance >= 0 else 0.0
 
             # Store with composite key
             key = (workload, scheduler, soc_label)
-            execution_data[key] = execution_time
+            fairness_data[key] = std_dev
 
-    return execution_data
+    return fairness_data
 
 
 # ============================================================================
 # Matrix Construction Function
 # ============================================================================
 
-def build_heatmap_matrix(execution_data, workloads, schedulers, soc_configs):
+def build_heatmap_matrix(fairness_data, workloads, schedulers, soc_configs):
     """
     Build a 2D matrix for heatmap visualization.
 
@@ -132,7 +140,7 @@ def build_heatmap_matrix(execution_data, workloads, schedulers, soc_configs):
     Columns: Scheduler × SoC complexity (flattened)
 
     Args:
-        execution_data: Dictionary with (workload, scheduler, soc) -> execution_time
+        fairness_data: Dictionary with (workload, scheduler, soc) -> std_dev
         workloads: List of workload names
         schedulers: List of scheduler names
         soc_configs: Dictionary of SoC configuration labels
@@ -141,7 +149,7 @@ def build_heatmap_matrix(execution_data, workloads, schedulers, soc_configs):
         - matrix: 2D numpy array for heatmap
         - col_labels: List of column labels
         - row_labels: List of row labels
-        - global_max: Maximum execution time across all data
+        - global_max: Maximum std_dev across all data
     """
     num_workloads = len(workloads)
     num_schedulers = len(schedulers)
@@ -169,9 +177,9 @@ def build_heatmap_matrix(execution_data, workloads, schedulers, soc_configs):
         for scheduler in schedulers:
             for soc_label in soc_order:
                 key = (workload, scheduler, soc_label)
-                exec_time = execution_data.get(key, 0.0)
-                matrix[i, col_idx] = exec_time
-                global_max = max(global_max, exec_time)
+                std_dev = fairness_data.get(key, 0.0)
+                matrix[i, col_idx] = std_dev
+                global_max = max(global_max, std_dev)
                 col_idx += 1
 
     return matrix, col_labels, row_labels, global_max
@@ -181,13 +189,13 @@ def build_heatmap_matrix(execution_data, workloads, schedulers, soc_configs):
 # Graph Generation Function
 # ============================================================================
 
-def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_configs,
-                                  output_dir='graphs'):
+def create_fairness_heatmap(fairness_data, workloads, schedulers, soc_configs,
+                           output_dir='graphs'):
     """
-    Create a grouped heatmap showing execution time across all dimensions.
+    Create a grouped heatmap showing task runtime fairness across all dimensions.
 
     Args:
-        execution_data: Dictionary with execution times
+        fairness_data: Dictionary with task runtime standard deviations
         workloads: List of workload names
         schedulers: List of scheduler names
         soc_configs: Dictionary of SoC configuration labels
@@ -195,10 +203,10 @@ def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_con
     """
     # Build matrix
     matrix, col_labels, row_labels, global_max = build_heatmap_matrix(
-        execution_data, workloads, schedulers, soc_configs
+        fairness_data, workloads, schedulers, soc_configs
     )
 
-    print(f"[INFO] Global maximum execution time: {global_max:.0f} μs")
+    print(f"[INFO] Global maximum task runtime std dev: {global_max:.2f} μs")
 
     # Create figure with appropriate size
     num_cols = len(col_labels)
@@ -224,7 +232,7 @@ def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_con
     # Rotate x-axis labels to 90 degrees for readability
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right")
 
-    # Add text annotations showing execution times
+    # Add text annotations showing standard deviations
     for i in range(num_rows):
         for j in range(num_cols):
             value = matrix[i, j]
@@ -251,7 +259,7 @@ def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_con
 
     # Add colorbar
     cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label('Execution Time (μs)', rotation=270, labelpad=25, fontsize=14)
+    cbar.set_label('Task Runtime Std Dev (μs)', rotation=270, labelpad=25, fontsize=14)
     cbar.ax.tick_params(labelsize=12)
 
     # Add scheduler group labels at the top
@@ -263,14 +271,14 @@ def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_con
                transform=ax.transData)
 
     # Add title above everything
-    fig.suptitle('Execution Time: Workload Mix × Scheduler × SoC Complexity',
+    fig.suptitle('Task Runtime Fairness: Workload Mix × Scheduler × SoC Complexity',
                 fontsize=16, weight='bold', y=0.98)
 
     # Adjust layout
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     # Save to PDF
-    output_path = os.path.join(output_dir, 'execution_time_heatmap.pdf')
+    output_path = os.path.join(output_dir, 'fairness_heatmap.pdf')
     plt.savefig(output_path, format='pdf', bbox_inches='tight', dpi=300)
     print(f"[SUCCESS] Generated graph: {output_path}")
 
@@ -281,14 +289,14 @@ def create_execution_time_heatmap(execution_data, workloads, schedulers, soc_con
 # Alternative: Individual Scheduler Heatmaps (Faceted View)
 # ============================================================================
 
-def create_faceted_execution_time_heatmaps(execution_data, workloads, schedulers,
-                                           soc_configs, output_dir='graphs'):
+def create_faceted_fairness_heatmaps(fairness_data, workloads, schedulers,
+                                    soc_configs, output_dir='graphs'):
     """
     Create a faceted view with one heatmap per scheduler.
     Each subplot shows: Workload (rows) × SoC Complexity (columns)
 
     Args:
-        execution_data: Dictionary with execution times
+        fairness_data: Dictionary with task runtime standard deviations
         workloads: List of workload names
         schedulers: List of scheduler names
         soc_configs: Dictionary of SoC configuration labels
@@ -300,8 +308,8 @@ def create_faceted_execution_time_heatmaps(execution_data, workloads, schedulers
     num_workloads = len(workloads)
 
     # Calculate global max for consistent coloring
-    global_max = max(execution_data.values())
-    print(f"[INFO] Global maximum execution time for faceted view: {global_max:.0f} μs")
+    global_max = max(fairness_data.values())
+    print(f"[INFO] Global maximum task runtime std dev for faceted view: {global_max:.2f} μs")
 
     # Create subplots (2 rows, 3 columns for 6 schedulers)
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
@@ -316,8 +324,8 @@ def create_faceted_execution_time_heatmaps(execution_data, workloads, schedulers
         for i, workload in enumerate(workloads):
             for j, soc_label in enumerate(soc_order):
                 key = (workload, scheduler, soc_label)
-                exec_time = execution_data.get(key, 0.0)
-                matrix[i, j] = exec_time
+                std_dev = fairness_data.get(key, 0.0)
+                matrix[i, j] = std_dev
 
         # Create heatmap with global max
         im = ax.imshow(matrix, cmap=CMAP, aspect='auto', vmin=0, vmax=global_max)
@@ -360,18 +368,18 @@ def create_faceted_execution_time_heatmaps(execution_data, workloads, schedulers
     fig.subplots_adjust(right=0.92)
     cbar_ax = fig.add_axes([0.94, 0.15, 0.02, 0.7])
     cbar = fig.colorbar(axes[0].images[0], cax=cbar_ax)
-    cbar.set_label('Execution Time (μs)', rotation=270, labelpad=25, fontsize=14)
+    cbar.set_label('Task Runtime Std Dev (μs)', rotation=270, labelpad=25, fontsize=14)
     cbar.ax.tick_params(labelsize=12)
 
     # Add overall title
-    fig.suptitle('Execution Time by Scheduler (Workload Mix × SoC Complexity)',
+    fig.suptitle('Task Runtime Fairness by Scheduler (Workload Mix × SoC Complexity)',
                 fontsize=16, weight='bold', y=0.98)
 
     # Adjust layout
     plt.tight_layout(rect=[0, 0, 0.93, 0.96])
 
     # Save to PDF
-    output_path = os.path.join(output_dir, 'execution_time_faceted.pdf')
+    output_path = os.path.join(output_dir, 'fairness_faceted.pdf')
     plt.savefig(output_path, format='pdf', bbox_inches='tight', dpi=300)
     print(f"[SUCCESS] Generated graph: {output_path}")
 
@@ -387,7 +395,7 @@ def main():
     Main execution function.
     """
     print("=" * 70)
-    print("Execution Time Visualization Script")
+    print("Task Runtime Fairness Visualization Script")
     print("=" * 70)
 
     # Validate that data file exists
@@ -400,12 +408,12 @@ def main():
 
     # Load data
     print("\n" + "=" * 70)
-    print("Loading Execution Time Data")
+    print("Loading Task Runtime Fairness Data")
     print("=" * 70)
-    execution_data = load_execution_time_data(DATA_FILE, SOC_CONFIGS, SCHEDULERS, WORKLOADS)
+    fairness_data = load_fairness_data(DATA_FILE, SOC_CONFIGS, SCHEDULERS, WORKLOADS)
 
     # Print summary
-    print(f"\n[INFO] Loaded {len(execution_data)} data points")
+    print(f"\n[INFO] Loaded {len(fairness_data)} data points")
     print(f"[INFO] Dimensions:")
     print(f"  - Workloads: {len(WORKLOADS)} ({', '.join(WORKLOADS)})")
     print(f"  - Schedulers: {len(SCHEDULERS)} ({', '.join(SCHEDULERS)})")
@@ -421,11 +429,11 @@ def main():
 
     # Create grouped heatmap (dense, single plot)
     print("\n[INFO] Generating grouped heatmap...")
-    create_execution_time_heatmap(execution_data, WORKLOADS, SCHEDULERS, SOC_CONFIGS)
+    create_fairness_heatmap(fairness_data, WORKLOADS, SCHEDULERS, SOC_CONFIGS)
 
     # Create faceted view (one heatmap per scheduler)
     print("\n[INFO] Generating faceted heatmaps...")
-    create_faceted_execution_time_heatmaps(execution_data, WORKLOADS, SCHEDULERS, SOC_CONFIGS)
+    create_faceted_fairness_heatmaps(fairness_data, WORKLOADS, SCHEDULERS, SOC_CONFIGS)
 
     # Final summary
     print("\n" + "=" * 70)
@@ -434,8 +442,8 @@ def main():
     print(f"[INFO] Generated 2 visualizations")
     print(f"[INFO] Output directory: graphs/")
     print(f"[INFO] Files generated:")
-    print(f"  - execution_time_heatmap.pdf (grouped, dense)")
-    print(f"  - execution_time_faceted.pdf (per-scheduler subplots)")
+    print(f"  - fairness_heatmap.pdf (grouped, dense)")
+    print(f"  - fairness_faceted.pdf (per-scheduler subplots)")
     print("\n[SUCCESS] Script completed successfully!")
 
 

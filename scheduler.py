@@ -94,10 +94,9 @@ class Scheduler:
             # Insert task into PE's bucket sorted by laxity (smallest to largest)
             # Smaller laxity = less slack = higher priority
             insert_index = 0
-            while insert_index < len(fwd_nodes[task.PE_Family]) and task.laxity > (fwd_nodes[task.PE_Family][insert_index].laxity):
+            while insert_index < len(fwd_nodes[task.PE_Family]) and task.laxity >= (fwd_nodes[task.PE_Family][insert_index].laxity):
                 insert_index += 1
             fwd_nodes[task.PE_Family].insert(insert_index, task)
-        print("LAXITY", task.laxity)
 
         # Phase 2: Schedule tasks, forwarding to idle PEs when feasible
         for family in common.TypeManager.get_all_families():
@@ -112,15 +111,13 @@ class Scheduler:
                 task = fwd_nodes[family].pop(0)
                 try_forward = num_forwards < idle_PEs
                 can_forward = False
+                #print("LAXITY", task.laxity)
+
                 # Find insertion point in this PE's executable queue based on laxity
                 # Insert after tasks with lower or equal laxity
-                insert_index = 0
-                for exec_task in common.executable[family]:
-                    if task.laxity >= exec_task.laxity:
-                        insert_index += 1
-                    else:
-                        break
-
+                insert_index = num_forwards
+                while insert_index < len(common.executable[family]) and task.laxity >= common.executable[family][insert_index].laxity:
+                    insert_index += 1
 
                 if try_forward:
                     for task_iter in common.executable[family][:insert_index]:
@@ -128,9 +125,12 @@ class Scheduler:
                         if laxity > 0:
                             can_forward = task_iter.laxity >= task.runtime
                             break
+                    if len(common.executable[family]) == 0 or insert_index == 0:
+                        can_forward = True
             
                 # if we are forwarding
                 if can_forward:
+                    #print("FORWARDING", task.ID)
                     new_insert_index = 0
                     task.isForwarded = True
                     common.results.num_RELIEF_forwards += 1
@@ -143,7 +143,7 @@ class Scheduler:
                     insert_index = new_insert_index
                 common.executable[family].insert(insert_index, task)
 
-        
+                #print("Inserted", insert_index)
         # now that they are scheduled (put into the execution queue), we need to delete them from the ready list
         rm = []
         for task in list_of_ready:
@@ -282,20 +282,18 @@ class Scheduler:
         @param list_of_ready: List of tasks ready to be scheduled
         '''
 
-        fwd_nodes = [[] for _ in range(len(self.PEs))]
-
         for task in list_of_ready:
-            self.find_best_PE(task,fwd_nodes)
+            self.find_best_PE(task,None)
 
             task.laxity = task.sd - task.runtime # use SD to calculate laxity
-            print("1) TASK LAXITY", task.ID,  task.laxity)
+            #print("1) TASK LAXITY", task.ID,  task.laxity, task.sd, task.runtime)
 
             insert_index = 0
             while insert_index < len(common.executable[task.PE_Family]) and task.laxity >= common.executable[task.PE_Family][insert_index].laxity:
                 insert_index += 1
-            print("INSERT AT", insert_index)
-            for x in common.executable[task.PE_Family]:
-                print("TASK LAX", x.ID, x.laxity)
+            #print("INSERT AT", insert_index)
+            #for x in common.executable[task.PE_Family]:
+            #    print("TASK LAX", x.ID, x.laxity)
             common.executable[task.PE_Family].insert(insert_index, task)
             
         

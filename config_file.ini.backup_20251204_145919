@@ -1,13 +1,13 @@
 [DEFAULT]
-resource_file = SoC.i1_g1_cv1_h1_e1_c1_el4.txt
+resource_file = SoC.i1_g1_cv1_h1_e1_c1_el1.txt
 job_file = job_canny.txt,job_deblur.txt,job_gru.txt,job_harris.txt,job_lstm.txt
 job_probabilities = []
-job_list = [[0,0,2,0,2]]
+job_list = [[0,1,1,1,1]]
 inject_fixed_num_jobs = no
 max_jobs = 100
 simulation_length = 100
 clock = 1
-scheduler = FCFS
+scheduler = RELIEF
 inject_jobs_asap = yes
 fixed_injection_rate = no
 max_jobs_in_parallel = 4

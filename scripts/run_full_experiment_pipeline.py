@@ -33,8 +33,6 @@ import argparse
 
 BANDWIDTHS = [5280, 8000, 16000]
 EXPERIMENT_SCRIPT = "run_experiment_sweep.py"
-ARBITRATION_SWEEP_SCRIPT = "run_arbitration_sweep.py"
-COMM_ARBITRATION_SWEEP_SCRIPT = "run_comm_arbitration_sweep.py"
 GRAPHING_DIR = "../graphing"
 MEMORY_SAT_SCRIPT = "script_memory_saturation.py"
 RESOURCE_SCALE_SCRIPT = "script_resource_scaling.py"
@@ -246,86 +244,6 @@ def run_all_experiments(bandwidths):
         print(f"  Failed: {', '.join(map(str, failed))} MHz")
 
     return results
-
-
-def run_arbitration_sweep():
-    """
-    Run arbitration type sweep experiments.
-
-    Returns:
-        True if successful, False otherwise
-    """
-    print_header("STEP 1: Running Arbitration Type Sweep")
-    print_section("Running Arbitration Type Sweep Experiment")
-
-    cmd = ["python3", ARBITRATION_SWEEP_SCRIPT]
-    description = "DS3 arbitration type sweep (min, min_coloc, random, exectime) at 5280 MHz"
-
-    # This sweep runs many experiments - allow 60 minute timeout
-    success = run_command(cmd, description, timeout=3600)
-
-    if success:
-        # Verify output files were created
-        arbitration_types = ['min', 'min_coloc', 'random', 'exectime']
-        print_section("Verifying Arbitration Sweep Results")
-
-        all_found = True
-        for arb_type in arbitration_types:
-            output_file = f"../results_final/experiment_results_RELIEF_NoCrit_{arb_type}_5280.csv"
-            if os.path.exists(output_file):
-                size = os.path.getsize(output_file)
-                lines = 0
-                with open(output_file, 'r') as f:
-                    lines = sum(1 for _ in f)
-                print(f"[VERIFY] {arb_type}: {output_file}")
-                print(f"[VERIFY]   File size: {size} bytes, {lines} lines")
-            else:
-                print(f"[ERROR] Expected output file not found: {output_file}")
-                all_found = False
-
-        success = all_found
-
-    return success
-
-
-def run_comm_arbitration_sweep():
-    """
-    Run COMM arbitration type sweep experiments.
-
-    Returns:
-        True if successful, False otherwise
-    """
-    print_header("Running COMM Arbitration Type Sweep")
-    print_section("Running COMM Arbitration Type Sweep Experiment")
-
-    cmd = ["python3", COMM_ARBITRATION_SWEEP_SCRIPT]
-    description = "DS3 COMM arbitration type sweep (min, min_coloc, random, exectime) at 5280 MHz"
-
-    # This sweep runs many experiments - allow 60 minute timeout
-    success = run_command(cmd, description, timeout=3600)
-
-    if success:
-        # Verify output files were created
-        arbitration_types = ['min', 'min_coloc', 'random', 'exectime']
-        print_section("Verifying COMM Arbitration Sweep Results")
-
-        all_found = True
-        for arb_type in arbitration_types:
-            output_file = f"../results_final/experiment_results_COMM_NoCrit_{arb_type}_5280.csv"
-            if os.path.exists(output_file):
-                size = os.path.getsize(output_file)
-                lines = 0
-                with open(output_file, 'r') as f:
-                    lines = sum(1 for _ in f)
-                print(f"[VERIFY] {arb_type}: {output_file}")
-                print(f"[VERIFY]   File size: {size} bytes, {lines} lines")
-            else:
-                print(f"[ERROR] Expected output file not found: {output_file}")
-                all_found = False
-
-        success = all_found
-
-    return success
 
 
 # ============================================================================
@@ -548,35 +466,6 @@ def main():
                     if user_input.lower() != 'y':
                         print("[ABORT] User aborted pipeline")
                         return 1
-
-        # Run arbitration sweep (RELIEF)
-        if run_arbitration:
-            arb_success = run_arbitration_sweep()
-
-            if not arb_success:
-                print("\n[WARNING] RELIEF arbitration sweep failed!")
-                if run_comm_arbitration:
-                    user_input = input("Continue with COMM arbitration sweep? (y/n): ")
-                    if user_input.lower() != 'y':
-                        print("[ABORT] User aborted pipeline")
-                        return 1
-                else:
-                    user_input = input("Continue with graph generation? (y/n): ")
-                    if user_input.lower() != 'y':
-                        print("[ABORT] User aborted pipeline")
-                        return 1
-
-        # Run COMM arbitration sweep
-        if run_comm_arbitration:
-            comm_success = run_comm_arbitration_sweep()
-
-            if not comm_success:
-                print("\n[WARNING] COMM arbitration sweep failed!")
-                user_input = input("Continue with graph generation? (y/n): ")
-                if user_input.lower() != 'y':
-                    print("[ABORT] User aborted pipeline")
-                    return 1
-
     # Generate graphs
     graph_success = generate_all_graphs()
 

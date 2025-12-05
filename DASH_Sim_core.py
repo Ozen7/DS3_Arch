@@ -338,16 +338,15 @@ class SimulationManager:
                         # this function also sets the task's timestamp
                         P.task = executable_task
                         executable_task.PE_ID = P.ID
+                        #print("ID",P.ID)
+                        #print("TID",P.task.ID)
                         # remove it from the executable queue
                         common.executable[family].remove(executable_task)
-                        
-                        out = P.allocate_scratchpad(f"{executable_task.ID}_output",executable_task.output_packet_size*common.packet_size,executable_task.ID)                 # allocate room in the scratchpad for the output of this task.
-                        out2 = False
-                        if out == True:
-                            out2 = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
+
+                        out = common.calculate_memory_movement_latency(self,executable_task,executable_task.PE_ID,True)
 
                             
-                        if out == False or out2 == False:
+                        if out == False:
                             P.allocating = True
                             continue
 

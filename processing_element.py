@@ -348,43 +348,44 @@ class PE:
         Free scratchpad space by removing data.
         @param data_id: Identifier for the data to remove
         '''
-        if data_id in self.scratchpad:
-            
-            # Decide whether or not to write back task output to memory when removing it
-            writeback = False
-            for predecessor in self.scratchpad[data_id]['dependencies']:
-                if predecessor.start_time == -1:
-                    writeback = writeback or True
-                else:
-                    writeback = False
 
-                # cannot evict if the data is actively being transferred or it is one of the current values we need as input/output
-                for active_transfer in common.active_noc_transfers:
-                    if data_id in active_transfer['data_IDs']:
-                        self.scratchpad[data_id]['timestamp'] = self.env.now
-                        # we return to avoid evicting
-                        return
-            if data_id == f"{self.task.ID}_output" or data_id == f"{self.task.ID}_input":
+        
+        # Decide whether or not to write back task output to memory when removing it
+        writeback = False
+        for predecessor in self.scratchpad[data_id]['dependencies']:
+            if predecessor.start_time == -1:
+                writeback = writeback or True
+            else:
+                writeback = False
+
+            # cannot evict if the data is actively being transferred or it is one of the current values we need as input/output
+            for active_transfer in common.active_noc_transfers:
+                if data_id in active_transfer['data_IDs']:
+                    self.scratchpad[data_id]['timestamp'] = self.env.now
+                    # we return to avoid evicting
+                    return
+        if data_id == f"{self.task.ID}_output" or data_id == f"{self.task.ID}_input":
+            self.scratchpad[data_id]['timestamp'] = self.env.now
+            return
+        
+        for d in self.dependencies:
+            if data_id == f"{d}_output":
                 self.scratchpad[data_id]['timestamp'] = self.env.now
                 return
-            
-            for d in self.dependencies:
-                if data_id == f"{d}_output":
-                     self.scratchpad[data_id]['timestamp'] = self.env.now
 
-                        
-            
-            size = self.scratchpad[data_id]['size']
-            del self.scratchpad[data_id]
-            self.scratchpad_used -= size
+                    
+        
+        size = self.scratchpad[data_id]['size']
+        del self.scratchpad[data_id]
+        self.scratchpad_used -= size
 
 
-            if writeback:
-                self.simManager.writeback_handler(data_id, size, self) #writes values back to memory.
+        if writeback:
+            self.simManager.writeback_handler(data_id, size, self) #writes values back to memory.
 
-            if common.DEBUG_SIM:
-                print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
-                    % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
+        if common.DEBUG_SIM:
+            print('[D] Time %d: PE-%d freed %d bytes (%s) in scratchpad (used: %d/%d)'
+                % (self.env.now, self.ID, size, data_id, self.scratchpad_used, self.scratchpad_capacity))
 
     def get_scratchpad_available(self):
         '''!

@@ -1,18 +1,18 @@
 [DEFAULT]
-resource_file = SoC.i1_g1_cv1_h1_e1_c1_el4.txt
+resource_file = SoC.i3_g3_cv3_h3_e3_c3_el3.txt
 job_file = job_canny.txt,job_deblur.txt,job_gru.txt,job_harris.txt,job_lstm.txt
 job_probabilities = []
 job_list = [[0,0,2,0,2]]
-inject_fixed_num_jobs = yes
-max_jobs = 1
-simulation_length = 100000
+inject_fixed_num_jobs = no
+max_jobs = 100
+simulation_length = 100
 clock = 1
 scheduler = HetSched
-inject_jobs_asap = no
+inject_jobs_asap = yes
 fixed_injection_rate = no
-max_jobs_in_parallel = 16
+max_jobs_in_parallel = 4
 random_seed = 1
-standard_deviation = 0.0
+standard_deviation = 0.1
 arbitration_type = exectime
 
 [TRACE]
@@ -54,15 +54,15 @@ simulation_mode = performance
 scale = 1
 warmup_period = 0
 num_of_iterations = 1
-scale_values = 100
+scale_values = 1
 
 [COMMUNICATION MODE]
 packet_size = 1
 communication_mode = forwarding
 
 [DEBUG]
-debug_config = yes
-debug_sim = yes
+debug_config = no
+debug_sim = no
 debug_job = no
 debug_sch = no
 
